@@ -1,0 +1,25 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Marcus Garcia
+
+The non-software contents of this repository — the coding protocol and codebook
+(`protocol/`), the sampling frame, and the coded data and results released with
+the paper — are licensed under the Creative Commons Attribution 4.0
+International License.
+
+You are free to share and adapt this material for any purpose, including
+commercially, provided you give appropriate credit, link to the license, and
+indicate if changes were made.
+
+Full licence text: https://creativecommons.org/licenses/by/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by/4.0/
+
+Software in this repository (`index.html`, `api/`, `analysis/`) is licensed
+separately under the MIT License — see LICENSE.
+
+NOTE ON QUOTED MATERIAL: the coded data includes short verbatim quotations from
+platform privacy policies, terms of service and related documents. Those
+quotations remain the property of their respective rights holders and are
+reproduced here for purposes of research, quotation and criticism. The CC BY
+licence covers this project's own coding, annotation, structure and analysis —
+not the underlying quoted texts.

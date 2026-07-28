@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this material, please cite it as below."
+title: "Experimented On Without Consent: disclosure audit of DSA-designated platforms"
+abstract: >-
+  Replication materials for a census-based disclosure audit of the 26 services
+  designated by the European Commission as Very Large Online Platforms or Very
+  Large Online Search Engines under the Digital Services Act, examining what
+  those services disclose to users about behavioural experimentation and in
+  which documentary register that disclosure appears.
+type: software
+authors:
+  - family-names: Garcia
+    given-names: Marcus
+    affiliation: "Programa de Pós-Graduação em Ciência de Dados, Universidade Federal do Paraná"
+repository-code: "https://github.com/mrcsvg/experimented-without-consent"
+license: MIT
+license-url: "https://github.com/mrcsvg/experimented-without-consent/blob/main/LICENSE"
+version: "0.1.0"
+date-released: "2026-07-27"
+keywords:
+  - research ethics
+  - A/B testing
+  - online experimentation
+  - informed consent
+  - Digital Services Act
+  - disclosure audit
+  - platform governance
+  - GDPR

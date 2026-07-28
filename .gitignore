@@ -1,0 +1,7 @@
+.DS_Store
+.vercel
+node_modules/
+*.log
+
+# Exports locais do instrumento — o dado canônico vive no branch coder2-data.
+coded-data-coder2*.json
