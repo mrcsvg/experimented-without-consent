@@ -5,3 +5,4 @@ node_modules/
 
 # Exports locais do instrumento — o dado canônico vive no branch coder2-data.
 coded-data-coder2*.json
+.env*.local
