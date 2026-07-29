@@ -519,8 +519,26 @@ function srcLine(s){ return s==="glosa"
   ? `<span class="hpsrc">glosa do instrumento — este conectivo não consta do codebook</span>`
   : `<span class="hpsrc">codebook v2 · ${esc(s)}</span>`; }
 
+/* O `title` carrega o texto da ajuda em texto plano, não só o rótulo: é a
+   descrição acessível do botão, o tooltip nativo no hover, e o fallback em
+   navegador sem `popover`. Sem isso, quem usa leitor de tela não alcança as
+   regras — e elas são a razão de o botão existir. */
+function helpText(hk){
+  const d = document.createElement("div");
+  d.innerHTML = helpHTML(hk);
+  /* textContent cru cola termo e definição ("noneNenhum controle."); a escada
+     só é legível — falada ou em tooltip — com pontuação explícita. O † vira
+     "(glosa)" em palavras, e a nota de rodapé que o explicava sai. */
+  d.querySelectorAll("sup").forEach(e => e.replaceWith(" (glosa)"));
+  d.querySelectorAll(".glosanote").forEach(e => e.remove());
+  d.querySelectorAll("h4").forEach(e => e.append(" — "));
+  d.querySelectorAll("dt").forEach(e => e.append(": "));
+  d.querySelectorAll("dd").forEach(e => e.append(" · "));
+  d.querySelectorAll("p").forEach(e => e.append(" "));
+  return (d.textContent || "").replace(/\s+/g," ").replace(/\s+:/g,":").trim();
+}
 function hbtn(hk,lbl){ return `<button type="button" class="ihelp" data-hk="${esc(hk)}"` +
-  ` aria-label="${esc(lbl)}" title="${esc(lbl)}">ⓘ</button>`; }
+  ` aria-expanded="false" aria-label="${esc(lbl)}" title="${esc(helpText(hk))}">ⓘ</button>`; }
 /* ⓘ de campo só existe onde o codebook tem o que dizer sobre o campo inteiro */
 function helpBtn(key){ return FIELDHELP[key] ? hbtn("f:"+key, "Ajuda: "+FIELDHELP[key].title) : ""; }
 /* ⓘ de valor só existe onde o codebook glosa aquele valor — ver regra de fidelidade */
@@ -584,11 +602,15 @@ function hpNode(){
   return hpEl;
 }
 function closeHelp(){
+  document.querySelectorAll('.ihelp[aria-expanded="true"]')
+    .forEach(b=>b.setAttribute("aria-expanded","false"));
   if(!hpEl) return;
   if(HAS_POPOVER){ try{ hpEl.hidePopover() }catch(e){} } else hpEl.hidden = true;
 }
 function openHelp(btn){
   const html = helpHTML(btn.dataset.hk); if(!html) return;
+  closeHelp();
+  btn.setAttribute("aria-expanded","true");
   const el = hpNode();
   el.innerHTML = html;
   if(HAS_POPOVER){ try{ el.hidePopover() }catch(e){} el.showPopover(); } else el.hidden = false;
