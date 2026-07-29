@@ -119,6 +119,48 @@ table.cb{border-collapse:collapse;width:100%;font-size:13.5px}
 table.cb th,table.cb td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
 table.cb th{background:var(--hover);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
 .tablewrap{overflow-x:auto}
+
+/* ---- ajuda contextual: popover + critério expansível ---- */
+.ihelp{border:0;background:none;color:var(--muted);padding:0 1px;line-height:1;
+  font-size:13.5px;border-radius:50%;flex:none}
+.ihelp:hover{color:var(--accent)}
+.f>label .ihelp{font-size:12.5px;margin-left:3px;text-transform:none}
+.vcard>h3 .ihelp{font-size:14px}
+.opts .opt{display:flex;gap:3px;align-items:center}
+.opts .opt label{display:flex;gap:6px;align-items:center;font-size:14px}
+[popover].hp, .hp{margin:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:8px;padding:12px 14px;max-width:min(380px,calc(100vw - 24px));
+  box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:13.5px;line-height:1.5;overflow:visible}
+[popover].hp::backdrop{background:transparent}
+.hp h4{font-size:13px;margin:0 0 7px;font-family:inherit;font-weight:700}
+.hp p{margin:.4em 0}
+.hp dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 10px}
+.hp dt{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;
+  color:var(--accent);white-space:nowrap;padding-top:1px}
+.hp dd{margin:0}
+.hp .hpsrc{display:block;margin-top:10px;padding-top:7px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:11.5px}
+.hp .glosanote{color:var(--muted);font-size:11.5px;margin-top:8px}
+.hp dt sup{color:var(--nonbinding)}
+.selhint{color:var(--muted);font-size:12.5px;margin-top:1px}
+.selhint b{color:var(--ink);font-weight:600}
+details.crit{margin-top:12px;border-top:1px solid var(--line);padding-top:9px}
+details.crit>summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600;
+  list-style:none;letter-spacing:.02em}
+details.crit>summary:hover{color:var(--accent)}
+details.crit>summary::-webkit-details-marker{display:none}
+details.crit>summary::before{content:"▸ "}
+details.crit[open]>summary::before{content:"▾ "}
+details.crit .critbody{font-size:13.5px;padding:9px 0 2px;max-width:80ch}
+details.crit .critbody p{margin:.55em 0}
+details.crit .critbody ul{margin:.5em 0;padding-left:1.15em}
+details.crit .critbody li{margin:.3em 0}
+.anchors{margin:.7em 0 0;padding-top:.6em;border-top:1px dashed var(--line)}
+.anchors .ahead{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.anchors ul{list-style:none;margin:.35em 0 0;padding:0}
+.anchors li{margin:.25em 0}
+.suppressed{border-left:3px solid var(--nonbinding);background:var(--hover);
+  padding:7px 11px;border-radius:0 5px 5px 0;color:var(--muted);font-size:12.5px;margin:.35em 0}
 </style>
 
 <header class="app">
@@ -169,45 +211,89 @@ table.cb th{background:var(--hover);font-size:12px;letter-spacing:.04em;text-tra
 
 <!-- ============ CODEBOOK ============ -->
 <section id="tab-codebook" class="prose" hidden>
-  <h2>Codebook v2 — referência completa</h2>
-  <p class="sub" style="color:var(--muted)">Congelado em 04/jul/2026, pós-piloto (Meta, Google Search, Amazon). Unidade de análise = o serviço designado (Google Search ≠ Google Play ≠ YouTube). Evidência primeiro, sempre.</p>
+  <h2>Codebook v2 — o instrumento congelado</h2>
+  <p style="color:var(--muted)">Congelado em <b>2026-07-04</b>, pós-piloto (Meta, Google Search, Amazon), com sign-off do autor. Nenhuma regra aqui é nova: é a v2, por extenso. Idêntico a <code>protocol/codebook-v2.md</code> no repositório.</p>
+  <p><b>Pergunta da auditoria:</b> o que cada serviço divulga, <i>ao usuário</i>, sobre experimentação comportamental (testes A/B e afins) — e em que registro documental?</p>
 
-  <h3>V1 — Reconhecimento de experimentação (0–3) + registro</h3>
+  <h2>1. Regras gerais (valem para todas as variáveis)</h2>
+
+  <p><b>Unidade de análise = o serviço designado</b>, não o provedor. Google Search, Google Play, Google Maps, Google Shopping e YouTube são cinco linhas distintas; Facebook e Instagram, duas. Em plataformas multi-app com redações divergentes, codificar pelo conjunto documental primário do serviço designado e registrar a variância em Notes.</p>
+
+  <div class="note blue"><b>Conjunto autoritativo = documentos vinculantes</b> voltados à UE: política de privacidade/notice, termos/condições de uso, aviso de cookies e anexo/tabela de bases legais (quando existir). Páginas de ajuda, blogs de engenharia, PR e sites corporativos de pesquisa são <b>registro não-vinculante</b>: entram na codificação (V1/V9 os capturam), mas <i>nunca</i> como se fossem o contrato.</div>
+
+  <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o "How Search Works" do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>
+
+  <p><b>Evidência primeiro.</b> Todo código que afirma presença exige <b>citação verbatim + documento + URL</b>. Todo código de ausência exige o <b>log de busca por palavra-chave</b> (§3) demonstrando a busca. Célula sem evidência é célula não codificada.</p>
+
+  <p><b>Datação por documento.</b> Registrar data de vigência (<i>effective date</i>) e data de acesso <b>de cada documento</b>, não uma data por plataforma.</p>
+
+  <div class="note"><b>Ausência tem dois sabores.</b> "No" substantivo (o documento trata do tema e nega/omite o mecanismo) é diferente de "não endereçado no registro" (o tema nunca é contemplado). Na dúvida, registre "No" e anote a distinção em Notes — não dá para distinguir "considerado e rejeitado" de "nunca pensado" só pelo texto.</div>
+
+  <h2>2. As 9 variáveis</h2>
+
+  <h3>V1 — Reconhecimento de experimentação (escada 0–3) + registro</h3>
   <div class="tablewrap"><table class="cb">
-    <tr><th>Código</th><th>Critério</th></tr>
-    <tr><td><b>0</b></td><td>Nenhum reconhecimento, nem de "melhorar"</td></tr>
-    <tr><td><b>1</b></td><td>Só "melhorar/aprimorar o serviço"; nem "testar"</td></tr>
-    <tr><td><b>2</b></td><td>Reconhece <b>testar usuários</b>, método não nomeado</td></tr>
-    <tr><td><b>3</b></td><td>Nomeia <b>experimento / A-B / randomização</b> explicitamente</td></tr>
+    <tr><th>Código</th><th>Critério</th><th>Âncora do piloto</th></tr>
+    <tr><td><b>0</b></td><td>Nenhum reconhecimento, nem de "melhorar"</td><td>—</td></tr>
+    <tr><td><b>1</b></td><td>Só linguagem de "melhorar/aprimorar o serviço"; nem "testar"</td><td>Amazon (vinculante)</td></tr>
+    <tr><td><b>2</b></td><td>Reconhece <b>testar usuários</b>, mas não nomeia o método</td><td>Meta ("testing and troubleshooting new features")</td></tr>
+    <tr><td><b>3</b></td><td>Nomeia <b>experimento / teste A/B / randomização</b> explicitamente</td><td>Google ("700,000 experiments")</td></tr>
   </table></div>
-  <p>Codifique o <b>teto</b> (nível mais alto em qualquer registro) e <b>onde ele vive</b> (binding / non-binding / both). Fronteira 2→3: menção a variantes, grupos, aleatorização ou "experiments" em sentido experimental = 3. "Free trial" de assinatura <b>não</b> é experimentação.</p>
+  <p>Codificar o <b>nível de teto</b> (o mais alto encontrado em qualquer registro) <b>e</b> <code>v1_register</code>: onde esse teto vive — <span class="reg-binding">binding</span> / <span class="reg-nonbinding">non-binding</span> / both. O achado central do estudo mora nessa combinação (ex.: v1=3 + register=non-binding significa "admite experimentar, mas só fora do contrato"). Registre também, em Notes, o nível do registro vinculante sozinho quando diferir do teto.</p>
+  <p><b>Regra de fronteira (nível 2 vs 3):</b> "test new features" sem menção a grupos/variantes/aleatorização = 2. Qualquer menção a A/B, variantes servidas a usuários distintos, grupos de controle ou "experiments" em sentido experimental = 3. "Trial" de assinatura/período grátis <b>não</b> é experimentação (falso positivo comum).</p>
 
   <h3>V2 — Enquadramento (multi-seleção)</h3>
-  <p><code>service improvement</code> · <code>research</code> (genérica) · <code>human-subjects research</code> · <code>social-good/community</code>. Marque todos que aparecem, com citação para cada. Co-ocorrência é comum.</p>
+  <p>Valores: <code>service improvement</code> · <code>research</code> (genérica) · <code>human-subjects research</code> · <code>social-good/community</code> · outro (anotar). Marcar <b>todos</b> que aparecem, com citação para cada. Co-ocorrência é comum ("research that improves our services" = os dois primeiros). <code>social-good/community</code> captura linguagem de "bem-estar da comunidade" (âncora: Instagram) — ecoa a justificativa do estudo de contágio emocional de 2014.</p>
 
   <h3>V3 — Especificidade (decomposta)</h3>
-  <p><b>V3a</b> nomeia atividades/superfícies? · <b>V3b</b> nomeia <i>alvos</i> de experimento (ranking, preço, mensagem, afeto, fricção…)? Personalização descrita como feature ≠ alvo de experimento. · <b>V3c</b> divulga experimento específico/ativo? · <b>V3-pricing</b> preço nomeado como alvo? Cláusula de "mispricing" <b>não</b> conta.</p>
+  <ul>
+    <li><b>V3a</b> — nomeia atividades/superfícies testadas? (Y/N) (ex.: "features", "layout", "ranking")</li>
+    <li><b>V3b</b> — nomeia <b>alvos</b> de experimento? (lista aberta: ranking, preço, mensagem/copy, afeto/emoção, fricção, defaults…) Distinguir alvo <i>de experimento</i> de mera personalização declarada (recomendação algorítmica descrita como feature ≠ alvo de experimento).</li>
+    <li><b>V3c</b> — divulga algum experimento <b>específico/ativo</b>? (Y/N)</li>
+    <li><b>V3-pricing</b> — flag dedicada: <b>preço/personalização de preço nomeado como alvo?</b> (Y/N). Cláusula de "erro de precificação" (<i>mispricing</i>) <b>não</b> conta. Se preço aparecer só em registro não-vinculante, marcar Y e anotar o registro em Notes — a flag não tem campo próprio de registro na v2 (limitação conhecida; candidata a v3).</li>
+  </ul>
 
-  <h3>V4 — Base legal (multi-seleção)</h3>
-  <p><code>legitimate interest</code> · <code>consent</code> · <code>contract</code> · <code>not stated</code> (não declarada para experimentação; inferida da cláusula de melhoria). Registre também <b>qual finalidade</b> você mapeou como cobrindo experimentação, e se a tabela de bases é <b>geo-gated</b> (ou não-verificável da sua vantagem).</p>
+  <h3>V4 — Base legal declarada (multi-seleção)</h3>
+  <p>Valores: <code>legitimate interest</code> · <code>consent</code> · <code>contract</code> · <code>not stated</code> (= não declarada <b>para experimentação</b>; inferida da cláusula de melhoria). Registrar também:</p>
+  <ul>
+    <li><code>v4_mapped_purpose</code>: <b>qual finalidade declarada</b> você mapeou como cobrindo experimentação (ex.: "improve services");</li>
+    <li><code>v4_region_gated</code> (Y/N): a tabela de bases por finalidade só carrega de IP/locale da UE?</li>
+  </ul>
+  <div class="note"><b>Atenção de vantagem.</b> O segundo avaliador deve ler <b>os documentos do manifesto</b> (mesmas URLs e datas da 1ª passada). Se um link estiver morto ou o conteúdo visivelmente mudado, <b>registrar e pular o campo</b> — não substituir por versão diferente do documento (isso criaria divergência espúria).</div>
 
   <h3>V5 — Opt-out de experimentação (escada)</h3>
-  <p><code>none</code> → <code>GDPR-objection-only</code> (só Art. 21 genérico) → <code>cookie/ads-only</code> (banner rege ads/medição, não experimentos) → <code>dedicated</code> → <code>opt-in</code>. <b>Escopo estrito à experimentação</b> — controle de cookies de analytics não conta.</p>
+  <p><code>none</code> → <code>GDPR-objection-only</code> (só o direito genérico de objeção do Art. 21, sem controle específico de experimento) → <code>cookie/ads-only</code> (banner existe, mas governa ads/medição, não experimentação) → <code>dedicated</code> (opt-out específico de experimentação) → <code>opt-in</code>.</p>
+  <p><b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento. Falso positivo clássico: banner de consentimento parece opt-out mas rege publicidade.</p>
 
-  <h3>V6 — Opt-in beta/teste</h3>
-  <p>Y/N + nome (TestFlight, Search Labs…). <b>Eixo ortogonal: não mitiga o V5.</b></p>
+  <h3>V6 — Programa opt-in de beta/teste (Y/N + nome)</h3>
+  <p>TestFlight, Search Labs, canais beta etc. <b>Eixo ortogonal</b>: inscreve voluntários em acesso antecipado a features; <b>não mitiga o V5</b> — os demais usuários continuam nos experimentos de rotina. Nunca somar V6 com V5.</p>
 
-  <h3>V7 — Debriefing</h3>
-  <p>Aviso <i>posterior</i> de participação em experimento. <b>Excluir:</b> aviso de processamento, de decisão automatizada, de mudança de serviço — nenhum é debriefing.</p>
+  <h3>V7 — Debriefing (Y/N)</h3>
+  <p>Aviso <i>posterior</i> de que a pessoa participou de um experimento. <b>Excluir explicitamente</b> (falsos positivos vistos no piloto): aviso de processamento, aviso de decisão automatizada, aviso de mudança de serviço. Nenhum deles é debriefing.</p>
 
-  <h3>V8 — Ética / revisão / risco</h3>
-  <p>Menção, nos documentos ao usuário, a revisão ética, board ou avaliação de risco <b>para experimentos</b>. Linguagem borderline de "impacto" = N com nota. Risk assessment sistêmico do DSA (regulador) não vira Y — anote como gap regulatório-vs-documento.</p>
+  <h3>V8 — Ética / revisão / avaliação de risco (Y/N + nota)</h3>
+  <p>Menção, nos documentos ao usuário, a revisão ética, comitê/board, ou avaliação de risco <b>para experimentos</b>. Linguagem borderline de "impacto" (ex.: "impact on you and others" atada a descontinuação de serviço) = N com nota. Avaliações de risco sistêmico do DSA existem por obrigação regulatória, mas se não estão nos documentos ao consumidor, <b>não viram Y</b> — registrar como nota de gap regulatório-vs-documento.</p>
 
-  <h3>V9 — Onde divulgado + registro</h3>
-  <p>Locais (privacy policy, ToS, research notice, help, blog/PR…) + registro (binding / non-binding / both). Separe registro legal de hospedagem/URL.</p>
+  <h3>V9 — Onde divulgado (multi-seleção) + registro</h3>
+  <p>Locais: <code>privacy policy</code> · <code>ToS/conditions</code> · <code>research notice separado</code> · <code>help centre</code> · <code>blog/PR/site de pesquisa</code> · outro. E <code>v9_register</code>: <span class="reg-binding">binding</span> / <span class="reg-nonbinding">non-binding</span> / both. Separar (de novo) registro legal de URL/hosting.</p>
 
-  <h3>Protocolo de palavras-chave (por documento)</h3>
-  <p>Buscar e registrar hits de: <code>experiment</code> <code>A/B</code> <code>randomi[sz]e</code> <code>test</code> <code>trial</code> <code>beta</code> <code>control group</code> <code>debrief</code> <code>ethics</code> <code>review board</code> <code>IRB</code> <code>risk assessment</code>. Triagem manual: "test" acende em "contest", "trial" em "free trial" — conte só o sentido experimental e anote exclusões. É o log que torna cada "No" auditável.</p>
+  <h2>3. Protocolo de busca por palavra-chave (obrigatório por documento)</h2>
+  <p>Para <b>cada documento</b> do conjunto, buscar e registrar contagem de hits de:</p>
+  <div class="kwchips"><code>experiment</code> <code>A/B</code> <code>randomi[sz]e</code> <code>test</code> <code>trial</code> <code>beta</code> <code>control group</code> <code>debrief</code> <code>ethics</code> <code>review board</code> <code>IRB</code> <code>risk assessment</code></div>
+  <p>Formato do log: <code>experiment:0 / A-B:0 / test:3 (PP); experiment:8 (help)</code>. Hits precisam de triagem manual — "test" acende em "contest", "trial" em "free trial" (contar só usos no sentido experimental, anotar exclusões). <b>É esse log que torna cada "No" auditável</b>: a alegação de ausência vem acompanhada da prova de que se procurou.</p>
+
+  <h2>4. Instruções específicas do segundo avaliador</h2>
+  <ol>
+    <li><b>Cegueira operacional.</b> Codifique <b>a partir dos documentos</b>, sem consultar os códigos da 1ª passada (<code>coded-data.json</code>, <code>coding-results.md</code> e a seção 4.3 do paper contêm resultados — não os abra durante a codificação). Sabemos que os achados-título já lhe foram comunicados; isso será declarado na seção de confiabilidade. O que pedimos é que cada célula saia do texto do documento, não da memória do resultado.</li>
+    <li><b>Volume a seu critério.</b> O instrumento aceita qualquer N. Siga a <b>ordem sugerida</b> (estratificada por gênero de plataforma, sorteada com semente fixa <code>20260722</code>) e pare onde quiser — a ordem garante que qualquer prefixo é uma amostra defensável, com todos os gêneros representados desde o início.</li>
+    <li><b>Dúvida de regra ≠ dúvida de julgamento.</b> Se uma regra do codebook parecer ambígua, anote a dúvida em Notes e codifique mesmo assim (sua melhor leitura). A discussão acontece na adjudicação — <i>depois</i> do cálculo de concordância, nunca antes.</li>
+    <li><b>Ferramenta.</b> Esta página traz o codebook embutido, os links dos documentos por serviço, os campos das 9 variáveis e exporta um JSON no esquema exato da 1ª passada. Alternativa: a aba "Coding" de <code>coding-template-v2.xlsx</code> (colunas I–AH), ignorando as linhas preenchidas.</li>
+  </ol>
+
+  <h2>5. O que acontece com o resultado</h2>
+  <p>Concordância calculada por variável (<code>compute-agreement.py</code>): <b>percentual de concordância + tabela de contingência</b> nas variáveis degeneradas ou quase (V7 e V8 não variaram na 1ª passada; V5 variou minimamente), <b>κ de Cohen</b> nas que variam, <b>κ ponderado</b> na V1 (ordinal). Depois do cálculo — e só depois — adjudicação conjunta das divergências, com registro de decisão e racional; regras esclarecidas voltam para o codebook como notas de v2.1, sem tocar códigos já lançados sem trilha.</p>
+
+  <div class="note"><b>Por que a aba de Codificação omite algumas âncoras.</b> As âncoras nominais acima (Amazon, Meta, Google, Instagram) valem como calibração e por isso estão aqui, íntegras. Nos cards de codificação, porém, a âncora que nomeia o serviço aberto na tela é omitida, com aviso: consultar a referência é uma escolha sua; ter a resposta no campo de visão durante a decisão, não.</div>
 </section>
 
 <!-- ============ CODIFICAÇÃO ============ -->
@@ -234,6 +320,122 @@ const WHERE = ["privacy policy","ToS/conditions","research notice separado","hel
 const REG = ["","binding","non-binding","both"];
 const YN = ["","Yes","No"];
 const V5 = ["","none","GDPR-objection-only","cookie/ads-only","dedicated","opt-in"];
+
+/* ============================================================================
+   AJUDA CONTEXTUAL — transcrição de protocol/codebook-v2.md (congelado 04/jul).
+
+   REGRA DE FIDELIDADE: nada aqui é regra nova. Onde a v2 é vaga, a ajuda é
+   vaga — a vagueza é dado a ser medido pelo κ, não defeito a corrigir no meio
+   da coleta. Valor de opção que o codebook não glosa NÃO ganha verbete:
+   preferir a ausência de ajuda à fabricação de uma definição.
+
+   O segundo elemento de cada verbete é a PROCEDÊNCIA, renderizada no rodapé do
+   popover. "glosa" marca conectivo editorial, não transcrição — é o que se
+   audita primeiro ao procurar drift em relação ao instrumento congelado.
+   ========================================================================== */
+const VALHELP = {
+  "v1_code:0": ["Nenhum reconhecimento, nem de “melhorar”.", "§2 · V1"],
+  "v1_code:1": ["Só linguagem de “melhorar/aprimorar o serviço”; nem “testar”.", "§2 · V1"],
+  "v1_code:2": ["Reconhece testar usuários, mas não nomeia o método.", "§2 · V1"],
+  "v1_code:3": ["Nomeia experimento / teste A/B / randomização explicitamente.", "§2 · V1"],
+
+  "v1_register:binding":     ["Política de privacidade/notice, termos/condições de uso, aviso de cookies e anexo/tabela de bases legais. O conjunto autoritativo.", "§1"],
+  "v1_register:non-binding": ["Páginas de ajuda, blogs de engenharia, PR e sites corporativos de pesquisa. Entram na codificação, mas nunca como se fossem o contrato.", "§1"],
+  "v1_register:both":        ["O teto aparece nos dois registros.", "glosa"],
+
+  "v2_framing:research":              ["Pesquisa em sentido genérico.", "§2 · V2"],
+  "v2_framing:social-good/community": ["Captura linguagem de “bem-estar da comunidade”. Ecoa a justificativa do estudo de contágio emocional de 2014.", "§2 · V2"],
+
+  "v4_basis:not stated": ["Não declarada <b>para experimentação</b>; inferida da cláusula de melhoria.", "§2 · V4"],
+
+  "v4_region_gated:Yes": ["A tabela de bases por finalidade só carrega de IP/locale da UE.", "§2 · V4"],
+  "v4_region_gated:No":  ["A tabela carrega normalmente da sua vantagem de captura.", "glosa"],
+  "v4_region_gated:not-verifiable (vantage)": ["Não deu para verificar da sua vantagem — <b>diferente de “No”</b>. É excluído do pareamento no cálculo de concordância.", "instruções §4 · compute-agreement.py"],
+
+  "v5_optout:none":                ["Nenhum controle.", "glosa"],
+  "v5_optout:GDPR-objection-only": ["Só o direito genérico de objeção do Art. 21, sem controle específico de experimento.", "§2 · V5"],
+  "v5_optout:cookie/ads-only":     ["Banner existe, mas governa ads/medição, não experimentação.", "§2 · V5"],
+  "v5_optout:dedicated":           ["Opt-out específico de experimentação.", "§2 · V5"],
+  "v5_optout:opt-in":              ["Participação só por adesão.", "glosa"]
+};
+/* v9_register compartilha as definições de registro do §1 */
+["binding","non-binding","both"].forEach(v=>{
+  VALHELP["v9_register:"+v] = VALHELP["v1_register:"+v];
+});
+
+/* Popover de campo: a escada inteira de uma vez. O que confunde em V1 e V5 não
+   é cada degrau isolado, é a ordem entre eles. */
+const FIELDHELP = {
+  v1_code:         {title:"V1 — escada de reconhecimento", opts:["0","1","2","3"],
+                    note:"Codifique o nível de <b>teto</b>: o mais alto encontrado em qualquer registro.", src:"§2 · V1"},
+  v1_register:     {title:"Onde o teto vive", opts:REG, src:"§1"},
+  v9_register:     {title:"Registro agregado", opts:REG, src:"§1"},
+  v2_framing:      {title:"V2 — enquadramentos", opts:FRAMING,
+                    note:"Marcar <b>todos</b> que aparecem, com citação para cada. Co-ocorrência é comum: “research that improves our services” = os dois primeiros.", src:"§2 · V2"},
+  v4_basis:        {title:"V4 — bases legais", opts:BASIS, src:"§2 · V4"},
+  v4_region_gated: {title:"Tabela de bases geo-gated?", opts:["Yes","No","not-verifiable (vantage)"], src:"§2 · V4"},
+  v5_optout:       {title:"V5 — escada de opt-out", opts:V5,
+                    note:"<b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento.", src:"§2 · V5"},
+  v9_where:        {title:"V9 — onde divulgado",
+                    note:"Separar registro legal de URL/hosting.", src:"§2 · V9"}
+};
+
+/* Âncoras do piloto. Suprimidas quando nomeiam o serviço em tela — ver
+   docs de design: o .md é público, então o avaliador as alcança de qualquer
+   modo; o que a supressão evita é a ferramenta exibir a resposta no momento e
+   no lugar da decisão. A omissão é sempre anunciada, nunca silenciosa. */
+const META_SVC   = ["Facebook","Instagram","WhatsApp"];
+const GOOGLE_SVC = ["Google Search","Google Play","Google Maps","Google Shopping","YouTube"];
+const ANCHORS = {
+  v1: [
+    {svc:["Amazon Store"], html:"<b>1</b> — Amazon, no registro vinculante"},
+    {svc:META_SVC,   html:"<b>2</b> — Meta (“testing and troubleshooting new features”)"},
+    {svc:GOOGLE_SVC, html:"<b>3</b> — Google (“700,000 experiments”)"}
+  ],
+  v2: [
+    {svc:["Instagram","Facebook"], html:"<code>social-good/community</code> — Instagram (“bem-estar da comunidade”)"}
+  ]
+};
+
+/* Critério completo por variável (§2 do codebook v2, por extenso). */
+const CRIT = {
+  v1: {sum:"Critério completo + fronteira 2↔3", html:`
+    <p><b>Escada.</b> <code>0</code> nenhum reconhecimento, nem de “melhorar” · <code>1</code> só linguagem de “melhorar/aprimorar o serviço”; nem “testar” · <code>2</code> reconhece testar usuários, mas não nomeia o método · <code>3</code> nomeia experimento / teste A/B / randomização explicitamente.</p>
+    <p><b>Regra de fronteira (2 vs 3):</b> “test new features” sem menção a grupos/variantes/aleatorização = <b>2</b>. Qualquer menção a A/B, variantes servidas a usuários distintos, grupos de controle ou “experiments” em sentido experimental = <b>3</b>. <b>“Trial” de assinatura/período grátis não é experimentação</b> — falso positivo comum.</p>
+    <p>Codifique o nível de <b>teto</b> (o mais alto em qualquer registro) <b>e</b> onde esse teto vive. O achado central do estudo mora nessa combinação: teto 3 em registro não-vinculante significa “admite experimentar, mas só fora do contrato”. Registre em Notes o nível do registro vinculante sozinho quando ele diferir do teto.</p>`},
+  v2: {sum:"Critério completo", html:`
+    <p>Marcar <b>todos</b> os enquadramentos que aparecem, com citação para cada. Co-ocorrência é comum: “research that improves our services” = <code>service improvement</code> + <code>research</code>.</p>
+    <p><code>social-good/community</code> captura linguagem de “bem-estar da comunidade” — ecoa a justificativa do estudo de contágio emocional de 2014.</p>`},
+  v3: {sum:"Critério completo + falsos positivos", html:`
+    <ul>
+      <li><b>V3a</b> — nomeia atividades/superfícies testadas? (ex.: “features”, “layout”, “ranking”)</li>
+      <li><b>V3b</b> — nomeia <b>alvos</b> de experimento? Lista aberta: ranking, preço, mensagem/copy, afeto/emoção, fricção, defaults… <b>Distinguir alvo de experimento de mera personalização declarada:</b> recomendação algorítmica descrita como feature ≠ alvo de experimento.</li>
+      <li><b>V3c</b> — divulga algum experimento <b>específico/ativo</b>?</li>
+      <li><b>V3-pricing</b> — preço/personalização de preço nomeado como alvo? Cláusula de <b>erro de precificação (mispricing) não conta</b>. Se preço aparecer só em registro não-vinculante, marcar Yes e anotar o registro em Notes — a flag não tem campo próprio de registro na v2 (limitação conhecida, candidata a v3).</li>
+    </ul>`},
+  v4: {sum:"Critério completo + regra de link morto", html:`
+    <p>Multi-seleção. <code>not stated</code> = não declarada <b>para experimentação</b>; inferida da cláusula de melhoria.</p>
+    <p>Registrar também <b>qual finalidade declarada</b> você mapeou como cobrindo experimentação (ex.: “improve services”), e se a tabela de bases por finalidade só carrega de IP/locale da UE.</p>
+    <p><b>Atenção de vantagem:</b> leia os documentos do manifesto — mesmas URLs e datas da 1ª passada. Link morto ou conteúdo visivelmente mudado: <b>registrar e pular o campo</b>. Não substituir por versão diferente do documento; isso criaria divergência espúria.</p>`},
+  v5: {sum:"Critério completo + falso positivo clássico", html:`
+    <p><b>Escada:</b> <code>none</code> → <code>GDPR-objection-only</code> (só o direito genérico de objeção do Art. 21, sem controle específico de experimento) → <code>cookie/ads-only</code> (banner existe, mas governa ads/medição, não experimentação) → <code>dedicated</code> (opt-out específico de experimentação) → <code>opt-in</code>.</p>
+    <p><b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento. <b>Falso positivo clássico:</b> banner de consentimento parece opt-out mas rege publicidade.</p>`},
+  v6: {sum:"Critério completo", html:`
+    <p>TestFlight, Search Labs, canais beta etc.</p>
+    <p><b>Eixo ortogonal.</b> Inscreve voluntários em acesso antecipado a features; <b>não mitiga o V5</b> — os demais usuários continuam nos experimentos de rotina. <b>Nunca somar V6 com V5.</b></p>`},
+  v7: {sum:"Critério completo + falsos positivos", html:`
+    <p>Aviso <i>posterior</i> de que a pessoa participou de um experimento.</p>
+    <p><b>Excluir explicitamente</b> (falsos positivos vistos no piloto): aviso de processamento; aviso de decisão automatizada; aviso de mudança de serviço. Nenhum deles é debriefing.</p>
+    <p><b>Ausência tem dois sabores.</b> “No” substantivo — o documento trata do tema e nega/omite o mecanismo — é diferente de “não endereçado no registro”, em que o tema nunca é contemplado. Na dúvida, registre “No” e anote a distinção em Notes: não dá para distinguir “considerado e rejeitado” de “nunca pensado” só pelo texto.</p>`},
+  v8: {sum:"Critério completo + borderlines", html:`
+    <p>Menção, nos documentos ao usuário, a revisão ética, comitê/board, ou avaliação de risco <b>para experimentos</b>.</p>
+    <p>Linguagem borderline de “impacto” (ex.: “impact on you and others” atada a descontinuação de serviço) = <b>No com nota</b>.</p>
+    <p>Avaliações de risco sistêmico do DSA existem por obrigação regulatória, mas se não estão nos documentos ao consumidor <b>não viram Yes</b> — registrar como nota de gap regulatório-vs-documento.</p>
+    <p><b>Ausência tem dois sabores</b> — mesma regra do V7.</p>`},
+  v9: {sum:"Critério completo + registro ≠ hospedagem", html:`
+    <p>Multi-seleção de locais + registro agregado.</p>
+    <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o “How Search Works” do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>`}
+};
 
 let current = DATA.order[0];
 
@@ -305,6 +507,107 @@ function esc(t){ return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;"
 function linkify(t){ return esc(t).replace(/https?:\/\/[^\s;,)]+/g,
   u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`) }
 
+/* ---------- ajuda contextual ----------
+   Estado de UI (details aberto/fechado) numa chave FORA dos registros por
+   serviço: `_ui` não está em DATA.order, então nem o export nem o Sync o
+   enxergam, e o JSON entregue continua sendo só codificação. */
+const UIK = LSK("_ui");
+function uiGet(){ try{ return JSON.parse(localStorage.getItem(UIK)) || {} }catch(e){ return {} } }
+function uiPut(k,v){ const o = uiGet(); o[k]=v; localStorage.setItem(UIK, JSON.stringify(o)); }
+
+function srcLine(s){ return s==="glosa"
+  ? `<span class="hpsrc">glosa do instrumento — este conectivo não consta do codebook</span>`
+  : `<span class="hpsrc">codebook v2 · ${esc(s)}</span>`; }
+
+function hbtn(hk,lbl){ return `<button type="button" class="ihelp" data-hk="${esc(hk)}"` +
+  ` aria-label="${esc(lbl)}" title="${esc(lbl)}">ⓘ</button>`; }
+/* ⓘ de campo só existe onde o codebook tem o que dizer sobre o campo inteiro */
+function helpBtn(key){ return FIELDHELP[key] ? hbtn("f:"+key, "Ajuda: "+FIELDHELP[key].title) : ""; }
+/* ⓘ de valor só existe onde o codebook glosa aquele valor — ver regra de fidelidade */
+function valHelpBtn(key,v){ return VALHELP[key+":"+v] ? hbtn("v:"+key+":"+v, "Definição de "+v) : ""; }
+
+function helpHTML(hk){
+  if(hk.slice(0,2)==="f:"){
+    const k = hk.slice(2), f = FIELDHELP[k]; if(!f) return "";
+    let body = "", glosa = false;
+    if(f.opts){
+      const rows = f.opts.filter(v=>v!=="" && VALHELP[k+":"+v])
+        .map(v=>{ const e = VALHELP[k+":"+v];
+          if(e[1]==="glosa") glosa = true;
+          return `<dt>${esc(v)}${e[1]==="glosa"?"<sup>†</sup>":""}</dt><dd>${e[0]}</dd>`; }).join("");
+      if(rows) body += `<dl>${rows}</dl>`;
+      /* um degrau conectivo dentro da escada precisa se declarar: senão o leitor
+         não distingue o que é o codebook do que é a ferramenta */
+      if(glosa) body += `<p class="glosanote">† glosa do instrumento — este degrau não é glosado pelo codebook</p>`;
+    }
+    if(f.note) body += `<p>${f.note}</p>`;
+    return `<h4>${esc(f.title)}</h4>${body}${srcLine(f.src)}`;
+  }
+  const rest = hk.slice(2), e = VALHELP[rest]; if(!e) return "";
+  return `<h4>${esc(rest.slice(rest.indexOf(":")+1))}</h4><p>${e[0]}</p>${srcLine(e[1])}`;
+}
+
+/* definição do valor SELECIONADO, em linha, sem exigir clique — é a peça que
+   não depende de o avaliador ter a curiosidade de abrir o popover */
+function selHint(key,val){
+  const e = val && VALHELP[key+":"+val];
+  return e ? `<b>${esc(val)}</b> — ${e[0]}` : "";
+}
+
+function anchorsHTML(v){
+  const list = ANCHORS[v]; if(!list) return "";
+  const shown = [], hidden = [];
+  list.forEach(a => (a.svc.indexOf(current) >= 0 ? hidden : shown).push(a));
+  let h = `<div class="anchors"><div class="ahead">Âncoras do piloto</div>`;
+  if(shown.length) h += `<ul>${shown.map(a=>`<li>${a.html}</li>`).join("")}</ul>`;
+  if(hidden.length) h += `<div class="suppressed">${hidden.length>1?"Âncoras foram":"Uma âncora foi"} <b>omitida</b> aqui porque nomeia o serviço que você está codificando agora. Está na aba <b>Codebook</b>, se quiser consultá-la deliberadamente — o que o instrumento evita é pôr a resposta no seu campo de visão durante a decisão.</div>`;
+  return h + `</div>`;
+}
+
+function crit(v){
+  const c = CRIT[v]; if(!c) return "";
+  return `<details class="crit" data-crit="${v}"${uiGet()["crit_"+v]?" open":""}>` +
+    `<summary>${esc(c.sum)}</summary><div class="critbody">${c.html}${anchorsHTML(v)}</div></details>`;
+}
+
+/* popover nativo: light-dismiss, camada superior (não é cortado pelo overflow
+   da trilha) e semântica acessível de graça. Posição por JS — CSS anchor
+   positioning ainda não roda no Firefox. Sem suporte, degrada para `title`. */
+const HAS_POPOVER = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
+let hpEl = null;
+function hpNode(){
+  if(hpEl) return hpEl;
+  hpEl = document.createElement("div");
+  hpEl.className = "hp";
+  if(HAS_POPOVER) hpEl.setAttribute("popover","auto"); else hpEl.hidden = true;
+  document.body.appendChild(hpEl);
+  return hpEl;
+}
+function closeHelp(){
+  if(!hpEl) return;
+  if(HAS_POPOVER){ try{ hpEl.hidePopover() }catch(e){} } else hpEl.hidden = true;
+}
+function openHelp(btn){
+  const html = helpHTML(btn.dataset.hk); if(!html) return;
+  const el = hpNode();
+  el.innerHTML = html;
+  if(HAS_POPOVER){ try{ el.hidePopover() }catch(e){} el.showPopover(); } else el.hidden = false;
+  el.style.position = "absolute"; el.style.margin = "0";
+  const r = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+  let left = Math.max(10, Math.min(r.left, document.documentElement.clientWidth - w - 10));
+  let top  = r.bottom + 6;
+  if(top + h > window.innerHeight - 8 && r.top - h - 6 > 0) top = r.top - h - 6;
+  el.style.left = (left + window.scrollX) + "px";
+  el.style.top  = (top  + window.scrollY) + "px";
+}
+document.addEventListener("click", e=>{
+  const b = e.target.closest && e.target.closest(".ihelp");
+  if(b){ e.preventDefault(); e.stopPropagation(); openHelp(b); return; }
+  if(!HAS_POPOVER && hpEl && !hpEl.hidden && !(e.target.closest && e.target.closest(".hp"))) closeHelp();
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeHelp(); });
+window.addEventListener("resize", closeHelp);
+
 /* ---------- rail ---------- */
 function paintRail(){
   const nDone = DATA.order.filter(s=>load(s).done).length;
@@ -326,13 +629,20 @@ function paintRail(){
 function fSelect(rec,key,label,opts,extra){
   const id = "f_"+key;
   const o = opts.map(v=>`<option value="${esc(v)}" ${rec[key]===v?"selected":""}>${v===""?"—":esc(v)}</option>`).join("");
-  return `<div class="f"><label for="${id}">${label}</label>
-    <select id="${id}" data-k="${key}">${o}</select>${extra||""}</div>`;
+  /* não dá para pendurar tooltip dentro de <option> (o menu é desenhado pelo
+     SO): o ⓘ do rótulo abre a escada inteira, e a definição do valor escolhido
+     aparece em linha, logo abaixo do campo. */
+  const hinted = opts.some(v => VALHELP[key+":"+v]);
+  return `<div class="f"><label for="${id}">${label}${helpBtn(key)}</label>
+    <select id="${id}" data-k="${key}">${o}</select>
+    ${hinted?`<div class="selhint" data-hint="${key}">${selHint(key,rec[key])}</div>`:""}${extra||""}</div>`;
 }
 function fChecks(rec,key,label,opts){
   const cur = rec[key]||[];
-  return `<div class="f"><label>${label}</label><div class="opts">`+
-    opts.map(v=>`<label><input type="checkbox" data-kc="${key}" value="${esc(v)}" ${cur.includes(v)?"checked":""}> ${esc(v)}</label>`).join("")+
+  /* aqui cada valor É um elemento real, então ganha ⓘ próprio — fora do
+     <label>, para o clique na ajuda não marcar a caixa */
+  return `<div class="f"><label>${label}${helpBtn(key)}</label><div class="opts">`+
+    opts.map(v=>`<span class="opt"><label><input type="checkbox" data-kc="${key}" value="${esc(v)}" ${cur.includes(v)?"checked":""}> ${esc(v)}</label>${valHelpBtn(key,v)}</span>`).join("")+
     `</div></div>`;
 }
 function fText(rec,key,label,ph,mono,rows){
@@ -374,12 +684,14 @@ function render(){
       ${fSelect(rec,"v1_register","Registro do teto",REG)}
     </div>
     ${fText(rec,"v1_evidence","Evidência (citação verbatim + documento)","“...” — Privacy Policy, §x")}
+    ${crit("v1")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V2</span> Enquadramento</h3>
     <p class="rule">Marque <b>todos</b> que aparecem, com citação para cada. "Research that improves our services" = os dois primeiros.</p>
     ${fChecks(rec,"v2_framing","Enquadramentos presentes",FRAMING)}
     ${fText(rec,"v2_evidence","Evidência (uma citação por enquadramento)")}
+    ${crit("v2")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V3</span> Especificidade</h3>
@@ -391,6 +703,7 @@ function render(){
       ${fLine(rec,"v3_targets","V3b — alvos nomeados","ranking, preço, mensagem, afeto…")}
     </div>
     ${fText(rec,"v3_evidence","Evidência")}
+    ${crit("v3")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V4</span> Base legal</h3>
@@ -401,12 +714,14 @@ function render(){
       ${fSelect(rec,"v4_region_gated","Tabela de bases geo-gated?",["","Yes","No","not-verifiable (vantage)"])}
     </div>
     ${fText(rec,"v4_evidence","Evidência")}
+    ${crit("v4")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V5</span> Opt-out de experimentação</h3>
     <p class="rule">Escada. <b>Escopo estrito à experimentação</b> — banner de cookies que rege ads/medição = "cookie/ads-only", não "dedicated".</p>
     ${fSelect(rec,"v5_optout","Nível",V5)}
     ${fText(rec,"v5_evidence","Evidência")}
+    ${crit("v5")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V6</span> Opt-in beta/teste</h3>
@@ -415,18 +730,21 @@ function render(){
       ${fSelect(rec,"v6_optin_beta","Existe programa opt-in?",YN)}
       ${fLine(rec,"v6_which","Qual (nome + como funciona)","ex.: Search Labs; TestFlight")}
     </div>
+    ${crit("v6")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V7</span> Debriefing</h3>
     <p class="rule"><b>Excluir:</b> aviso de processamento, decisão automatizada, mudança de serviço — nenhum é debriefing.</p>
     ${fSelect(rec,"v7_debrief","Debriefing existe?",YN)}
     ${fText(rec,"v7_evidence","Evidência / justificativa do No (aponte o log)")}
+    ${crit("v7")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V8</span> Ética / revisão / risco</h3>
     <p class="rule">Linguagem borderline de "impacto" = No com nota. Risk assessment do DSA (regulador) não vira Yes.</p>
     ${fSelect(rec,"v8_ethics","Menção a ética/revisão/risco para experimentos?",YN)}
     ${fText(rec,"v8_note","Nota (borderlines, gap regulatório)")}
+    ${crit("v8")}
   </div>
 
   <div class="vcard"><h3><span class="vid">V9</span> Onde divulgado</h3>
@@ -434,6 +752,7 @@ function render(){
     ${fChecks(rec,"v9_where","Locais (multi)",WHERE)}
     ${fSelect(rec,"v9_register","Registro agregado",REG)}
     ${fText(rec,"v9_evidence","Evidência / observações")}
+    ${crit("v9")}
   </div>
 
   <div class="vcard"><h3><span class="vid">KW</span> Log de palavras-chave (obrigatório)</h3>
@@ -454,7 +773,14 @@ function render(){
 
   /* bind */
   p.querySelectorAll("[data-k]").forEach(el=>{
-    el.addEventListener("input", ()=>{ const r=load(current); r[el.dataset.k]=el.value; save(current,r); });
+    el.addEventListener("input", ()=>{ const r=load(current); r[el.dataset.k]=el.value; save(current,r);
+      const hint = p.querySelector(`[data-hint="${el.dataset.k}"]`);
+      if(hint) hint.innerHTML = selHint(el.dataset.k, el.value); });
+  });
+  /* estado dos critérios sobrevive à troca de serviço: quem abriu V5 uma vez
+     provavelmente quer V5 aberto nos próximos 20 */
+  p.querySelectorAll("details.crit").forEach(el=>{
+    el.addEventListener("toggle", ()=> uiPut("crit_"+el.dataset.crit, el.open));
   });
   p.querySelectorAll("[data-kc]").forEach(el=>{
     el.addEventListener("change", ()=>{ const r=load(current); const k=el.dataset.kc;

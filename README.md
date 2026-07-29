@@ -51,7 +51,22 @@ progress is saved to the browser and, where the persistence function is
 configured, committed to a data branch of this repository — which yields a
 timestamped audit trail of when each coding was entered.
 
-The instrument is deliberately **blind**: it contains no codes from pass 1.
+The instrument is deliberately **blind**: it contains no codes from pass 1. It
+does reproduce the three pilot anchors that the frozen codebook itself carries
+(`protocol/codebook-v2.md` §2) — those come from the three-platform pilot of
+2026-07-04, not from pass 1 — and the coding form **suppresses the anchor that
+names the service being coded**, showing a notice in its place. Consulting the
+reference is the coder's choice; having the answer in view during the decision
+is not.
+
+#### Instrument changes
+
+Changes to the instrument are logged here with their date, so that any change
+landing once coding is under way can be weighed in the reliability analysis.
+
+| Date | Change |
+|---|---|
+| 2026-07-28 | Contextual help added to the coding form: per-value definitions and a per-variable full criterion, transcribed from the frozen codebook; the Codebook tab now carries `protocol/codebook-v2.md` in full. Pilot-anchor suppression (above) introduced with it. No field name, option value, export key or coding rule changed. **Landed before the second pass began — no coding had been entered.** |
 
 ### Agreement analysis
 
