@@ -1,13 +1,13 @@
 // Persistência do instrumento do 2º avaliador: proxy fino para o GitHub Contents API.
-// O estado (JSON) vive versionado no branch `coder2-data` do repo do paper —
-// cada PUT vira um commit, o que dá backup, sync entre dispositivos e uma
-// trilha auditável de quando cada codificação mudou (útil pro replication package).
+// O estado (JSON) vive versionado no branch `coder2-data` DESTE repo (arquivo semeado
+// em audit/coder2-progress.json) — cada PUT vira um commit, o que dá backup, sync entre
+// dispositivos e uma trilha auditável de quando cada codificação mudou (útil pro
+// replication package).
 //
-// Env (Vercel): GITHUB_TOKEN — fine-grained PAT com Contents R/W no repo ALVO (o do paper).
-//               GH_REPO — OBRIGATÓRIO em produção: mrcsvg/ppgcd-ethics-in-digital-experimentation.
-//                 Cuidado: o default no código abaixo é ESTE repo (público), que não tem o
-//                 arquivo semeado — sem GH_REPO setado, o GET cai no fallback vazio (404).
-// Opcionais:    GH_BRANCH (default coder2-data) · GH_PATH (default audit/coder2-progress.json)
+// Env (Vercel): GITHUB_TOKEN — fine-grained PAT com Contents R/W neste repo. É o único
+//               env necessário: o default de GH_REPO abaixo já aponta para cá.
+// Opcionais:    GH_REPO (override do repo alvo) · GH_BRANCH (default coder2-data) ·
+//               GH_PATH (default audit/coder2-progress.json)
 //
 // Sem autenticação de leitura/escrita própria: a URL do app é não-listada (noindex) e
 // o alvo é um branch isolado, versionado — qualquer escrita indevida é revertível via git.
