@@ -40,6 +40,8 @@ api/state.js                    serverless persistence (GitHub Contents API)
 protocol/codebook-v2.md         the frozen instrument, in full
 protocol/sampling-frame.md      the 26 designated services + selection rule
 analysis/compute-agreement.py   inter-coder agreement
+analysis/snapshot-progress.py   progress snapshot — metadata only, never codes
+.github/workflows/              the daily snapshot job
 ```
 
 ### The coding instrument
@@ -67,6 +69,22 @@ landing once coding is under way can be weighed in the reliability analysis.
 | Date | Change |
 |---|---|
 | 2026-07-28 | Contextual help added to the coding form: per-value definitions and a per-variable full criterion, transcribed from the frozen codebook; the Codebook tab now carries `protocol/codebook-v2.md` in full. Pilot-anchor suppression (above) introduced with it. No field name, option value, export key or coding rule changed. **Landed before the second pass began — no coding had been entered.** |
+
+### Progress snapshots
+
+Every autosave from the instrument is a commit on the data branch, which records
+*when* each coding changed but says nothing about how much of the frame is done.
+A scheduled job (`.github/workflows/coding-snapshot.yml`) supplies the second
+view: once a day it measures the coded state and writes `audit/PROGRESS.md`
+plus a dated snapshot under `audit/snapshots/` on the data branch. It commits
+only when something actually changed, so the snapshot series is a record of
+progress rather than a heartbeat.
+
+What it emits is **metadata only** — per service, how many of the thirteen core
+fields and seven evidence fields are filled, whether the keyword log is present,
+and the timestamp of the last edit. It never emits a coded value: no code, no
+evidence, no keyword log, no notes. That constraint is what lets progress be
+public while the second pass is still blind and the codings are still withheld.
 
 ### Agreement analysis
 
