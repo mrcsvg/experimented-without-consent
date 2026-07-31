@@ -34,7 +34,7 @@ público). O hash é o que liga uma coisa à outra sem redistribuir o documento.
 
 Sem dependências externas: só a biblioteca padrão.
 """
-import argparse, difflib, gzip, hashlib, html, json, os, re, sys, time, zlib
+import argparse, difflib, gzip, hashlib, html, json, os, re, sys, time, zipfile, zlib
 import urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -47,6 +47,8 @@ EU_ISO = {"AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE",
           "GB","CH"}
 SPN = "https://web.archive.org/save/"
 AVAIL = "http://archive.org/wayback/available"
+# Pacote completo, servido junto do corpus para quem prefere ler sem conexão.
+ZIP_NAME = "corpus-congelado.zip"
 
 
 def now_iso():
@@ -556,6 +558,12 @@ td.n{{color:#777;text-align:right;white-space:nowrap;font-variant-numeric:tabula
 td.u a{{color:#777;font-size:12px;word-break:break-all}}
 b.m{{background:#fff3cd;color:#7a5c00;font-size:10.5px;padding:1px 5px;border-radius:3px;font-weight:600}}
 .aviso{{background:#f6f8fa;border-left:3px solid #2da44e;padding:.7rem 1rem;border-radius:0 5px 5px 0;font-size:13.5px}}
+.baixar{{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:#f6f8fa;
+  border:1px solid #d0d7de;border-radius:6px;padding:.7rem 1rem;margin:1rem 0;font-size:13.5px}}
+.baixar a{{background:#1f883d;color:#fff;text-decoration:none;font-weight:600;
+  padding:6px 14px;border-radius:6px;white-space:nowrap}}
+.baixar a:hover{{background:#1a7f37}}
+.baixar span{{color:#57606a}}
 a{{color:#0969da}}</style>
 <h1>Corpus congelado — 2º passe de codificação</h1>
 <p class="aviso"><b>Leia o arquivo, não a página.</b> Congelado em
@@ -563,6 +571,17 @@ a{{color:#0969da}}</style>
 {len(good)} documentos, {len(by)} serviços. A URL ao lado está aí como procedência,
 para a citação — abri-la hoje pode trazer outra versão do documento.
 Cada arquivo abre com um cabeçalho dizendo de onde veio, quando e como.</p>
+<div class="baixar" id="baixar" hidden>
+  <a href="{ZIP_NAME}" download>Baixar o corpus inteiro</a>
+  <span>{ZIP_NAME} · {len(good)} documentos · ZIP_MB MB — para ler sem conexão, ou
+  buscar um termo nos {len(good)} documentos de uma vez, com grep ou com a busca
+  do seu editor.</span>
+</div>
+<script>
+/* Some quando a página já está sendo lida do arquivo baixado: ali o link não
+   resolve, e oferecer download de quem já baixou é ruído. */
+if (location.protocol !== "file:") document.getElementById("baixar").hidden = false;
+</script>
 {''.join(linhas)}
 <p style="color:#777;font-size:12px;margin-top:2rem">
 <b class="m">manual</b> = página que monta por JavaScript ou recusa cliente
@@ -601,15 +620,38 @@ automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
                f"{'-'*78}\n\n")
         dst.write_text(cab + src.read_text(encoding="utf-8"), encoding="utf-8")
         n += 1
+    # Montado por último e sem se incluir. Existe para quem quer o corpus na
+    # máquina — ler offline, ou buscar um termo nos 143 documentos de uma vez,
+    # que é justamente o que o protocolo pede e a leitura documento a documento
+    # não facilita.
+    zpath = dest / ZIP_NAME
+
+    def montar_zip():
+        zpath.unlink(missing_ok=True)
+        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
+            for p in sorted(dest.rglob("*")):
+                if p.is_file() and p != zpath:
+                    z.write(p, p.relative_to(dest))
+        return zpath.stat().st_size / 1048576
+
+    # O índice anuncia o tamanho do zip, e o zip contém o índice: monta uma vez
+    # para medir, escreve o número, monta de novo. A segunda passada difere da
+    # primeira por alguns bytes — invisível na casa decimal que exibimos.
+    mb = montar_zip()
+    ipath = dest / "index.html"
+    ipath.write_text(ipath.read_text(encoding="utf-8").replace("ZIP_MB", f"{mb:.1f}"),
+                     encoding="utf-8")
+    mb = montar_zip()
+
     print(f"kit em {dest}: {n} documentos, {len(by)} serviços")
     print(f"  index.html (abrir com duplo clique) · index.json · LEIA-ME.md · text/")
+    print(f"  {ZIP_NAME} — {mb:.1f} MB, o corpus inteiro")
     missing = sorted({d["service"] for d in man["documents"]} - set(by))
     if missing:
         print(f"\n  ATENÇÃO — serviços sem nenhum documento no kit: {', '.join(missing)}")
     thin = [s for s, v in by.items() if len(v) < 2]
     if thin:
         print(f"  serviços com só 1 documento: {', '.join(thin)}")
-    print(f"\n  zipar:  cd {dest.parent} && zip -qr {dest.name}.zip {dest.name}")
     return 0
 
 
