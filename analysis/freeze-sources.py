@@ -34,7 +34,8 @@ público). O hash é o que liga uma coisa à outra sem redistribuir o documento.
 
 Sem dependências externas: só a biblioteca padrão.
 """
-import argparse, hashlib, html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, gzip, hashlib, html, json, os, re, sys, time, zlib
+import urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -52,18 +53,63 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def fetch(url, timeout=45, headers=None):
-    """GET simples. Devolve (status, bytes, headers, final_url) e não levanta em 4xx/5xx."""
-    req = urllib.request.Request(url, headers={"user-agent": UA,
-                                               "accept-language": "en-GB,en;q=0.9",
-                                               **(headers or {})})
+# Um UA de navegador com o resto dos headers faltando é assinatura de bot, e
+# vários destes serviços recusam por isso e não por bloqueio de verdade: sem
+# `accept` a Meta devolve 400 em todos os domínios e o Stripchat devolve 406,
+# que é literalmente "não sei atender esse Accept". Medido: 4 de 5 URLs que
+# falhavam passam a 200 só com o conjunto completo abaixo.
+BROWSER = {
+    "user-agent": UA,
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+              "image/avif,image/webp,*/*;q=0.8",
+    "accept-language": "en-GB,en;q=0.9",
+    "accept-encoding": "gzip, deflate",
+    "upgrade-insecure-requests": "1",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+}
+
+
+def _decode(body, enc):
+    """Pedimos gzip, então temos de desempacotar — hashear bytes comprimidos
+    daria um hash instável e um texto ilegível."""
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, r.read(), dict(r.headers), r.url
-    except urllib.error.HTTPError as e:
-        return e.code, e.read() if e.fp else b"", dict(e.headers or {}), url
-    except Exception as e:                       # DNS, TLS, timeout, reset
-        return None, str(e).encode(), {}, url
+        if enc == "gzip":
+            return gzip.decompress(body)
+        if enc == "deflate":
+            try:
+                return zlib.decompress(body)
+            except zlib.error:
+                return zlib.decompress(body, -zlib.MAX_WBITS)   # raw deflate
+    except (OSError, zlib.error):
+        pass
+    return body
+
+
+def fetch(url, timeout=45, headers=None, retries=2):
+    """GET. Devolve (status, bytes, headers, final_url) e não levanta em 4xx/5xx.
+
+    Repete em timeout e 5xx — parte das falhas do Zalando é lentidão, não recusa."""
+    req = urllib.request.Request(url, headers={**BROWSER, **(headers or {})})
+    last = (None, b"", {}, url)
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return (r.status, _decode(r.read(), (r.headers.get("Content-Encoding") or "").lower()),
+                        dict(r.headers), r.url)
+        except urllib.error.HTTPError as e:
+            hh = dict(e.headers or {})
+            body = _decode(e.read(), (hh.get("Content-Encoding") or "").lower()) if e.fp else b""
+            if e.code < 500 and e.code != 429:
+                return e.code, body, hh, url          # recusa definitiva: não insiste
+            last = (e.code, body, hh, url)
+        except Exception as e:                        # DNS, TLS, timeout, reset
+            last = (None, str(e).encode(), {}, url)
+        if attempt < retries:
+            time.sleep(2 * (attempt + 1))
+    return last
 
 
 # ---------------------------------------------------------------- vantagem
@@ -252,7 +298,12 @@ def cmd_capture(args):
         # --no-wayback primeiro (rápido, é o que destrava o coder 2) e voltar
         # depois para o Wayback, que é lento. Se o skip fosse do documento
         # inteiro, a segunda passada não arquivaria nada.
-        need_fetch = args.force or not was or was.get("error") or not was.get("sha256_text")
+        # Uma captura fina gravada por uma versão anterior tem sha e não tem erro,
+        # então precisa entrar aqui explicitamente ou ficaria congelada vazia.
+        need_fetch = (args.force or not was or was.get("error")
+                      or not was.get("sha256_text")
+                      or (was.get("capture_method") != "manual"
+                          and was.get("text_chars", 0) < args.min_text))
         need_wb = not args.no_wayback and (args.force or not (was or {}).get("wayback_url"))
         if not need_fetch and not need_wb:
             skip += 1
@@ -270,6 +321,18 @@ def cmd_capture(args):
                          content_type=hdrs.get("Content-Type"), error=None)
             if st != 200 or not body:
                 entry["error"] = f"HTTP {st}" if st else body.decode("utf-8", "replace")[:160]
+                print(f"      ! {entry['error']}")
+                fail += 1
+            elif len(extract_text(body, hdrs)) < args.min_text:
+                # 200 com corpo grande e texto quase nulo = shell renderizado por
+                # JS, que o urllib não executa. É a falha PERIGOSA: sem esta porta
+                # ela conta como sucesso e congela documento vazio em silêncio.
+                # Medido na 1ª rodada: 17 de 128 "sucessos" — Temu inteira a 0
+                # caractere, as três vinculantes da Shein a ~400 de 500KB de HTML.
+                n = len(extract_text(body, hdrs))
+                entry.update(final_url=final, http_status=st, bytes=len(body), error=None)
+                entry["error"] = (f"texto vazio ({n} ch de {len(body)}b) — provável "
+                                  f"render por JS; use `adopt` com o HTML salvo do navegador")
                 print(f"      ! {entry['error']}")
                 fail += 1
             else:
@@ -304,6 +367,80 @@ def cmd_capture(args):
 
 
 # ------------------------------------------------------------ verificação
+
+def cmd_status(args):
+    """O que está de fato congelado, por serviço — e o que só parece estar."""
+    man = json.loads((Path(args.out_dir) / "manifest.json").read_text(encoding="utf-8"))
+    docs = man["documents"]
+    by = {}
+    for d in docs:
+        s = by.setdefault(d["service"], {"ok": 0, "bad": 0, "manual": 0, "wb": 0, "urls": []})
+        # Mesma porta do `capture`, aplicada ao que já está gravado: um manifesto
+        # escrito antes dela marca as capturas finas como boas, e sem repetir o
+        # teste aqui o status herdaria a mesma mentira.
+        thin = (d.get("capture_method") != "manual"
+                and (d.get("text_chars") or 0) < args.min_text)
+        good = not d.get("error") and d.get("sha256_text") and not thin
+        s["ok" if good else "bad"] += 1
+        s["manual"] += 1 if d.get("capture_method") == "manual" else 0
+        s["wb"] += 1 if d.get("wayback_url") else 0
+        if not good:
+            why = d.get("error") or (f"texto vazio ({d.get('text_chars', 0)} ch)" if thin else "?")
+            s["urls"].append((d["url"], why[:44]))
+    print(f"congelado em {man.get('captured_at','?')[:16]} · vantagem "
+          f"{(man.get('vantage') or {}).get('country','?')}\n")
+    print(f"{'serviço':38} {'ok':>4} {'falta':>6} {'manual':>7} {'wayback':>8}")
+    print("-" * 68)
+    tot_ok = tot_bad = 0
+    for svc in sorted(by, key=lambda k: (-by[k]["bad"], k)):
+        s = by[svc]
+        tot_ok += s["ok"]; tot_bad += s["bad"]
+        flag = "  <-- SEM NENHUM" if s["ok"] == 0 else ""
+        print(f"{svc[:38]:38} {s['ok']:>4} {s['bad']:>6} {s['manual']:>7} {s['wb']:>8}{flag}")
+    print("-" * 68)
+    print(f"{'TOTAL':38} {tot_ok:>4} {tot_bad:>6}")
+    if args.detail:
+        print("\n=== pendentes ===")
+        for svc in sorted(by):
+            for u, e in by[svc]["urls"]:
+                print(f"  {svc[:20]:20} {e:46} {u[:70]}")
+    return 0
+
+
+def cmd_adopt(args):
+    """Adota no congelamento um arquivo salvo à mão pelo navegador.
+
+    Existe porque alguns serviços bloqueiam cliente automatizado de verdade —
+    o help center do X devolve 403 a qualquer combinação de headers. Um proxy
+    de renderização resolveria o acesso e estragaria a vantagem: ele busca da
+    infra dele, não da sua VPN, e justamente essas páginas variam por região.
+    Salvar pelo navegador, na VPN, é o único caminho que preserva as duas
+    coisas.
+
+    A entrada fica marcada `capture_method: "manual"` para que a diferença de
+    procedência apareça no manifesto em vez de se perder."""
+    out = Path(args.out_dir)
+    mpath = out / "manifest.json"
+    man = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
+        "captured_at": None, "vantage": None, "documents": []}
+    body = Path(args.file).read_bytes()
+    text = extract_text(body, {"Content-Type": "text/html; charset=utf-8"})
+    rel = f"text/{slug(args.service)}/manual-{slug(urllib.parse.urlsplit(args.url).path or 'root', 40)}.txt"
+    (out / rel).parent.mkdir(parents=True, exist_ok=True)
+    (out / rel).write_text(text, encoding="utf-8")
+    entry = {"service": args.service, "url": args.url, "final_url": args.url,
+             "role_hint": args.role, "http_status": None, "captured_at": now_iso(),
+             "capture_method": "manual", "manual_note": args.note,
+             "vantage_country": args.vantage, "bytes": len(body),
+             "content_type": "text/html", "error": None,
+             "sha256_raw": sha(body), "sha256_text": sha(text), "text_chars": len(text),
+             "text_path": rel, "wayback_url": None, "wayback_note": None}
+    man["documents"] = [d for d in man["documents"] if d["url"] != args.url] + [entry]
+    mpath.write_text(json.dumps(man, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"adotado  {args.service}  {len(text)} chars  sha {entry['sha256_text'][:12]}")
+    print(f"  -> {rel}")
+    return 0
+
 
 def cmd_verify(args):
     """Refetch e compara o hash do texto: o documento mudou desde o congelamento?"""
@@ -352,6 +489,9 @@ def main():
     p.add_argument("--service", help="só os serviços com este prefixo")
     p.add_argument("--limit", type=int)
     p.add_argument("--timeout", type=int, default=45)
+    p.add_argument("--min-text", type=int, default=1000,
+                   help="abaixo disto a captura é tratada como falha: um documento "
+                        "jurídico não tem 400 caracteres, é shell de JS (0 desliga)")
     p.add_argument("--keep-raw", action="store_true", help="guarda também o HTML cru")
     p.add_argument("--no-wayback", action="store_true")
     p.add_argument("--wayback-pause", type=float, default=15.0,
@@ -359,6 +499,20 @@ def main():
                         "IA_ACCESS_KEY/IA_SECRET_KEY dá para baixar bastante)")
     p.add_argument("--force", action="store_true", help="recaptura o que já está congelado")
     p.add_argument("--allow-any-vantage", action="store_true")
+
+    p = sub.add_parser("status", help="o que está de fato congelado, por serviço")
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--detail", action="store_true", help="lista as URLs pendentes")
+    p.add_argument("--min-text", type=int, default=1000)
+
+    p = sub.add_parser("adopt", help="adota um arquivo salvo à mão (para os que bloqueiam)")
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--url", required=True, help="a URL canônica que o arquivo representa")
+    p.add_argument("--file", required=True, help="o .html salvo pelo navegador")
+    p.add_argument("--service", required=True)
+    p.add_argument("--role", default="unknown", choices=["binding", "non-binding", "unknown"])
+    p.add_argument("--vantage", default=None, help="país de onde você salvou (ex.: IT)")
+    p.add_argument("--note", default="salvo pelo navegador na VPN da UE")
 
     p = sub.add_parser("verify", help="o documento mudou desde o congelamento?")
     p.add_argument("--out-dir", required=True)
@@ -372,7 +526,8 @@ def main():
         print("\nvantagem UE: " + ("SIM, pode capturar" if v["in_eu_vantage"]
                                    else "NÃO — ligue a VPN antes de capturar"))
         return 0 if v["in_eu_vantage"] else 1
-    return {"inventory": cmd_inventory, "capture": cmd_capture, "verify": cmd_verify}[a.cmd](a)
+    return {"inventory": cmd_inventory, "capture": cmd_capture, "status": cmd_status,
+            "adopt": cmd_adopt, "verify": cmd_verify}[a.cmd](a)
 
 
 if __name__ == "__main__":
