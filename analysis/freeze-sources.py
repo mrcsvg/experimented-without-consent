@@ -387,8 +387,11 @@ def cmd_status(args):
         if not good:
             why = d.get("error") or (f"texto vazio ({d.get('text_chars', 0)} ch)" if thin else "?")
             s["urls"].append((d["url"], why[:44]))
-    print(f"congelado em {man.get('captured_at','?')[:16]} · vantagem "
-          f"{(man.get('vantage') or {}).get('country','?')}\n")
+    # Um manifesto montado só por `adopt` nunca passou pelo `capture` e não tem
+    # nem carimbo nem vantagem — é um estado válido, não um erro.
+    quando = (man.get("captured_at") or "")[:16] or "só adoções manuais"
+    print(f"congelado em {quando} · vantagem "
+          f"{(man.get('vantage') or {}).get('country') or '?'}\n")
     print(f"{'serviço':38} {'ok':>4} {'falta':>6} {'manual':>7} {'wayback':>8}")
     print("-" * 68)
     tot_ok = tot_bad = 0
@@ -405,6 +408,19 @@ def cmd_status(args):
             for u, e in by[svc]["urls"]:
                 print(f"  {svc[:20]:20} {e:46} {u[:70]}")
     return 0
+
+
+FREEZE_MARK = re.compile(rb"<!--\s*FREEZE-SOURCE\s+(\S+?)\s*-->")
+
+
+def embedded_url(body):
+    """A URL que salvar-dom.js grava na 1ª linha do arquivo.
+
+    Sem isso o vínculo arquivo->documento depende do nome do arquivo, que o
+    navegador decide e o humano digita — dois lugares para errar em silêncio.
+    Adotar sob a URL errada gravaria o congelamento no documento errado."""
+    m = FREEZE_MARK.search(body[:2048])
+    return m.group(1).decode("utf-8", "replace") if m else None
 
 
 def cmd_package(args):
@@ -505,6 +521,10 @@ def cmd_adopt(args):
     man = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
         "captured_at": None, "vantage": None, "documents": []}
     body = Path(args.file).read_bytes()
+    url = args.url or embedded_url(body)
+    if not url:
+        sys.exit(f"{args.file} não traz o marcador FREEZE-SOURCE e --url não foi passado.\n"
+                 "Salve com analysis/salvar-dom.js, ou informe --url à mão.")
     if body[:8] == b"bplist00":
         sys.exit("isso é um .webarchive (formato binário da Apple), que este script não lê.\n"
                  "Salve o DOM renderizado como HTML — ver --help do adopt.")
@@ -516,17 +536,17 @@ def cmd_adopt(args):
         sys.exit(f"o arquivo rende só {len(text)} caracteres de texto ({len(body)}b de HTML).\n"
                  f"Se a página é renderizada por JS, você salvou o código-fonte e não o DOM.\n"
                  f"Ver `adopt --help`. Para forçar assim mesmo: --min-text 0")
-    rel = f"text/{slug(args.service)}/manual-{slug(urllib.parse.urlsplit(args.url).path or 'root', 40)}.txt"
+    rel = f"text/{slug(args.service)}/manual-{slug(urllib.parse.urlsplit(url).path or 'root', 40)}.txt"
     (out / rel).parent.mkdir(parents=True, exist_ok=True)
     (out / rel).write_text(text, encoding="utf-8")
-    entry = {"service": args.service, "url": args.url, "final_url": args.url,
+    entry = {"service": args.service, "url": url, "final_url": url,
              "role_hint": args.role, "http_status": None, "captured_at": now_iso(),
              "capture_method": "manual", "manual_note": args.note,
              "vantage_country": args.vantage, "bytes": len(body),
              "content_type": "text/html", "error": None,
              "sha256_raw": sha(body), "sha256_text": sha(text), "text_chars": len(text),
              "text_path": rel, "wayback_url": None, "wayback_note": None}
-    man["documents"] = [d for d in man["documents"] if d["url"] != args.url] + [entry]
+    man["documents"] = [d for d in man["documents"] if d["url"] != url] + [entry]
     mpath.write_text(json.dumps(man, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"adotado  {args.service}  {len(text)} chars  sha {entry['sha256_text'][:12]}")
     print(f"  -> {rel}")
@@ -667,7 +687,7 @@ COMO SALVAR — precisa ser o DOM RENDERIZADO, não o código-fonte.
     p.add_argument("--out-dir", required=True)
     p.add_argument("--min-text", type=int, default=1000,
                    help="rejeita arquivo com menos texto que isto (0 desliga)")
-    p.add_argument("--url", required=True, help="a URL canônica que o arquivo representa")
+    p.add_argument("--url", help="opcional: por padrão lê o marcador FREEZE-SOURCE do arquivo")
     p.add_argument("--file", required=True, help="o .html salvo pelo navegador")
     p.add_argument("--service", required=True)
     p.add_argument("--role", default="unknown", choices=["binding", "non-binding", "unknown"])
