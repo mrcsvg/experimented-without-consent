@@ -34,7 +34,7 @@ público). O hash é o que liga uma coisa à outra sem redistribuir o documento.
 
 Sem dependências externas: só a biblioteca padrão.
 """
-import argparse, gzip, hashlib, html, json, os, re, sys, time, zlib
+import argparse, difflib, gzip, hashlib, html, json, os, re, sys, time, zlib
 import urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -407,6 +407,87 @@ def cmd_status(args):
     return 0
 
 
+def cmd_package(args):
+    """Monta o kit do 2º codificador: só o corpus, nunca as codificações.
+
+    Precisa ser um artefato separado. O corpus vive no repo privado do paper,
+    que guarda as codificações da 1ª passada — dar acesso a ele ao codificador
+    quebraria a cegueira que o 2º passe existe para estabelecer. Daqui sai um
+    zip com o texto, um índice por serviço e as instruções, e nada mais."""
+    out, dest = Path(args.out_dir), Path(args.dest)
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    good = [d for d in man["documents"]
+            if d.get("text_path") and not d.get("error")
+            and (d.get("capture_method") == "manual" or (d.get("text_chars") or 0) >= args.min_text)]
+    by = {}
+    for d in good:
+        by.setdefault(d["service"], []).append(d)
+
+    idx = {"built_at": now_iso(), "frozen_at": man.get("captured_at"),
+           "vantage": (man.get("vantage") or {}).get("country"),
+           "services": {s: [{"url": d["url"], "file": d["text_path"],
+                             "chars": d["text_chars"], "sha256": d["sha256_text"],
+                             "captured_at": d["captured_at"],
+                             "manual": d.get("capture_method") == "manual"}
+                            for d in sorted(v, key=lambda x: x["url"])]
+                        for s, v in sorted(by.items())}}
+
+    readme = f"""# Corpus congelado — 2º passe de codificação
+
+Congelado em {(man.get('captured_at') or '?')[:10]}, de vantagem {idx['vantage']} (UE).
+{len(good)} documentos, {len(by)} serviços.
+
+## Por que ler daqui e não do site
+
+Os documentos das plataformas mudam sem aviso. Se os dois codificadores lerem
+versões diferentes da mesma página, a discordância entre eles deixa de ser
+discordância de codificação e vira deriva do documento, e depois não há como
+separar as duas. Ler deste corpus garante que os dois passes leram o mesmo
+texto.
+
+Há um ganho prático junto: o protocolo exige registrar, por documento, a
+contagem de cada termo da busca por palavra-chave. Em texto plano o Ctrl-F /
+Cmd-F conta certo. Na página ao vivo ele erra, porque parte do conteúdo só
+existe depois do JavaScript, ou aparece conforme você rola.
+
+## Como usar
+
+`index.json` lista, por serviço, cada documento: a URL original, o arquivo
+correspondente em `text/`, o tamanho e a data de captura. Abra o arquivo em
+qualquer editor ou navegador.
+
+Se algum documento parecer incompleto ou não corresponder à URL, **registre no
+campo "Problemas de acesso" do instrumento e não codifique o campo afetado** —
+como o protocolo já manda para link morto.
+
+## O que NÃO está aqui
+
+Nenhuma codificação, de nenhum passe. O 2º passe é cego por desenho: você
+codifica a partir do documento e do codebook, sem ver o que foi codificado
+antes.
+"""
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "index.json").write_text(json.dumps(idx, ensure_ascii=False, indent=1) + "\n",
+                                     encoding="utf-8")
+    (dest / "LEIA-ME.md").write_text(readme, encoding="utf-8")
+    n = 0
+    for d in good:
+        src, dst = out / d["text_path"], dest / d["text_path"]
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+        n += 1
+    print(f"kit em {dest}: {n} documentos, {len(by)} serviços")
+    print(f"  index.json · LEIA-ME.md · text/")
+    missing = sorted({d["service"] for d in man["documents"]} - set(by))
+    if missing:
+        print(f"\n  ATENÇÃO — serviços sem nenhum documento no kit: {', '.join(missing)}")
+    thin = [s for s, v in by.items() if len(v) < 2]
+    if thin:
+        print(f"  serviços com só 1 documento: {', '.join(thin)}")
+    print(f"\n  zipar:  cd {dest.parent} && zip -qr {dest.name}.zip {dest.name}")
+    return 0
+
+
 def cmd_adopt(args):
     """Adota no congelamento um arquivo salvo à mão pelo navegador.
 
@@ -463,22 +544,65 @@ def cmd_verify(args):
     print(f"vantagem agora: {van['country']} · congelado sob: {man.get('vantage',{}).get('country')}")
     if van["country"] != man.get("vantage", {}).get("country"):
         print("AVISO: vantagem diferente da do congelamento; diferença pode ser geo, não deriva.")
-    same = moved = err = 0
+    same = moved = err = cosm = 0
+    report = []
     for d in docs:
         st, body, hdrs, _ = fetch(d["url"], timeout=args.timeout)
         if st != 200 or not body:
             print(f"  ?  {d['service'][:20]:20} HTTP {st} {d['url'][:60]}")
             err += 1
+            report.append({**{k: d[k] for k in ("service", "url")},
+                           "verdict": "inacessível", "http_status": st})
             continue
-        h = sha(extract_text(body, hdrs))
+        new = extract_text(body, hdrs)
+        h = sha(new)
         if h == d["sha256_text"]:
             same += 1
-        else:
-            moved += 1
-            print(f"  MUDOU {d['service'][:20]:20} {d['url'][:64]}")
-            print(f"        congelado {d['sha256_text'][:12]} em {d['captured_at'][:10]}"
-                  f" -> agora {h[:12]}")
-    print(f"\nidênticos {same} · mudaram {moved} · inacessíveis {err}")
+            report.append({**{k: d[k] for k in ("service", "url")}, "verdict": "idêntico"})
+            continue
+        old = (out / d["text_path"]).read_text(encoding="utf-8") if d.get("text_path") else ""
+        # Quantas linhas mudaram importa mais que "mudou": bump de data de
+        # vigência e reescrita do parágrafo de bases legais pesam diferente na
+        # adjudicação, e o hash sozinho não distingue os dois.
+        dl = list(difflib.unified_diff(old.split("\n"), new.split("\n"),
+                                       "congelado", "agora", lineterm="", n=args.context))
+        adds = sum(1 for l in dl if l.startswith("+") and not l.startswith("+++"))
+        dels = sum(1 for l in dl if l.startswith("-") and not l.startswith("---"))
+        # Hash igual a "mudou" é brutal demais: as páginas do Booking carregam
+        # uma linha com os IDs dos testes A/B DELAS, que se reordena a cada
+        # request. Sem este corte, todo documento sai alterado em toda checagem
+        # e a medição de deriva vira ruído puro. O que importa para adjudicar é
+        # magnitude — 1 linha de mobília não é reescrita de cláusula.
+        cosmetic = max(adds, dels) <= args.noise_lines
+        moved += 0 if cosmetic else 1
+        cosm += 1 if cosmetic else 0
+        print(f"  {'ruído ' if cosmetic else 'MUDOU '} {d['service'][:20]:20} {d['url'][:62]}")
+        print(f"         {dels} linhas saíram, {adds} entraram"
+              + (" — abaixo do corte, provável mobília de página" if cosmetic else ""))
+        report.append({**{k: d[k] for k in ("service", "url")},
+                       "verdict": "ruído" if cosmetic else "mudou",
+                       "sha256_frozen": d["sha256_text"], "sha256_now": h,
+                       "frozen_at": d["captured_at"], "lines_removed": dels,
+                       "lines_added": adds})
+        if args.diff and not (cosmetic and args.only_substantive):
+            for l in dl[:args.max_diff_lines]:
+                print("        " + l[:150])
+            if len(dl) > args.max_diff_lines:
+                print(f"        … mais {len(dl)-args.max_diff_lines} linhas de diff")
+    print(f"\nidênticos {same} · ruído {cosm} (≤{args.noise_lines} linhas) "
+          f"· MUDARAM {moved} · inacessíveis {err}")
+    if moved:
+        print("os que mudaram de verdade precisam entrar na adjudicação: a discordância "
+              "\nentre passes nesses documentos pode ser deriva, não codificação.")
+    if args.report:
+        Path(args.report).write_text(json.dumps(
+            {"checked_at": now_iso(), "vantage": van,
+             "frozen_manifest_at": man.get("captured_at"),
+             "noise_threshold_lines": args.noise_lines,
+             "totals": {"identical": same, "cosmetic": cosm,
+                        "changed": moved, "unreachable": err},
+             "documents": report}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"relatório: {args.report}")
     return 0
 
 
@@ -509,6 +633,11 @@ def main():
                         "IA_ACCESS_KEY/IA_SECRET_KEY dá para baixar bastante)")
     p.add_argument("--force", action="store_true", help="recaptura o que já está congelado")
     p.add_argument("--allow-any-vantage", action="store_true")
+
+    p = sub.add_parser("package", help="monta o kit do codificador (corpus, sem codificações)")
+    p.add_argument("--out-dir", required=True, help="o diretório congelado")
+    p.add_argument("--dest", required=True, help="onde montar o kit")
+    p.add_argument("--min-text", type=int, default=1000)
 
     p = sub.add_parser("status", help="o que está de fato congelado, por serviço")
     p.add_argument("--out-dir", required=True)
@@ -549,6 +678,15 @@ COMO SALVAR — precisa ser o DOM RENDERIZADO, não o código-fonte.
     p.add_argument("--out-dir", required=True)
     p.add_argument("--limit", type=int)
     p.add_argument("--timeout", type=int, default=45)
+    p.add_argument("--diff", action="store_true", help="mostra o que mudou, não só que mudou")
+    p.add_argument("--context", type=int, default=1, help="linhas de contexto no diff")
+    p.add_argument("--max-diff-lines", type=int, default=40)
+    p.add_argument("--noise-lines", type=int, default=2,
+                   help="até quantas linhas alteradas contam como mobília de página "
+                        "e não como deriva do documento")
+    p.add_argument("--only-substantive", action="store_true",
+                   help="com --diff, omite o diff do que ficou abaixo do corte")
+    p.add_argument("--report", help="grava o veredito por documento em JSON")
 
     a = ap.parse_args()
     if a.cmd == "preflight":
@@ -558,7 +696,7 @@ COMO SALVAR — precisa ser o DOM RENDERIZADO, não o código-fonte.
                                    else "NÃO — ligue a VPN antes de capturar"))
         return 0 if v["in_eu_vantage"] else 1
     return {"inventory": cmd_inventory, "capture": cmd_capture, "status": cmd_status,
-            "adopt": cmd_adopt, "verify": cmd_verify}[a.cmd](a)
+            "package": cmd_package, "adopt": cmd_adopt, "verify": cmd_verify}[a.cmd](a)
 
 
 if __name__ == "__main__":
