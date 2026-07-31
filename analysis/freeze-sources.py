@@ -179,9 +179,20 @@ def cmd_inventory(args):
 def wayback_save(url, pause):
     """Empurra para o Save Page Now e devolve a URL do snapshot (ou None).
 
-    Anônimo o SPN é limitado e lento; 429 e 5xx são normais sob carga e não
-    são falha de captura — a trilha local já está salva quando chegamos aqui."""
-    st, _, hdrs, final = fetch(SPN + url, timeout=90)
+    Anônimo o SPN limita agressivamente: em teste, 1 de 2 capturas levou 429.
+    Para as ~167 URLs da auditoria isso é inviável — crie chaves em
+    archive.org/account/s3.php e exporte antes de rodar:
+
+        export IA_ACCESS_KEY=...  IA_SECRET_KEY=...
+
+    429 e 5xx não são falha de captura: a trilha local (a autoritativa) já
+    está salva quando chegamos aqui, e a próxima execução só tenta de novo as
+    URLs que ficaram sem `wayback_url`."""
+    hdr = {}
+    ak, sk = os.environ.get("IA_ACCESS_KEY"), os.environ.get("IA_SECRET_KEY")
+    if ak and sk:
+        hdr["authorization"] = f"LOW {ak}:{sk}"
+    st, _, hdrs, final = fetch(SPN + url, timeout=90, headers=hdr)
     time.sleep(pause)
     if st in (429, 503, 502, 504):
         return None, f"SPN {st} (limite/indisponível)"
@@ -229,52 +240,65 @@ def cmd_capture(args):
     mpath = out / "manifest.json"
     man = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
         "captured_at": None, "vantage": None, "documents": []}
-    done = {d["url"] for d in man["documents"] if not d.get("error")}
+    prev = {d["url"]: d for d in man["documents"]}
 
     man["vantage"], man["captured_at"] = van, now_iso()
-    ok = fail = skip = 0
+    ok = fail = skip = wb_ok = 0
 
     for i, doc in enumerate(inv, 1):
         url, svc = doc["url"], doc["service"]
-        if url in done and not args.force:
+        was = prev.get(url)
+        # As duas trilhas são independentes de propósito: a recomendação é rodar
+        # --no-wayback primeiro (rápido, é o que destrava o coder 2) e voltar
+        # depois para o Wayback, que é lento. Se o skip fosse do documento
+        # inteiro, a segunda passada não arquivaria nada.
+        need_fetch = args.force or not was or was.get("error") or not was.get("sha256_text")
+        need_wb = not args.no_wayback and (args.force or not (was or {}).get("wayback_url"))
+        if not need_fetch and not need_wb:
             skip += 1
             continue
         print(f"[{i}/{len(inv)}] {svc[:24]:24} {url[:70]}")
-        st, body, hdrs, final = fetch(url, timeout=args.timeout)
-        entry = {"service": svc, "url": url, "final_url": final, "role_hint": doc["role_hint"],
-                 "http_status": st, "captured_at": now_iso(),
-                 "vantage_country": van["country"], "bytes": len(body),
-                 "content_type": hdrs.get("Content-Type"), "error": None,
-                 "sha256_raw": None, "sha256_text": None, "text_chars": 0,
-                 "text_path": None, "wayback_url": None, "wayback_note": None}
+        entry = dict(was) if was else {
+            "service": svc, "url": url, "role_hint": doc["role_hint"], "error": None,
+            "sha256_raw": None, "sha256_text": None, "text_chars": 0,
+            "text_path": None, "wayback_url": None, "wayback_note": None}
 
-        if st != 200 or not body:
-            entry["error"] = f"HTTP {st}" if st else body.decode("utf-8", "replace")[:160]
-            print(f"      ! {entry['error']}")
-            fail += 1
+        if need_fetch:
+            st, body, hdrs, final = fetch(url, timeout=args.timeout)
+            entry.update(final_url=final, http_status=st, captured_at=now_iso(),
+                         vantage_country=van["country"], bytes=len(body),
+                         content_type=hdrs.get("Content-Type"), error=None)
+            if st != 200 or not body:
+                entry["error"] = f"HTTP {st}" if st else body.decode("utf-8", "replace")[:160]
+                print(f"      ! {entry['error']}")
+                fail += 1
+            else:
+                text = extract_text(body, hdrs)
+                rel = f"text/{slug(svc)}/{i:03d}-{slug(urllib.parse.urlsplit(url).path or 'root', 40)}.txt"
+                (out / rel).parent.mkdir(parents=True, exist_ok=True)
+                (out / rel).write_text(text, encoding="utf-8")
+                entry.update(sha256_raw=sha(body), sha256_text=sha(text),
+                             text_chars=len(text), text_path=rel)
+                if args.keep_raw:
+                    praw = out / rel.replace("text/", "raw/").replace(".txt", ".html")
+                    praw.parent.mkdir(parents=True, exist_ok=True)
+                    praw.write_bytes(body)
+                print(f"      ok {len(text):>7} chars  sha {entry['sha256_text'][:12]}")
+                ok += 1
         else:
-            text = extract_text(body, hdrs)
-            rel = f"text/{slug(svc)}/{i:03d}-{slug(urllib.parse.urlsplit(url).path or 'root', 40)}.txt"
-            (out / rel).parent.mkdir(parents=True, exist_ok=True)
-            (out / rel).write_text(text, encoding="utf-8")
-            entry.update(sha256_raw=sha(body), sha256_text=sha(text),
-                         text_chars=len(text), text_path=rel)
-            if args.keep_raw:
-                praw = out / rel.replace("text/", "raw/").replace(".txt", ".html")
-                praw.parent.mkdir(parents=True, exist_ok=True)
-                praw.write_bytes(body)
-            print(f"      ok {len(text):>7} chars  sha {entry['sha256_text'][:12]}")
-            ok += 1
+            print(f"      · texto já congelado ({entry['sha256_text'][:12]})")
 
-        if not args.no_wayback:
+        if need_wb:
             wb, note = wayback_save(url, args.wayback_pause)
             entry["wayback_url"], entry["wayback_note"] = wb, note
+            wb_ok += 1 if wb else 0
             print(f"      wb {wb or note}")
 
         man["documents"] = [d for d in man["documents"] if d["url"] != url] + [entry]
         mpath.write_text(json.dumps(man, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
-    print(f"\ncapturados {ok} · falhas {fail} · já congelados {skip}")
+    print(f"\ncapturados {ok} · falhas {fail} · nada a fazer {skip}"
+          + (f" · arquivados no Wayback {wb_ok}" if not args.no_wayback else ""))
     print(f"manifesto: {mpath}")
     return 0
 
@@ -330,7 +354,9 @@ def main():
     p.add_argument("--timeout", type=int, default=45)
     p.add_argument("--keep-raw", action="store_true", help="guarda também o HTML cru")
     p.add_argument("--no-wayback", action="store_true")
-    p.add_argument("--wayback-pause", type=float, default=8.0, help="s entre chamadas ao SPN")
+    p.add_argument("--wayback-pause", type=float, default=15.0,
+                   help="s entre chamadas ao SPN (anônimo precisa de folga; com "
+                        "IA_ACCESS_KEY/IA_SECRET_KEY dá para baixar bastante)")
     p.add_argument("--force", action="store_true", help="recaptura o que já está congelado")
     p.add_argument("--allow-any-vantage", action="store_true")
 
