@@ -570,6 +570,12 @@ automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
 </html>"""
 
     dest.mkdir(parents=True, exist_ok=True)
+    # O kit é entregue a terceiro: sobra de execução anterior, ou pasta que o
+    # Finder/iCloud criou resolvendo nome duplicado ("text 2", vazia, modo 700),
+    # viajaria junto e sem explicação. Limpa antes de montar.
+    for p in sorted(dest.rglob("*"), key=lambda q: -len(q.parts)):
+        if p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
     (dest / "index.json").write_text(json.dumps(idx, ensure_ascii=False, indent=1) + "\n",
                                      encoding="utf-8")
     (dest / "index.html").write_text(html, encoding="utf-8")

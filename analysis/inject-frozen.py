@@ -20,6 +20,7 @@ import argparse, json, re, sys
 from pathlib import Path
 
 MARK = re.compile(r"^const FROZEN = \{.*?\};$", re.M | re.S)
+BASE = re.compile(r'^const CORPUS_BASE = ".*?";$', re.M)
 
 
 def main():
@@ -28,6 +29,10 @@ def main():
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--html", default="index.html")
     ap.add_argument("--min-text", type=int, default=1000)
+    ap.add_argument("--base-url", default=None,
+                    help="onde o corpus é servido, ex.: https://corpus-....vercel.app/ "
+                         "— com isto o documento abre num clique; sem, o avaliador "
+                         "lê da pasta do zip. Passe '' para voltar ao modo zip.")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -49,6 +54,17 @@ def main():
     linha = "const FROZEN = " + json.dumps(frozen, ensure_ascii=False,
                                            separators=(",", ":")) + ";"
     novo = MARK.sub(lambda _: linha, html, count=1)
+
+    if a.base_url is not None:
+        if not BASE.search(novo):
+            sys.exit("não achei a linha `const CORPUS_BASE = \"...\";`")
+        # barra final obrigatória: o mapa guarda caminho relativo (text/x/y.txt),
+        # e sem ela a concatenação come o último segmento da base.
+        b = a.base_url.strip()
+        if b and not b.endswith("/"):
+            b += "/"
+        novo = BASE.sub(lambda _: f'const CORPUS_BASE = "{b}";', novo, count=1)
+        print(f"  base do corpus: {b or '(vazia — modo zip)'}")
 
     manual = sum(1 for d in man["documents"]
                  if d.get("capture_method") == "manual" and d["url"] in frozen)
