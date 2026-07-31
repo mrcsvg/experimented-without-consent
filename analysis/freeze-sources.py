@@ -468,13 +468,61 @@ existe depois do JavaScript, ou aparece conforme você rola.
 
 ## Como usar
 
-`index.json` lista, por serviço, cada documento: a URL original, o arquivo
-correspondente em `text/`, o tamanho e a data de captura. Abra o arquivo em
-qualquer editor ou navegador.
+Abra **`index.html`** (duplo clique). Ele lista os documentos por serviço, com a
+URL de origem ao lado, e clica direto no arquivo. `index.json` traz o mesmo em
+formato de dados, se preferir.
 
-Se algum documento parecer incompleto ou não corresponder à URL, **registre no
-campo "Problemas de acesso" do instrumento e não codifique o campo afetado** —
-como o protocolo já manda para link morto.
+Cada arquivo começa com um cabeçalho dizendo de onde veio:
+
+```
+==============================================================================
+FONTE      https://help.x.com/en/rules-and-policies/x-cookies
+CAPTURADO  2026-07-31T16:12:03+00:00  ·  vantagem IT
+MÉTODO     captura automatizada (HTTP)
+SHA-256    e294269a13b0…
+           (do texto abaixo da linha, sem este cabeçalho)
+------------------------------------------------------------------------------
+```
+
+## Como o texto foi extraído (e o que isso implica)
+
+O que está aqui é o **texto** do documento, não a página. A extração remove
+scripts, estilos e as marcações de HTML, desfaz as entidades (`&amp;` volta a
+ser `&`) e normaliza o espaço em branco. O que sobra é a prosa na ordem em que
+aparecia.
+
+Consequências que importam para a codificação:
+
+- **Não há formatação.** Tabelas viram linhas soltas; a tabela de bases legais
+  por finalidade, por exemplo, aparece como sequência de células. O conteúdo
+  está lá, a grade não.
+- **Não há imagens nem elementos interativos.** Se um documento comunicasse algo
+  só por imagem, isso não estaria aqui — não encontramos nenhum caso, mas se
+  desconfiar, registre.
+- **Menus, rodapés e banners de cookie entram no texto**, porque fazem parte da
+  página. Ignore-os; não são o documento.
+- Documentos marcados **manual** foram salvos pelo navegador, com a página já
+  montada, porque o site monta o conteúdo por JavaScript ou recusa acesso
+  automatizado. São equivalentes em conteúdo; a diferença de procedência fica
+  registrada porque ela existe, não porque compromete algo.
+
+Se algum documento parecer incompleto, truncado, ou não corresponder à URL do
+cabeçalho, **registre no campo "Problemas de acesso" do instrumento e não
+codifique o campo afetado** — como o protocolo já manda para link morto. É
+preferível uma célula vazia e explicada a uma célula preenchida sobre texto
+duvidoso.
+
+## Conferir que um arquivo não foi alterado
+
+O SHA-256 do cabeçalho cobre o texto abaixo dele — o cabeçalho tem 7 linhas
+mais uma em branco, então o corpo começa na linha 9:
+
+```bash
+tail -n +9 arquivo.txt | shasum -a 256
+```
+
+Deve bater com o SHA-256 do cabeçalho. Não batendo, avise: significa que o
+arquivo foi editado depois do congelamento.
 
 ## O que NÃO está aqui
 
@@ -482,18 +530,73 @@ Nenhuma codificação, de nenhum passe. O 2º passe é cego por desenho: você
 codifica a partir do documento e do codebook, sem ver o que foi codificado
 antes.
 """
+    # Índice navegável: file:// abrindo file:// funciona, então dá para clicar do
+    # índice para o documento sem servidor nenhum. Procurar arquivo em 26 pastas
+    # com nome derivado de URL seria a pior parte do trabalho dele.
+    esc = lambda s: (str(s).replace("&", "&amp;").replace("<", "&lt;")
+                     .replace(">", "&gt;").replace('"', "&quot;"))
+    linhas = []
+    for s, v in idx["services"].items():
+        linhas.append(f'<h2>{esc(s)} <small>{len(v)} doc.</small></h2><table>')
+        for d in v:
+            marca = ' <b class="m">manual</b>' if d["manual"] else ""
+            linhas.append(
+                f'<tr><td><a href="{esc(d["file"])}">{esc(d["file"].split("/")[-1])}</a>{marca}</td>'
+                f'<td class="n">{d["chars"]:,}</td>'
+                f'<td class="u"><a href="{esc(d["url"])}" target="_blank" rel="noopener">'
+                f'{esc(d["url"])}</a></td></tr>'.replace(",", "."))
+        linhas.append("</table>")
+    html = f"""<!doctype html><html lang="pt-BR"><meta charset="utf-8">
+<title>Corpus congelado — 2º passe</title><style>
+body{{font:15px/1.5 system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#1a1a1a}}
+h1{{font-size:22px;margin-bottom:.2rem}} h2{{font-size:16px;margin:1.6rem 0 .3rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}}
+h2 small{{font-weight:400;color:#777;font-size:12px}}
+table{{border-collapse:collapse;width:100%}} td{{padding:3px 8px 3px 0;vertical-align:top;font-size:13.5px}}
+td.n{{color:#777;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}}
+td.u a{{color:#777;font-size:12px;word-break:break-all}}
+b.m{{background:#fff3cd;color:#7a5c00;font-size:10.5px;padding:1px 5px;border-radius:3px;font-weight:600}}
+.aviso{{background:#f6f8fa;border-left:3px solid #2da44e;padding:.7rem 1rem;border-radius:0 5px 5px 0;font-size:13.5px}}
+a{{color:#0969da}}</style>
+<h1>Corpus congelado — 2º passe de codificação</h1>
+<p class="aviso"><b>Leia o arquivo, não a página.</b> Congelado em
+{esc((man.get('captured_at') or '?')[:10])}, de vantagem {esc(idx['vantage'])}.
+{len(good)} documentos, {len(by)} serviços. A URL ao lado está aí como procedência,
+para a citação — abri-la hoje pode trazer outra versão do documento.
+Cada arquivo abre com um cabeçalho dizendo de onde veio, quando e como.</p>
+{''.join(linhas)}
+<p style="color:#777;font-size:12px;margin-top:2rem">
+<b class="m">manual</b> = página que monta por JavaScript ou recusa cliente
+automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
+</html>"""
+
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "index.json").write_text(json.dumps(idx, ensure_ascii=False, indent=1) + "\n",
                                      encoding="utf-8")
+    (dest / "index.html").write_text(html, encoding="utf-8")
     (dest / "LEIA-ME.md").write_text(readme, encoding="utf-8")
     n = 0
     for d in good:
         src, dst = out / d["text_path"], dest / d["text_path"]
         dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+        # Cabeçalho de procedência: sem ele o avaliador abre um .txt anônimo e,
+        # para saber de que documento se trata, tem de cruzar o index.json à mão
+        # — exatamente na hora em que está em dúvida. O hash continua sendo o do
+        # corpo, e o cabeçalho diz isso, para não parecer que cobre a si mesmo.
+        modo = ("captura manual pelo navegador (a página monta por JavaScript "
+                "ou recusa cliente automatizado)" if d.get("capture_method") == "manual"
+                else "captura automatizada (HTTP)")
+        cab = (f"{'='*78}\n"
+               f"FONTE      {d['url']}\n"
+               f"CAPTURADO  {d['captured_at']}  ·  vantagem "
+               f"{d.get('vantage_country') or '?'}\n"
+               f"MÉTODO     {modo}\n"
+               f"SHA-256    {d['sha256_text']}\n"
+               f"           (do texto abaixo da linha, sem este cabeçalho)\n"
+               f"{'-'*78}\n\n")
+        dst.write_text(cab + src.read_text(encoding="utf-8"), encoding="utf-8")
         n += 1
     print(f"kit em {dest}: {n} documentos, {len(by)} serviços")
-    print(f"  index.json · LEIA-ME.md · text/")
+    print(f"  index.html (abrir com duplo clique) · index.json · LEIA-ME.md · text/")
     missing = sorted({d["service"] for d in man["documents"]} - set(by))
     if missing:
         print(f"\n  ATENÇÃO — serviços sem nenhum documento no kit: {', '.join(missing)}")
