@@ -12,6 +12,12 @@ authors:
   - family-names: Garcia
     given-names: Marcus
     affiliation: "Programa de Pós-Graduação em Ciência de Dados, Universidade Federal do Paraná"
+  - family-names: Cestari
+    given-names: Marcelo
+    affiliation: "Universidade Federal do Paraná"
+  - family-names: Maia
+    given-names: Marcelo
+    affiliation: "Universidade Federal do Paraná"
 repository-code: "https://github.com/mrcsvg/experimented-without-consent"
 license: MIT
 license-url: "https://github.com/mrcsvg/experimented-without-consent/blob/main/LICENSE"
