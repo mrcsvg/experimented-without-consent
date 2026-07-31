@@ -1,0 +1,85 @@
+# O instrumento grava em `coder2-data` a cada autosave, o que dá a trilha fina de
+# QUANDO cada codificação mudou. Este workflow dá a trilha grossa: uma vez por
+# dia, QUANTO do frame já está codificado — em metadados que podem ser lidos sem
+# quebrar a cegueira do 2º passe. Ver analysis/snapshot-progress.py.
+
+name: Snapshot do progresso de codificação
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 em Brasília. Diário; só commita se algo mudou.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# O passo de push faz rebase contra um branch que o app também escreve;
+# duas execuções simultâneas brigariam por ele à toa.
+concurrency:
+  group: coding-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (script de medição + roster do instrumento)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: Checkout coder2-data (estado codificado + destino do snapshot)
+        uses: actions/checkout@v4
+        with:
+          ref: coder2-data
+          path: data
+          fetch-depth: 0   # rebase no push precisa de histórico
+
+      - name: Medir progresso
+        id: snap
+        run: |
+          set +e
+          python3 main/analysis/snapshot-progress.py \
+            --roster main/index.html \
+            --progress data/audit/coder2-progress.json \
+            --out-dir data/audit > summary.md
+          code=$?
+          set -e
+          cat summary.md >> "$GITHUB_STEP_SUMMARY"
+          case "$code" in
+            0) echo "changed=true"  >> "$GITHUB_OUTPUT" ;;
+            3) echo "changed=false" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$code" ;;
+          esac
+
+      - name: Commitar o snapshot
+        if: steps.snap.outputs.changed == 'true'
+        working-directory: data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audit/PROGRESS.md audit/snapshots
+          if git diff --cached --quiet; then
+            echo "nada a commitar"; exit 0
+          fi
+          msg=$(python3 - <<'PY'
+          import glob, json
+          p = sorted(glob.glob("audit/snapshots/*.json"))[-1]
+          t = json.load(open(p, encoding="utf-8"))["totals"]
+          c = t["core_fields"]
+          print(f"Snapshot: {t['concluded']}/{t['services']} serviços concluídos, "
+                f"{c['filled']}/{c['expected']} campos centrais")
+          PY
+          )
+          git commit -m "$msg"
+          # O instrumento commita neste mesmo branch a cada autosave: se o head
+          # andou entre o nosso checkout e o push, rebase e tenta de novo.
+          for _ in 1 2 3; do
+            git pull --rebase --quiet origin coder2-data \
+              && git push origin HEAD:coder2-data && exit 0
+            sleep 5
+          done
+          echo "não consegui empurrar depois de 3 tentativas" >&2
+          exit 1
