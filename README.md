@@ -40,6 +40,7 @@ api/state.js                    serverless persistence (GitHub Contents API)
 protocol/codebook-v2.md         the frozen instrument, in full
 protocol/sampling-frame.md      the 26 designated services + selection rule
 analysis/compute-agreement.py   inter-coder agreement
+analysis/freeze-sources.py      capture, hash and archive the audited documents
 analysis/snapshot-progress.py   progress snapshot — metadata only, never codes
 .github/workflows/              the daily snapshot job
 ```
@@ -108,6 +109,45 @@ protocol requires per document — which any reader can re-run against the same
 documents. Kappa is reported where it is defined, weighted (linear) for the
 ordinal variable, and Jaccard plus per-category agreement for the multi-select
 variables.
+
+### Freezing the audited documents
+
+The documents this study codes are live web pages that their publishers revise
+without notice, which puts two things at risk. A reader cannot re-run the
+keyword search "against the same documents" if the documents have moved on. And
+more sharply, if the two coding passes read different versions of a page, the
+resulting disagreement is not coder disagreement — it is document drift, and
+after the fact the two are not separable, which is precisely what an agreement
+statistic must not confound.
+
+`analysis/freeze-sources.py` performs the capture:
+
+```bash
+python3 analysis/freeze-sources.py preflight                    # where am I coming from?
+python3 analysis/freeze-sources.py inventory --coded <pass1>.json --out frozen/inventory.json
+python3 analysis/freeze-sources.py capture --inventory frozen/inventory.json --out-dir frozen
+python3 analysis/freeze-sources.py verify --out-dir frozen      # has anything moved since?
+```
+
+Two tracks, because neither alone is sufficient. The **local** capture stores
+the extracted text and its SHA-256: it is authoritative, because it is taken
+from the same EU vantage the coding requires, and it is what the keyword search
+and the verbatim quotations actually run against. The **Wayback** capture is
+third-party and citable, but Save Page Now fetches from the Internet Archive's
+own infrastructure rather than through the operator's connection, so for the
+services that gate their legal-basis tables to EU traffic it necessarily
+freezes the non-EU view. It evidences that the URL existed and what it said to
+the world; it does not evidence what the coder read.
+
+The published package carries the snapshot URLs and the text hashes, not the
+captured documents. A hash lets a reader prove a document is or is not the one
+that was coded without this repository redistributing platform policies
+wholesale — which is the same line the data licence already draws around
+verbatim quotation.
+
+Because vantage decides what several of these documents even say, `capture`
+refuses to run from outside the EU/EEA unless explicitly overridden, rather
+than silently freezing the wrong view.
 
 ## What is not here yet, and why
 
