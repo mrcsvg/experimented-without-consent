@@ -424,7 +424,17 @@ def cmd_adopt(args):
     man = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
         "captured_at": None, "vantage": None, "documents": []}
     body = Path(args.file).read_bytes()
+    if body[:8] == b"bplist00":
+        sys.exit("isso é um .webarchive (formato binário da Apple), que este script não lê.\n"
+                 "Salve o DOM renderizado como HTML — ver --help do adopt.")
     text = extract_text(body, {"Content-Type": "text/html; charset=utf-8"})
+    # Mesma porta do `capture`, e aqui ela pega o erro mais provável do fluxo
+    # manual: salvar o código-fonte em vez do DOM renderizado devolve o mesmo
+    # shell vazio que motivou o adopt, e sem esta checagem entraria como bom.
+    if len(text) < args.min_text:
+        sys.exit(f"o arquivo rende só {len(text)} caracteres de texto ({len(body)}b de HTML).\n"
+                 f"Se a página é renderizada por JS, você salvou o código-fonte e não o DOM.\n"
+                 f"Ver `adopt --help`. Para forçar assim mesmo: --min-text 0")
     rel = f"text/{slug(args.service)}/manual-{slug(urllib.parse.urlsplit(args.url).path or 'root', 40)}.txt"
     (out / rel).parent.mkdir(parents=True, exist_ok=True)
     (out / rel).write_text(text, encoding="utf-8")
@@ -505,8 +515,29 @@ def main():
     p.add_argument("--detail", action="store_true", help="lista as URLs pendentes")
     p.add_argument("--min-text", type=int, default=1000)
 
-    p = sub.add_parser("adopt", help="adota um arquivo salvo à mão (para os que bloqueiam)")
+    p = sub.add_parser(
+        "adopt", help="adota um arquivo salvo à mão (para os que bloqueiam)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+COMO SALVAR — precisa ser o DOM RENDERIZADO, não o código-fonte.
+
+  Temu, Shein e afins montam a página por JS. "Salvar como / somente HTML" e
+  "Exibir código-fonte" devolvem o shell vazio, que é justamente o que o
+  `capture` já pegou. Com a VPN da UE ligada e a página aberta:
+
+    1. DevTools (⌥⌘I) > Console
+    2. copy(document.documentElement.outerHTML)
+    3. no terminal:  pbpaste > ~/Downloads/temu-tos.html
+
+  Alternativa no Chrome: ⌘S > "Página da Web, completa" (serializa o DOM
+  atual, ao contrário de "somente HTML"). No Safari, "Fonte da página" NÃO
+  serve e ".webarchive" é binário e não é lido aqui.
+
+  Confira antes de adotar:  grep -c . arquivo.html
+""")
     p.add_argument("--out-dir", required=True)
+    p.add_argument("--min-text", type=int, default=1000,
+                   help="rejeita arquivo com menos texto que isto (0 desliga)")
     p.add_argument("--url", required=True, help="a URL canônica que o arquivo representa")
     p.add_argument("--file", required=True, help="o .html salvo pelo navegador")
     p.add_argument("--service", required=True)
