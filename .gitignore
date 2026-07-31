@@ -6,3 +6,10 @@ node_modules/
 # Exports locais do instrumento — o dado canônico vive no branch coder2-data.
 coded-data-coder2*.json
 .env*.local
+
+# Capturas de freeze-sources.py: são políticas de plataforma na íntegra, e este
+# repo é público. O texto capturado fica no repo privado do paper; daqui só saem
+# a URL do snapshot e o hash. Não versionar por acidente.
+frozen/
+*.warc
+*.warc.gz
