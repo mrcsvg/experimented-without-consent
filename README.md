@@ -69,6 +69,7 @@ landing once coding is under way can be weighed in the reliability analysis.
 
 | Date | Change |
 |---|---|
+| 2026-07-31 | The document manifest now points at the frozen corpus. Where a document has a frozen copy, its URL is shown struck through as provenance and the corpus filename is shown as the thing to open; the 19 documents without one stay live links. Fixes a long-standing defect in `linkify` uncovered by the change: URLs were matched after HTML-escaping, so `&` had become `&amp;` and the pattern — which excluded `;` — truncated the URL mid-entity, breaking eight Google links. **Landed before the second pass began — no coding had been entered.** No field name, option value, export key or coding rule changed. |
 | 2026-07-28 | Contextual help added to the coding form: per-value definitions and a per-variable full criterion, transcribed from the frozen codebook; the Codebook tab now carries `protocol/codebook-v2.md` in full. Pilot-anchor suppression (above) introduced with it. No field name, option value, export key or coding rule changed. **Landed before the second pass began — no coding had been entered.** |
 
 ### Progress snapshots

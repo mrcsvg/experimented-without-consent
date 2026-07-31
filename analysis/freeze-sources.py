@@ -34,7 +34,8 @@ público). O hash é o que liga uma coisa à outra sem redistribuir o documento.
 
 Sem dependências externas: só a biblioteca padrão.
 """
-import argparse, hashlib, html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, difflib, gzip, hashlib, html, json, os, re, sys, time, zlib
+import urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -52,18 +53,63 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def fetch(url, timeout=45, headers=None):
-    """GET simples. Devolve (status, bytes, headers, final_url) e não levanta em 4xx/5xx."""
-    req = urllib.request.Request(url, headers={"user-agent": UA,
-                                               "accept-language": "en-GB,en;q=0.9",
-                                               **(headers or {})})
+# Um UA de navegador com o resto dos headers faltando é assinatura de bot, e
+# vários destes serviços recusam por isso e não por bloqueio de verdade: sem
+# `accept` a Meta devolve 400 em todos os domínios e o Stripchat devolve 406,
+# que é literalmente "não sei atender esse Accept". Medido: 4 de 5 URLs que
+# falhavam passam a 200 só com o conjunto completo abaixo.
+BROWSER = {
+    "user-agent": UA,
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+              "image/avif,image/webp,*/*;q=0.8",
+    "accept-language": "en-GB,en;q=0.9",
+    "accept-encoding": "gzip, deflate",
+    "upgrade-insecure-requests": "1",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+}
+
+
+def _decode(body, enc):
+    """Pedimos gzip, então temos de desempacotar — hashear bytes comprimidos
+    daria um hash instável e um texto ilegível."""
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, r.read(), dict(r.headers), r.url
-    except urllib.error.HTTPError as e:
-        return e.code, e.read() if e.fp else b"", dict(e.headers or {}), url
-    except Exception as e:                       # DNS, TLS, timeout, reset
-        return None, str(e).encode(), {}, url
+        if enc == "gzip":
+            return gzip.decompress(body)
+        if enc == "deflate":
+            try:
+                return zlib.decompress(body)
+            except zlib.error:
+                return zlib.decompress(body, -zlib.MAX_WBITS)   # raw deflate
+    except (OSError, zlib.error):
+        pass
+    return body
+
+
+def fetch(url, timeout=45, headers=None, retries=2):
+    """GET. Devolve (status, bytes, headers, final_url) e não levanta em 4xx/5xx.
+
+    Repete em timeout e 5xx — parte das falhas do Zalando é lentidão, não recusa."""
+    req = urllib.request.Request(url, headers={**BROWSER, **(headers or {})})
+    last = (None, b"", {}, url)
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return (r.status, _decode(r.read(), (r.headers.get("Content-Encoding") or "").lower()),
+                        dict(r.headers), r.url)
+        except urllib.error.HTTPError as e:
+            hh = dict(e.headers or {})
+            body = _decode(e.read(), (hh.get("Content-Encoding") or "").lower()) if e.fp else b""
+            if e.code < 500 and e.code != 429:
+                return e.code, body, hh, url          # recusa definitiva: não insiste
+            last = (e.code, body, hh, url)
+        except Exception as e:                        # DNS, TLS, timeout, reset
+            last = (None, str(e).encode(), {}, url)
+        if attempt < retries:
+            time.sleep(2 * (attempt + 1))
+    return last
 
 
 # ---------------------------------------------------------------- vantagem
@@ -252,7 +298,12 @@ def cmd_capture(args):
         # --no-wayback primeiro (rápido, é o que destrava o coder 2) e voltar
         # depois para o Wayback, que é lento. Se o skip fosse do documento
         # inteiro, a segunda passada não arquivaria nada.
-        need_fetch = args.force or not was or was.get("error") or not was.get("sha256_text")
+        # Uma captura fina gravada por uma versão anterior tem sha e não tem erro,
+        # então precisa entrar aqui explicitamente ou ficaria congelada vazia.
+        need_fetch = (args.force or not was or was.get("error")
+                      or not was.get("sha256_text")
+                      or (was.get("capture_method") != "manual"
+                          and was.get("text_chars", 0) < args.min_text))
         need_wb = not args.no_wayback and (args.force or not (was or {}).get("wayback_url"))
         if not need_fetch and not need_wb:
             skip += 1
@@ -270,6 +321,18 @@ def cmd_capture(args):
                          content_type=hdrs.get("Content-Type"), error=None)
             if st != 200 or not body:
                 entry["error"] = f"HTTP {st}" if st else body.decode("utf-8", "replace")[:160]
+                print(f"      ! {entry['error']}")
+                fail += 1
+            elif len(extract_text(body, hdrs)) < args.min_text:
+                # 200 com corpo grande e texto quase nulo = shell renderizado por
+                # JS, que o urllib não executa. É a falha PERIGOSA: sem esta porta
+                # ela conta como sucesso e congela documento vazio em silêncio.
+                # Medido na 1ª rodada: 17 de 128 "sucessos" — Temu inteira a 0
+                # caractere, as três vinculantes da Shein a ~400 de 500KB de HTML.
+                n = len(extract_text(body, hdrs))
+                entry.update(final_url=final, http_status=st, bytes=len(body), error=None)
+                entry["error"] = (f"texto vazio ({n} ch de {len(body)}b) — provável "
+                                  f"render por JS; use `adopt` com o HTML salvo do navegador")
                 print(f"      ! {entry['error']}")
                 fail += 1
             else:
@@ -305,6 +368,300 @@ def cmd_capture(args):
 
 # ------------------------------------------------------------ verificação
 
+def cmd_status(args):
+    """O que está de fato congelado, por serviço — e o que só parece estar."""
+    man = json.loads((Path(args.out_dir) / "manifest.json").read_text(encoding="utf-8"))
+    docs = man["documents"]
+    by = {}
+    for d in docs:
+        s = by.setdefault(d["service"], {"ok": 0, "bad": 0, "manual": 0, "wb": 0, "urls": []})
+        # Mesma porta do `capture`, aplicada ao que já está gravado: um manifesto
+        # escrito antes dela marca as capturas finas como boas, e sem repetir o
+        # teste aqui o status herdaria a mesma mentira.
+        thin = (d.get("capture_method") != "manual"
+                and (d.get("text_chars") or 0) < args.min_text)
+        good = not d.get("error") and d.get("sha256_text") and not thin
+        s["ok" if good else "bad"] += 1
+        s["manual"] += 1 if d.get("capture_method") == "manual" else 0
+        s["wb"] += 1 if d.get("wayback_url") else 0
+        if not good:
+            why = d.get("error") or (f"texto vazio ({d.get('text_chars', 0)} ch)" if thin else "?")
+            s["urls"].append((d["url"], why[:44]))
+    # Um manifesto montado só por `adopt` nunca passou pelo `capture` e não tem
+    # nem carimbo nem vantagem — é um estado válido, não um erro.
+    quando = (man.get("captured_at") or "")[:16] or "só adoções manuais"
+    print(f"congelado em {quando} · vantagem "
+          f"{(man.get('vantage') or {}).get('country') or '?'}\n")
+    print(f"{'serviço':38} {'ok':>4} {'falta':>6} {'manual':>7} {'wayback':>8}")
+    print("-" * 68)
+    tot_ok = tot_bad = 0
+    for svc in sorted(by, key=lambda k: (-by[k]["bad"], k)):
+        s = by[svc]
+        tot_ok += s["ok"]; tot_bad += s["bad"]
+        flag = "  <-- SEM NENHUM" if s["ok"] == 0 else ""
+        print(f"{svc[:38]:38} {s['ok']:>4} {s['bad']:>6} {s['manual']:>7} {s['wb']:>8}{flag}")
+    print("-" * 68)
+    print(f"{'TOTAL':38} {tot_ok:>4} {tot_bad:>6}")
+    if args.detail:
+        print("\n=== pendentes ===")
+        for svc in sorted(by):
+            for u, e in by[svc]["urls"]:
+                print(f"  {svc[:20]:20} {e:46} {u[:70]}")
+    return 0
+
+
+FREEZE_MARK = re.compile(rb"<!--\s*FREEZE-SOURCE\s+(\S+?)\s*-->")
+
+
+def embedded_url(body):
+    """A URL que salvar-dom.js grava na 1ª linha do arquivo.
+
+    Sem isso o vínculo arquivo->documento depende do nome do arquivo, que o
+    navegador decide e o humano digita — dois lugares para errar em silêncio.
+    Adotar sob a URL errada gravaria o congelamento no documento errado."""
+    m = FREEZE_MARK.search(body[:2048])
+    return m.group(1).decode("utf-8", "replace") if m else None
+
+
+def cmd_package(args):
+    """Monta o kit do 2º codificador: só o corpus, nunca as codificações.
+
+    Precisa ser um artefato separado. O corpus vive no repo privado do paper,
+    que guarda as codificações da 1ª passada — dar acesso a ele ao codificador
+    quebraria a cegueira que o 2º passe existe para estabelecer. Daqui sai um
+    zip com o texto, um índice por serviço e as instruções, e nada mais."""
+    out, dest = Path(args.out_dir), Path(args.dest)
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    good = [d for d in man["documents"]
+            if d.get("text_path") and not d.get("error")
+            and (d.get("capture_method") == "manual" or (d.get("text_chars") or 0) >= args.min_text)]
+    by = {}
+    for d in good:
+        by.setdefault(d["service"], []).append(d)
+
+    idx = {"built_at": now_iso(), "frozen_at": man.get("captured_at"),
+           "vantage": (man.get("vantage") or {}).get("country"),
+           "services": {s: [{"url": d["url"], "file": d["text_path"],
+                             "chars": d["text_chars"], "sha256": d["sha256_text"],
+                             "captured_at": d["captured_at"],
+                             "manual": d.get("capture_method") == "manual"}
+                            for d in sorted(v, key=lambda x: x["url"])]
+                        for s, v in sorted(by.items())}}
+
+    readme = f"""# Corpus congelado — 2º passe de codificação
+
+Congelado em {(man.get('captured_at') or '?')[:10]}, de vantagem {idx['vantage']} (UE).
+{len(good)} documentos, {len(by)} serviços.
+
+## Por que ler daqui e não do site
+
+Os documentos das plataformas mudam sem aviso. Se os dois codificadores lerem
+versões diferentes da mesma página, a discordância entre eles deixa de ser
+discordância de codificação e vira deriva do documento, e depois não há como
+separar as duas. Ler deste corpus garante que os dois passes leram o mesmo
+texto.
+
+Há um ganho prático junto: o protocolo exige registrar, por documento, a
+contagem de cada termo da busca por palavra-chave. Em texto plano o Ctrl-F /
+Cmd-F conta certo. Na página ao vivo ele erra, porque parte do conteúdo só
+existe depois do JavaScript, ou aparece conforme você rola.
+
+## Como usar
+
+Abra **`index.html`** (duplo clique). Ele lista os documentos por serviço, com a
+URL de origem ao lado, e clica direto no arquivo. `index.json` traz o mesmo em
+formato de dados, se preferir.
+
+Cada arquivo começa com um cabeçalho dizendo de onde veio:
+
+```
+==============================================================================
+FONTE      https://help.x.com/en/rules-and-policies/x-cookies
+CAPTURADO  2026-07-31T16:12:03+00:00  ·  vantagem IT
+MÉTODO     captura automatizada (HTTP)
+SHA-256    e294269a13b0…
+           (do texto abaixo da linha, sem este cabeçalho)
+------------------------------------------------------------------------------
+```
+
+## Como o texto foi extraído (e o que isso implica)
+
+O que está aqui é o **texto** do documento, não a página. A extração remove
+scripts, estilos e as marcações de HTML, desfaz as entidades (`&amp;` volta a
+ser `&`) e normaliza o espaço em branco. O que sobra é a prosa na ordem em que
+aparecia.
+
+Consequências que importam para a codificação:
+
+- **Não há formatação.** Tabelas viram linhas soltas; a tabela de bases legais
+  por finalidade, por exemplo, aparece como sequência de células. O conteúdo
+  está lá, a grade não.
+- **Não há imagens nem elementos interativos.** Se um documento comunicasse algo
+  só por imagem, isso não estaria aqui — não encontramos nenhum caso, mas se
+  desconfiar, registre.
+- **Menus, rodapés e banners de cookie entram no texto**, porque fazem parte da
+  página. Ignore-os; não são o documento.
+- Documentos marcados **manual** foram salvos pelo navegador, com a página já
+  montada, porque o site monta o conteúdo por JavaScript ou recusa acesso
+  automatizado. São equivalentes em conteúdo; a diferença de procedência fica
+  registrada porque ela existe, não porque compromete algo.
+
+Se algum documento parecer incompleto, truncado, ou não corresponder à URL do
+cabeçalho, **registre no campo "Problemas de acesso" do instrumento e não
+codifique o campo afetado** — como o protocolo já manda para link morto. É
+preferível uma célula vazia e explicada a uma célula preenchida sobre texto
+duvidoso.
+
+## Conferir que um arquivo não foi alterado
+
+O SHA-256 do cabeçalho cobre o texto abaixo dele — o cabeçalho tem 7 linhas
+mais uma em branco, então o corpo começa na linha 9:
+
+```bash
+tail -n +9 arquivo.txt | shasum -a 256
+```
+
+Deve bater com o SHA-256 do cabeçalho. Não batendo, avise: significa que o
+arquivo foi editado depois do congelamento.
+
+## O que NÃO está aqui
+
+Nenhuma codificação, de nenhum passe. O 2º passe é cego por desenho: você
+codifica a partir do documento e do codebook, sem ver o que foi codificado
+antes.
+"""
+    # Índice navegável: file:// abrindo file:// funciona, então dá para clicar do
+    # índice para o documento sem servidor nenhum. Procurar arquivo em 26 pastas
+    # com nome derivado de URL seria a pior parte do trabalho dele.
+    esc = lambda s: (str(s).replace("&", "&amp;").replace("<", "&lt;")
+                     .replace(">", "&gt;").replace('"', "&quot;"))
+    linhas = []
+    for s, v in idx["services"].items():
+        linhas.append(f'<h2>{esc(s)} <small>{len(v)} doc.</small></h2><table>')
+        for d in v:
+            marca = ' <b class="m">manual</b>' if d["manual"] else ""
+            linhas.append(
+                f'<tr><td><a href="{esc(d["file"])}">{esc(d["file"].split("/")[-1])}</a>{marca}</td>'
+                f'<td class="n">{d["chars"]:,}</td>'
+                f'<td class="u"><a href="{esc(d["url"])}" target="_blank" rel="noopener">'
+                f'{esc(d["url"])}</a></td></tr>'.replace(",", "."))
+        linhas.append("</table>")
+    html = f"""<!doctype html><html lang="pt-BR"><meta charset="utf-8">
+<title>Corpus congelado — 2º passe</title><style>
+body{{font:15px/1.5 system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#1a1a1a}}
+h1{{font-size:22px;margin-bottom:.2rem}} h2{{font-size:16px;margin:1.6rem 0 .3rem;border-bottom:1px solid #ddd;padding-bottom:.2rem}}
+h2 small{{font-weight:400;color:#777;font-size:12px}}
+table{{border-collapse:collapse;width:100%}} td{{padding:3px 8px 3px 0;vertical-align:top;font-size:13.5px}}
+td.n{{color:#777;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}}
+td.u a{{color:#777;font-size:12px;word-break:break-all}}
+b.m{{background:#fff3cd;color:#7a5c00;font-size:10.5px;padding:1px 5px;border-radius:3px;font-weight:600}}
+.aviso{{background:#f6f8fa;border-left:3px solid #2da44e;padding:.7rem 1rem;border-radius:0 5px 5px 0;font-size:13.5px}}
+a{{color:#0969da}}</style>
+<h1>Corpus congelado — 2º passe de codificação</h1>
+<p class="aviso"><b>Leia o arquivo, não a página.</b> Congelado em
+{esc((man.get('captured_at') or '?')[:10])}, de vantagem {esc(idx['vantage'])}.
+{len(good)} documentos, {len(by)} serviços. A URL ao lado está aí como procedência,
+para a citação — abri-la hoje pode trazer outra versão do documento.
+Cada arquivo abre com um cabeçalho dizendo de onde veio, quando e como.</p>
+{''.join(linhas)}
+<p style="color:#777;font-size:12px;margin-top:2rem">
+<b class="m">manual</b> = página que monta por JavaScript ou recusa cliente
+automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
+</html>"""
+
+    dest.mkdir(parents=True, exist_ok=True)
+    # O kit é entregue a terceiro: sobra de execução anterior, ou pasta que o
+    # Finder/iCloud criou resolvendo nome duplicado ("text 2", vazia, modo 700),
+    # viajaria junto e sem explicação. Limpa antes de montar.
+    for p in sorted(dest.rglob("*"), key=lambda q: -len(q.parts)):
+        if p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
+    (dest / "index.json").write_text(json.dumps(idx, ensure_ascii=False, indent=1) + "\n",
+                                     encoding="utf-8")
+    (dest / "index.html").write_text(html, encoding="utf-8")
+    (dest / "LEIA-ME.md").write_text(readme, encoding="utf-8")
+    n = 0
+    for d in good:
+        src, dst = out / d["text_path"], dest / d["text_path"]
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        # Cabeçalho de procedência: sem ele o avaliador abre um .txt anônimo e,
+        # para saber de que documento se trata, tem de cruzar o index.json à mão
+        # — exatamente na hora em que está em dúvida. O hash continua sendo o do
+        # corpo, e o cabeçalho diz isso, para não parecer que cobre a si mesmo.
+        modo = ("captura manual pelo navegador (a página monta por JavaScript "
+                "ou recusa cliente automatizado)" if d.get("capture_method") == "manual"
+                else "captura automatizada (HTTP)")
+        cab = (f"{'='*78}\n"
+               f"FONTE      {d['url']}\n"
+               f"CAPTURADO  {d['captured_at']}  ·  vantagem "
+               f"{d.get('vantage_country') or '?'}\n"
+               f"MÉTODO     {modo}\n"
+               f"SHA-256    {d['sha256_text']}\n"
+               f"           (do texto abaixo da linha, sem este cabeçalho)\n"
+               f"{'-'*78}\n\n")
+        dst.write_text(cab + src.read_text(encoding="utf-8"), encoding="utf-8")
+        n += 1
+    print(f"kit em {dest}: {n} documentos, {len(by)} serviços")
+    print(f"  index.html (abrir com duplo clique) · index.json · LEIA-ME.md · text/")
+    missing = sorted({d["service"] for d in man["documents"]} - set(by))
+    if missing:
+        print(f"\n  ATENÇÃO — serviços sem nenhum documento no kit: {', '.join(missing)}")
+    thin = [s for s, v in by.items() if len(v) < 2]
+    if thin:
+        print(f"  serviços com só 1 documento: {', '.join(thin)}")
+    print(f"\n  zipar:  cd {dest.parent} && zip -qr {dest.name}.zip {dest.name}")
+    return 0
+
+
+def cmd_adopt(args):
+    """Adota no congelamento um arquivo salvo à mão pelo navegador.
+
+    Existe porque alguns serviços bloqueiam cliente automatizado de verdade —
+    o help center do X devolve 403 a qualquer combinação de headers. Um proxy
+    de renderização resolveria o acesso e estragaria a vantagem: ele busca da
+    infra dele, não da sua VPN, e justamente essas páginas variam por região.
+    Salvar pelo navegador, na VPN, é o único caminho que preserva as duas
+    coisas.
+
+    A entrada fica marcada `capture_method: "manual"` para que a diferença de
+    procedência apareça no manifesto em vez de se perder."""
+    out = Path(args.out_dir)
+    mpath = out / "manifest.json"
+    man = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
+        "captured_at": None, "vantage": None, "documents": []}
+    body = Path(args.file).read_bytes()
+    url = args.url or embedded_url(body)
+    if not url:
+        sys.exit(f"{args.file} não traz o marcador FREEZE-SOURCE e --url não foi passado.\n"
+                 "Salve com analysis/salvar-dom.js, ou informe --url à mão.")
+    if body[:8] == b"bplist00":
+        sys.exit("isso é um .webarchive (formato binário da Apple), que este script não lê.\n"
+                 "Salve o DOM renderizado como HTML — ver --help do adopt.")
+    text = extract_text(body, {"Content-Type": "text/html; charset=utf-8"})
+    # Mesma porta do `capture`, e aqui ela pega o erro mais provável do fluxo
+    # manual: salvar o código-fonte em vez do DOM renderizado devolve o mesmo
+    # shell vazio que motivou o adopt, e sem esta checagem entraria como bom.
+    if len(text) < args.min_text:
+        sys.exit(f"o arquivo rende só {len(text)} caracteres de texto ({len(body)}b de HTML).\n"
+                 f"Se a página é renderizada por JS, você salvou o código-fonte e não o DOM.\n"
+                 f"Ver `adopt --help`. Para forçar assim mesmo: --min-text 0")
+    rel = f"text/{slug(args.service)}/manual-{slug(urllib.parse.urlsplit(url).path or 'root', 40)}.txt"
+    (out / rel).parent.mkdir(parents=True, exist_ok=True)
+    (out / rel).write_text(text, encoding="utf-8")
+    entry = {"service": args.service, "url": url, "final_url": url,
+             "role_hint": args.role, "http_status": None, "captured_at": now_iso(),
+             "capture_method": "manual", "manual_note": args.note,
+             "vantage_country": args.vantage, "bytes": len(body),
+             "content_type": "text/html", "error": None,
+             "sha256_raw": sha(body), "sha256_text": sha(text), "text_chars": len(text),
+             "text_path": rel, "wayback_url": None, "wayback_note": None}
+    man["documents"] = [d for d in man["documents"] if d["url"] != url] + [entry]
+    mpath.write_text(json.dumps(man, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"adotado  {args.service}  {len(text)} chars  sha {entry['sha256_text'][:12]}")
+    print(f"  -> {rel}")
+    return 0
+
+
 def cmd_verify(args):
     """Refetch e compara o hash do texto: o documento mudou desde o congelamento?"""
     out = Path(args.out_dir)
@@ -316,22 +673,65 @@ def cmd_verify(args):
     print(f"vantagem agora: {van['country']} · congelado sob: {man.get('vantage',{}).get('country')}")
     if van["country"] != man.get("vantage", {}).get("country"):
         print("AVISO: vantagem diferente da do congelamento; diferença pode ser geo, não deriva.")
-    same = moved = err = 0
+    same = moved = err = cosm = 0
+    report = []
     for d in docs:
         st, body, hdrs, _ = fetch(d["url"], timeout=args.timeout)
         if st != 200 or not body:
             print(f"  ?  {d['service'][:20]:20} HTTP {st} {d['url'][:60]}")
             err += 1
+            report.append({**{k: d[k] for k in ("service", "url")},
+                           "verdict": "inacessível", "http_status": st})
             continue
-        h = sha(extract_text(body, hdrs))
+        new = extract_text(body, hdrs)
+        h = sha(new)
         if h == d["sha256_text"]:
             same += 1
-        else:
-            moved += 1
-            print(f"  MUDOU {d['service'][:20]:20} {d['url'][:64]}")
-            print(f"        congelado {d['sha256_text'][:12]} em {d['captured_at'][:10]}"
-                  f" -> agora {h[:12]}")
-    print(f"\nidênticos {same} · mudaram {moved} · inacessíveis {err}")
+            report.append({**{k: d[k] for k in ("service", "url")}, "verdict": "idêntico"})
+            continue
+        old = (out / d["text_path"]).read_text(encoding="utf-8") if d.get("text_path") else ""
+        # Quantas linhas mudaram importa mais que "mudou": bump de data de
+        # vigência e reescrita do parágrafo de bases legais pesam diferente na
+        # adjudicação, e o hash sozinho não distingue os dois.
+        dl = list(difflib.unified_diff(old.split("\n"), new.split("\n"),
+                                       "congelado", "agora", lineterm="", n=args.context))
+        adds = sum(1 for l in dl if l.startswith("+") and not l.startswith("+++"))
+        dels = sum(1 for l in dl if l.startswith("-") and not l.startswith("---"))
+        # Hash igual a "mudou" é brutal demais: as páginas do Booking carregam
+        # uma linha com os IDs dos testes A/B DELAS, que se reordena a cada
+        # request. Sem este corte, todo documento sai alterado em toda checagem
+        # e a medição de deriva vira ruído puro. O que importa para adjudicar é
+        # magnitude — 1 linha de mobília não é reescrita de cláusula.
+        cosmetic = max(adds, dels) <= args.noise_lines
+        moved += 0 if cosmetic else 1
+        cosm += 1 if cosmetic else 0
+        print(f"  {'ruído ' if cosmetic else 'MUDOU '} {d['service'][:20]:20} {d['url'][:62]}")
+        print(f"         {dels} linhas saíram, {adds} entraram"
+              + (" — abaixo do corte, provável mobília de página" if cosmetic else ""))
+        report.append({**{k: d[k] for k in ("service", "url")},
+                       "verdict": "ruído" if cosmetic else "mudou",
+                       "sha256_frozen": d["sha256_text"], "sha256_now": h,
+                       "frozen_at": d["captured_at"], "lines_removed": dels,
+                       "lines_added": adds})
+        if args.diff and not (cosmetic and args.only_substantive):
+            for l in dl[:args.max_diff_lines]:
+                print("        " + l[:150])
+            if len(dl) > args.max_diff_lines:
+                print(f"        … mais {len(dl)-args.max_diff_lines} linhas de diff")
+    print(f"\nidênticos {same} · ruído {cosm} (≤{args.noise_lines} linhas) "
+          f"· MUDARAM {moved} · inacessíveis {err}")
+    if moved:
+        print("os que mudaram de verdade precisam entrar na adjudicação: a discordância "
+              "\nentre passes nesses documentos pode ser deriva, não codificação.")
+    if args.report:
+        Path(args.report).write_text(json.dumps(
+            {"checked_at": now_iso(), "vantage": van,
+             "frozen_manifest_at": man.get("captured_at"),
+             "noise_threshold_lines": args.noise_lines,
+             "totals": {"identical": same, "cosmetic": cosm,
+                        "changed": moved, "unreachable": err},
+             "documents": report}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"relatório: {args.report}")
     return 0
 
 
@@ -352,6 +752,9 @@ def main():
     p.add_argument("--service", help="só os serviços com este prefixo")
     p.add_argument("--limit", type=int)
     p.add_argument("--timeout", type=int, default=45)
+    p.add_argument("--min-text", type=int, default=1000,
+                   help="abaixo disto a captura é tratada como falha: um documento "
+                        "jurídico não tem 400 caracteres, é shell de JS (0 desliga)")
     p.add_argument("--keep-raw", action="store_true", help="guarda também o HTML cru")
     p.add_argument("--no-wayback", action="store_true")
     p.add_argument("--wayback-pause", type=float, default=15.0,
@@ -360,10 +763,59 @@ def main():
     p.add_argument("--force", action="store_true", help="recaptura o que já está congelado")
     p.add_argument("--allow-any-vantage", action="store_true")
 
+    p = sub.add_parser("package", help="monta o kit do codificador (corpus, sem codificações)")
+    p.add_argument("--out-dir", required=True, help="o diretório congelado")
+    p.add_argument("--dest", required=True, help="onde montar o kit")
+    p.add_argument("--min-text", type=int, default=1000)
+
+    p = sub.add_parser("status", help="o que está de fato congelado, por serviço")
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--detail", action="store_true", help="lista as URLs pendentes")
+    p.add_argument("--min-text", type=int, default=1000)
+
+    p = sub.add_parser(
+        "adopt", help="adota um arquivo salvo à mão (para os que bloqueiam)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+COMO SALVAR — precisa ser o DOM RENDERIZADO, não o código-fonte.
+
+  Temu, Shein e afins montam a página por JS. "Salvar como / somente HTML" e
+  "Exibir código-fonte" devolvem o shell vazio, que é justamente o que o
+  `capture` já pegou. Com a VPN da UE ligada e a página aberta:
+
+    1. DevTools (⌥⌘I) > Console
+    2. copy(document.documentElement.outerHTML)
+    3. no terminal:  pbpaste > ~/Downloads/temu-tos.html
+
+  Alternativa no Chrome: ⌘S > "Página da Web, completa" (serializa o DOM
+  atual, ao contrário de "somente HTML"). No Safari, "Fonte da página" NÃO
+  serve e ".webarchive" é binário e não é lido aqui.
+
+  Confira antes de adotar:  grep -c . arquivo.html
+""")
+    p.add_argument("--out-dir", required=True)
+    p.add_argument("--min-text", type=int, default=1000,
+                   help="rejeita arquivo com menos texto que isto (0 desliga)")
+    p.add_argument("--url", help="opcional: por padrão lê o marcador FREEZE-SOURCE do arquivo")
+    p.add_argument("--file", required=True, help="o .html salvo pelo navegador")
+    p.add_argument("--service", required=True)
+    p.add_argument("--role", default="unknown", choices=["binding", "non-binding", "unknown"])
+    p.add_argument("--vantage", default=None, help="país de onde você salvou (ex.: IT)")
+    p.add_argument("--note", default="salvo pelo navegador na VPN da UE")
+
     p = sub.add_parser("verify", help="o documento mudou desde o congelamento?")
     p.add_argument("--out-dir", required=True)
     p.add_argument("--limit", type=int)
     p.add_argument("--timeout", type=int, default=45)
+    p.add_argument("--diff", action="store_true", help="mostra o que mudou, não só que mudou")
+    p.add_argument("--context", type=int, default=1, help="linhas de contexto no diff")
+    p.add_argument("--max-diff-lines", type=int, default=40)
+    p.add_argument("--noise-lines", type=int, default=2,
+                   help="até quantas linhas alteradas contam como mobília de página "
+                        "e não como deriva do documento")
+    p.add_argument("--only-substantive", action="store_true",
+                   help="com --diff, omite o diff do que ficou abaixo do corte")
+    p.add_argument("--report", help="grava o veredito por documento em JSON")
 
     a = ap.parse_args()
     if a.cmd == "preflight":
@@ -372,7 +824,8 @@ def main():
         print("\nvantagem UE: " + ("SIM, pode capturar" if v["in_eu_vantage"]
                                    else "NÃO — ligue a VPN antes de capturar"))
         return 0 if v["in_eu_vantage"] else 1
-    return {"inventory": cmd_inventory, "capture": cmd_capture, "verify": cmd_verify}[a.cmd](a)
+    return {"inventory": cmd_inventory, "capture": cmd_capture, "status": cmd_status,
+            "package": cmd_package, "adopt": cmd_adopt, "verify": cmd_verify}[a.cmd](a)
 
 
 if __name__ == "__main__":
