@@ -1,0 +1,10 @@
+# Captura e varredura. patterns.py e o notebook 01 rodam em stdlib pura —
+# estas dependências são só para os dois casos que a stdlib não cobre.
+
+# Extração de texto de PDF. Sem ela, freeze-sources.py recusa capturar um
+# documento PDF (levanta NotText) em vez de gravar mojibake — que foi como o
+# Zalando perdeu as duas vinculantes na 1ª rodada.
+pypdf>=4.0
+
+# Só para notebooks/02-llm-recall-sweep.ipynb (varredura de recall).
+anthropic>=0.69

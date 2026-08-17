@@ -74,19 +74,38 @@ BROWSER = {
 }
 
 
+GZIP_MAGIC = b"\x1f\x8b"
+
+
 def _decode(body, enc):
     """Pedimos gzip, então temos de desempacotar — hashear bytes comprimidos
-    daria um hash instável e um texto ilegível."""
-    try:
-        if enc == "gzip":
-            return gzip.decompress(body)
-        if enc == "deflate":
-            try:
-                return zlib.decompress(body)
-            except zlib.error:
-                return zlib.decompress(body, -zlib.MAX_WBITS)   # raw deflate
-    except (OSError, zlib.error):
-        pass
+    daria um hash instável e um texto ilegível.
+
+    NÃO confia no Content-Encoding. Quatro documentos da 1ª rodada chegaram
+    gzipados sem o header dizer: o caminho de HTTPError perde headers, e CDN
+    às vezes simplesmente omite. Sem o header, os bytes comprimidos seguiam
+    direto para extract_text, que os decodificava com errors="replace" — o
+    resultado era ~44% de U+FFFD gravado como se fosse a política. Pinterest
+    perdeu as três vinculantes exatamente assim, e nada no pipeline reclamou.
+
+    Sniffar o magic é barato e cobre header ausente, header errado e gzip
+    duplo de CDN mal configurado."""
+    unpacked = False
+    for _ in range(2):                          # duas camadas bastam na prática
+        if body[:2] != GZIP_MAGIC:
+            break
+        try:
+            body, unpacked = gzip.decompress(body), True
+        except (OSError, zlib.error):
+            break                               # o magic mentiu: devolve como veio
+    if unpacked or enc != "deflate":
+        return body
+    # deflate não tem magic confiável — só aqui ainda dependemos do header
+    for wbits in (zlib.MAX_WBITS, -zlib.MAX_WBITS):   # zlib e raw deflate
+        try:
+            return zlib.decompress(body, wbits)
+        except zlib.error:
+            continue
     return body
 
 
@@ -154,13 +173,52 @@ def charset_of(headers, body):
     return m.group(1).decode("ascii", "replace") if m else "utf-8"
 
 
+PDF_MAGIC = b"%PDF"
+
+
+class NotText(RuntimeError):
+    """Corpo que não é texto e não dá para extrair aqui.
+
+    Existe para que a captura FALHE em vez de gravar lixo: um corpo binário
+    passado pelo extrator de HTML vira mojibake com contagem de caracteres
+    alta, o que engana a porta de texto-vazio e entra no corpus como se fosse
+    a política."""
+
+
+def garbage_ratio(text):
+    """Fração de U+FFFD. Texto real fica em ~0; decodificação errada, em 0,3-0,5."""
+    return text.count("�") / max(len(text), 1)
+
+
+def extract_pdf(body):
+    """PDF -> texto. Precisa de pypdf; sem ele, falha em vez de gravar lixo.
+
+    Dois documentos VINCULANTES do Zalando são PDF servido de CDN
+    (mosaic02.ztat.net, Content-Type: application/pdf). Passados pelo extrator
+    de HTML, viravam 34-43% de U+FFFD — e ainda assim somavam 542.865
+    caracteres, folgadamente acima de --min-text. Só a contagem de lixo pega
+    esse caso; o tamanho não pega."""
+    try:
+        from pypdf import PdfReader
+    except ImportError as e:
+        raise NotText("é PDF e o pypdf não está instalado (`pip install pypdf`)") from e
+    import io
+    paginas = [(p.extract_text() or "") for p in PdfReader(io.BytesIO(body)).pages]
+    linhas = [re.sub(r"[ \t\xa0]+", " ", ln).strip() for ln in "\n".join(paginas).split("\n")]
+    return "\n".join(ln for ln in linhas if ln)
+
+
 def extract_text(body, headers):
-    """HTML -> texto. Determinístico: mesmo input, mesmo hash, sempre.
+    """Documento -> texto. Determinístico: mesmo input, mesmo hash, sempre.
 
     É contra ESTE texto que a busca por palavra-chave do protocolo roda e é
     dele que saem as citações verbatim, então é ele que precisa ser hasheado
     — não o HTML cru, que muda por CSS, nonce e id de build sem que uma
-    palavra do documento mude."""
+    palavra do documento mude.
+
+    Levanta NotText quando o corpo não é algo de que se extraia texto aqui."""
+    if body[:4] == PDF_MAGIC:
+        return extract_pdf(body)
     try:
         s = body.decode(charset_of(headers, body), "replace")
     except (LookupError, UnicodeDecodeError):
@@ -321,24 +379,47 @@ def cmd_capture(args):
             entry.update(final_url=final, http_status=st, captured_at=now_iso(),
                          vantage_country=van["country"], bytes=len(body),
                          content_type=hdrs.get("Content-Type"), error=None)
+            # Extrai UMA vez: além do desperdício, extract_text agora pode
+            # levantar, e chamá-la três vezes espalharia o tratamento.
+            try:
+                text = extract_text(body, hdrs) if (st == 200 and body) else ""
+                nao_texto = None
+            except NotText as e:
+                text, nao_texto = "", str(e)
+
             if st != 200 or not body:
                 entry["error"] = f"HTTP {st}" if st else body.decode("utf-8", "replace")[:160]
                 print(f"      ! {entry['error']}")
                 fail += 1
-            elif len(extract_text(body, hdrs)) < args.min_text:
+            elif nao_texto:
+                entry.update(final_url=final, http_status=st, bytes=len(body), error=None)
+                entry["error"] = f"corpo não textual: {nao_texto}"
+                print(f"      ! {entry['error']}")
+                fail += 1
+            elif len(text) < args.min_text:
                 # 200 com corpo grande e texto quase nulo = shell renderizado por
                 # JS, que o urllib não executa. É a falha PERIGOSA: sem esta porta
                 # ela conta como sucesso e congela documento vazio em silêncio.
                 # Medido na 1ª rodada: 17 de 128 "sucessos" — Temu inteira a 0
                 # caractere, as três vinculantes da Shein a ~400 de 500KB de HTML.
-                n = len(extract_text(body, hdrs))
                 entry.update(final_url=final, http_status=st, bytes=len(body), error=None)
-                entry["error"] = (f"texto vazio ({n} ch de {len(body)}b) — provável "
+                entry["error"] = (f"texto vazio ({len(text)} ch de {len(body)}b) — provável "
                                   f"render por JS; use `adopt` com o HTML salvo do navegador")
                 print(f"      ! {entry['error']}")
                 fail += 1
+            elif garbage_ratio(text) > 0.02:
+                # A porta acima mede TAMANHO e por isso não pega decodificação
+                # errada: mojibake é longo. Foi assim que 6 dos 143 documentos
+                # entraram no corpus como sucesso — 34% a 45% de U+FFFD, com
+                # Pinterest e Zalando perdendo o conjunto vinculante inteiro.
+                # Texto real fica em ~0%; 2% é folgado e não dá falso positivo.
+                pct = 100 * garbage_ratio(text)
+                entry.update(final_url=final, http_status=st, bytes=len(body), error=None)
+                entry["error"] = (f"texto ilegível ({pct:.0f}% U+FFFD em {len(text)} ch) — "
+                                  f"decodificação errada, não recongele por cima")
+                print(f"      ! {entry['error']}")
+                fail += 1
             else:
-                text = extract_text(body, hdrs)
                 rel = f"text/{slug(svc)}/{i:03d}-{slug(urllib.parse.urlsplit(url).path or 'root', 40)}.txt"
                 (out / rel).parent.mkdir(parents=True, exist_ok=True)
                 (out / rel).write_text(text, encoding="utf-8")
@@ -589,16 +670,15 @@ automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
 </html>"""
 
     dest.mkdir(parents=True, exist_ok=True)
-    # O kit é entregue a terceiro: sobra de execução anterior, ou pasta que o
-    # Finder/iCloud criou resolvendo nome duplicado ("text 2", vazia, modo 700),
-    # viajaria junto e sem explicação. Limpa antes de montar.
-    for p in sorted(dest.rglob("*"), key=lambda q: -len(q.parts)):
-        if p.is_dir() and not any(p.iterdir()):
-            p.rmdir()
     (dest / "index.json").write_text(json.dumps(idx, ensure_ascii=False, indent=1) + "\n",
                                      encoding="utf-8")
     (dest / "index.html").write_text(html, encoding="utf-8")
     (dest / "LEIA-ME.md").write_text(readme, encoding="utf-8")
+    # O kit é exatamente estes arquivos. A lista existe porque `dest` é o repo
+    # publicado, e não uma pasta de trabalho: varrer o diretório para montar o
+    # zip levaria junto `.git/`, `.vercel/` e `.env.local` — que o .gitignore
+    # esconde do commit e um rglob() cego reintroduziria pela porta do zip.
+    kit = [dest / "index.json", dest / "index.html", dest / "LEIA-ME.md"]
     n = 0
     for d in good:
         src, dst = out / d["text_path"], dest / d["text_path"]
@@ -619,7 +699,22 @@ automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
                f"           (do texto abaixo da linha, sem este cabeçalho)\n"
                f"{'-'*78}\n\n")
         dst.write_text(cab + src.read_text(encoding="utf-8"), encoding="utf-8")
+        kit.append(dst)
         n += 1
+    # Documento que saiu do manifesto — recaptura renumerou, ou a entrada passou
+    # a ter erro — continuaria em disco e no zip, ausente do índice. O leitor
+    # veria um .txt que a auditoria não reconhece, e um `find` no corpus contaria
+    # o mesmo documento duas vezes. O manifesto manda; o que ele não lista, sai.
+    conhecidos = {p.resolve() for p in kit}
+    for p in sorted((dest / "text").rglob("*.txt")):
+        if p.resolve() not in conhecidos:
+            print(f"  removido (fora do manifesto): {p.relative_to(dest)}")
+            p.unlink()
+    # Pasta que o Finder/iCloud criou resolvendo nome duplicado ("text 2", vazia,
+    # modo 700), ou que ficou vazia pela remoção acima: some depois de montar.
+    for p in sorted(dest.rglob("*"), key=lambda q: -len(q.parts)):
+        if p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
     # Montado por último e sem se incluir. Existe para quem quer o corpus na
     # máquina — ler offline, ou buscar um termo nos 143 documentos de uma vez,
     # que é justamente o que o protocolo pede e a leitura documento a documento
@@ -629,9 +724,8 @@ automatizado; salva pelo navegador na mesma vantagem. Ver LEIA-ME.md.</p>
     def montar_zip():
         zpath.unlink(missing_ok=True)
         with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-            for p in sorted(dest.rglob("*")):
-                if p.is_file() and p != zpath:
-                    z.write(p, p.relative_to(dest))
+            for p in kit:
+                z.write(p, p.relative_to(dest))
         return zpath.stat().st_size / 1048576
 
     # O índice anuncia o tamanho do zip, e o zip contém o índice: monta uma vez
