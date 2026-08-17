@@ -39,9 +39,16 @@ index.html                      coding instrument for the second coder (single-f
 api/state.js                    serverless persistence (GitHub Contents API)
 protocol/codebook-v2.md         the frozen instrument, in full
 protocol/sampling-frame.md      the 26 designated services + selection rule
+notebooks/01-keyword-sweep      the §3 keyword protocol, run over the frozen corpus
+notebooks/02-llm-recall-sweep   recall check: what the keyword list misses
+notebooks/03-coding-flow        the second pass, one variable at a time
+analysis/patterns.py            the twelve §3 terms — single source for both notebooks
+analysis/codebook.py            the codebook, read from the instrument (not re-transcribed)
+analysis/coding_flow.py         linear coding flow: one variable at a time, evidence gated
 analysis/compute-agreement.py   inter-coder agreement
 analysis/freeze-sources.py      capture, hash and archive the audited documents
 analysis/snapshot-progress.py   progress snapshot — metadata only, never codes
+analysis/nb-clean.py            keeps notebook output out of the repository
 .github/workflows/              the daily snapshot job
 ```
 
@@ -71,6 +78,42 @@ landing once coding is under way can be weighed in the reliability analysis.
 |---|---|
 | 2026-07-31 | The document manifest now points at the frozen corpus. Where a document has a frozen copy, its URL is shown struck through as provenance and the corpus filename is shown as the thing to open; the 19 documents without one stay live links. Fixes a long-standing defect in `linkify` uncovered by the change: URLs were matched after HTML-escaping, so `&` had become `&amp;` and the pattern — which excluded `;` — truncated the URL mid-entity, breaking eight Google links. **Landed before the second pass began — no coding had been entered.** No field name, option value, export key or coding rule changed. |
 | 2026-07-28 | Contextual help added to the coding form: per-value definitions and a per-variable full criterion, transcribed from the frozen codebook; the Codebook tab now carries `protocol/codebook-v2.md` in full. Pilot-anchor suppression (above) introduced with it. No field name, option value, export key or coding rule changed. **Landed before the second pass began — no coding had been entered.** |
+
+### The notebooks
+
+The codebook (§3) requires, per document, a count of each of twelve keyword terms
+— roughly 1,700 searches across the frozen corpus. `notebooks/01-keyword-sweep`
+performs them. It verifies every document against its recorded hash first,
+quarantines any that fail, then demonstrates on synthetic strings and on the
+codebook's own published anchors that the patterns fire where they should and
+stay silent where they should not, and only then sweeps. What it emits is counts
+and keyword-in-context, per document: **the machine locates, the coder decides.**
+No screen in either notebook shows a suggested code, level or score.
+
+`notebooks/02-llm-recall-sweep` is a validity check on the keyword list itself,
+not a coding aid. It asks a model to return verbatim passages describing
+behavioural experimentation; every returned quote is verified programmatically
+against the frozen text and discarded if it cannot be located there. Passages
+that no §3 term would have found are the recall gap. Its findings do not enter
+the coded dataset and are not shown to the second coder during the reliability
+pass.
+
+#### Notebook output does not enter the repository
+
+`*.ipynb` is filtered on the way into the index, and `.githooks/pre-commit`
+refuses a commit whose staged notebook still carries output. The reason is not
+diff hygiene: notebook 02 returns passages the human coder did not find, and
+notebook 01 instructs the second coder to clone this repository — so a saved
+output would arrive through the door the protocol itself opened.
+
+Neither the filter nor the hooks path travels with a clone. Once per clone:
+
+```
+python3 analysis/nb-clean.py --install
+```
+
+The filter affects only what reaches the index; the file on disk keeps the
+output of your run.
 
 ### Progress snapshots
 
