@@ -1,0 +1,9 @@
+#!/bin/sh
+# Segunda camada da higiene de notebooks. O filtro `clean` já deveria ter zerado
+# os outputs antes de virarem índice — mas configuração de filtro não viaja no
+# clone, e quando falta, o .gitattributes é ignorado sem avisar. Este hook olha o
+# blob já staged, que é o que de fato seria commitado, e aborta.
+#
+# Versionado de propósito: `core.hooksPath = .githooks` faz o hook vir junto com
+# o clone. Ver analysis/nb-clean.py --install.
+exec python3 analysis/nb-clean.py --check-staged

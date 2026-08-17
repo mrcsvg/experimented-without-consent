@@ -1,0 +1,7 @@
+# Notebook não entra no git com output. O motivo não é diff limpo: o
+# 02-llm-recall-sweep devolve passagens que o codificador humano não achou, e
+# este repo é clonado pelo 2º avaliador seguindo o próprio protocolo.
+#
+# O filtro só age onde foi configurado — `python3 analysis/nb-clean.py --install`,
+# uma vez por clone. O hook em .githooks/pre-commit cobre quem esquecer.
+*.ipynb filter=nbclean
