@@ -42,9 +42,14 @@ protocol/sampling-frame.md      the 26 designated services + selection rule
 notebooks/01-keyword-sweep      the §3 keyword protocol, run over the frozen corpus
 notebooks/02-llm-recall-sweep   recall check: what the keyword list misses
 notebooks/03-coding-flow        the second pass, one variable at a time
-analysis/patterns.py            the twelve §3 terms — single source for both notebooks
+notebooks/04-revisao-assistida  the second pass with evidence pre-located, one cell per service
+analysis/patterns.py            the twelve §3 terms — single source for every notebook
 analysis/codebook.py            the codebook, read from the instrument (not re-transcribed)
 analysis/coding_flow.py         linear coding flow: one variable at a time, evidence gated
+analysis/revisao.py             assisted review: the model locates, the coder decides
+analysis/build-md-corpus.py     frozen corpus → Markdown, standardised folder and file names
+analysis/publicar-corpus.py     publishes the Markdown corpus and the notebook runtime
+analysis/gerar-notebook-revisao.py  regenerates notebook 04 from the roster
 analysis/compute-agreement.py   inter-coder agreement
 analysis/freeze-sources.py      capture, hash and archive the audited documents
 analysis/snapshot-progress.py   progress snapshot — metadata only, never codes
@@ -76,6 +81,7 @@ landing once coding is under way can be weighed in the reliability analysis.
 
 | Date | Change |
 |---|---|
+| 2026-09-05 | `const FROZEN` re-injected from the current manifest. The August recapture of Pinterest, Zalando and TikTok renumbered those files and the served corpus was rebuilt with them, but the instrument's map still named the old numbers: 16 documents — all of Pinterest, most of TikTok — resolved to 404 for anyone who clicked them. Now 142 of 142 resolve. Regenerated with `analysis/inject-frozen.py`; the map is the only line that changed. No field name, option value, export key or coding rule changed. **One core field had been entered when this landed** (see `audit/PROGRESS.md`), and it is not in an affected service. |
 | 2026-07-31 | The document manifest now points at the frozen corpus. Where a document has a frozen copy, its URL is shown struck through as provenance and the corpus filename is shown as the thing to open; the 19 documents without one stay live links. Fixes a long-standing defect in `linkify` uncovered by the change: URLs were matched after HTML-escaping, so `&` had become `&amp;` and the pattern — which excluded `;` — truncated the URL mid-entity, breaking eight Google links. **Landed before the second pass began — no coding had been entered.** No field name, option value, export key or coding rule changed. |
 | 2026-07-28 | Contextual help added to the coding form: per-value definitions and a per-variable full criterion, transcribed from the frozen codebook; the Codebook tab now carries `protocol/codebook-v2.md` in full. Pilot-anchor suppression (above) introduced with it. No field name, option value, export key or coding rule changed. **Landed before the second pass began — no coding had been entered.** |
 
@@ -88,7 +94,8 @@ quarantines any that fail, then demonstrates on synthetic strings and on the
 codebook's own published anchors that the patterns fire where they should and
 stay silent where they should not, and only then sweeps. What it emits is counts
 and keyword-in-context, per document: **the machine locates, the coder decides.**
-No screen in either notebook shows a suggested code, level or score.
+Notebooks 01 and 02 show no suggested code, level or score at all; notebook 04
+holds one behind a button and records whether it was opened (below).
 
 `notebooks/02-llm-recall-sweep` is a validity check on the keyword list itself,
 not a coding aid. It asks a model to return verbatim passages describing
@@ -97,6 +104,58 @@ against the frozen text and discarded if it cannot be located there. Passages
 that no §3 term would have found are the recall gap. Its findings do not enter
 the coded dataset and are not shown to the second coder during the reliability
 pass.
+
+`notebooks/04-revisao-assistida` is the second pass with the search already
+done: one cell per designated service, each showing that service's frozen
+documents, the §3 counts, and the verbatim passages a model located for each
+variable — every quote verified against the frozen text and dropped if it
+cannot be found there. The coder still assigns every code.
+
+The reason for that division is arithmetic, not caution. Pass 1 was itself an
+automated pass. If a model also decided pass 2, the resulting κ would measure
+one model against another rather than agreement between coders, and the figure
+would no longer mean what the paper says it means. So the model's proposed code
+is not on screen: it sits behind a button, and the record stores whether that
+button was pressed **before or after** the coder answered. Suggestion opened
+after an answer is a check; opened before, it is influence — and the difference
+is recoverable at analysis time, per variable, per service. Pilot anchors are
+suppressed in the prompt exactly as they are on the coder's screen: the anchor
+that names the service being coded is not sent to the model either.
+
+The corpus it reads is the frozen one, republished as Markdown by
+`analysis/build-md-corpus.py` — same bytes under a YAML front matter carrying
+the provenance, so the manifest's `sha256_text` still verifies. That rebuild
+also standardises the names. Two generations of capture left service folders
+in two shapes (`pinterest`, but also
+`facebook-meta-platforms-ireland-limited-dsa-vlop`), and the mismatch has
+already cost once: the coding flow's dossier is keyed by service, and eleven of
+the twenty-six silently returned an empty keyword log. Documents are numbered
+binding first, so `01-` is the document that matters most. Anything above 2%
+replacement characters does not enter the build at all — the gate that the
+July kit lacked, which is how a Pinterest binding set that was 43% mojibake
+shipped under a perfectly valid SHA-256.
+
+#### Publishing it
+
+`analysis/publicar-corpus.py` writes both halves into the corpus site's
+repository — `md/` for the documents, `lib/` for the runtime the notebook
+imports — and `--check` fails if what is published has fallen behind this
+repository, which is the source. The runtime is served rather than cloned
+because these repositories are private while the second pass runs: a clone
+would mean a token inside a notebook cell, which is worse than the problem it
+solves. `lib/manifest.json` carries a SHA-256 per file and the setup cell
+verifies each download against it — that catches a truncated fetch or a stale
+copy, and is not a security boundary, since anyone able to replace the files
+could replace the manifest with them.
+
+```
+python3 analysis/publicar-corpus.py --frozen <paper>/audit/frozen \
+                                    --destino ../experimented-without-consent-corpus
+```
+
+`lib/index.html` is a copy of the instrument, because `codebook.py` reads the
+codebook out of the instrument instead of transcribing it again. It is not the
+corpus site's own `index.html`, which lists the documents and is left alone.
 
 #### Notebook output does not enter the repository
 
