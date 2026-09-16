@@ -31,9 +31,13 @@ Aqui o nome canônico é sempre o do roster do instrumento (`codebook.SERVICOS`)
 resolvido pela mesma regra do `coding_flow.resolver_servico`: exato, ou prefixo
 único, ou erro. Uma origem só para o nome, e ela não é o sistema de arquivos.
 
-POR QUE A ORDEM É binding → non-binding → unknown. O `01-` de cada serviço é o
+POR QUE A ORDEM É binding → unknown → non-binding. O `01-` de cada serviço é o
 documento que mais importa para a codificação. Quem abre só os primeiros abre
-os vinculantes, que é onde a alegação central do paper vive.
+os vinculantes, que é onde a alegação central do paper vive. `unknown` vem antes
+de `non-binding` porque o rótulo saiu do texto que antecedia a URL na passada 1,
+e 100 dos 162 documentos ficaram sem ele — inclusive a Privacy Policy e os
+Terms do Facebook. Na ordem anterior, o `01-` do Facebook era uma matéria do
+TechCrunch. `non-binding` é o único rótulo que afirma algo: PR, blog, ajuda.
 
 O PORTÃO DE ILEGIBILIDADE. Documento com mais de 2% de U+FFFD não entra: sai
 para `excluidos` no índice, com o motivo. É o mesmo limiar do
@@ -60,7 +64,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codebook as C  # noqa: E402
 
 LIMIAR_ILEGIVEL = 0.02  # mesmo limiar do freeze-sources.py
-ORDEM_REGISTRO = {"binding": 0, "non-binding": 1, "unknown": 2, None: 2}
+ORDEM_REGISTRO = {"binding": 0, "unknown": 1, None: 1, "non-binding": 2}
 
 # Palavras que não distinguem um documento do outro e só alongam o nome.
 RUIDO_NO_NOME = {
