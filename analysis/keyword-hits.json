@@ -5127,6 +5127,344 @@
     ]
    },
    {
+    "file": "text/facebook-meta-platforms-ireland-limited-dsa-vlop/manual-business-help-1738164643098669.txt",
+    "url": "https://www.facebook.com/business/help/1738164643098669",
+    "sha256": "a8c3f9653013f4841c757f9ab370a40bdb26e8690629903ca4f1723c303620a6",
+    "chars": 5033,
+    "counts": {
+     "experiment": 2,
+     "A-B": 19,
+     "randomize": 0,
+     "test": 27,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:2 / A-B:19 / randomize:0 / test:27 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "A-B",
+      "start": 6,
+      "match": "A/B",
+      "kwic": "About A/B testing | Meta Business Help Centre Log in to Meta for Business Manage your ad accounts a…"
+     },
+     {
+      "term": "test",
+      "start": 10,
+      "match": "testing",
+      "kwic": "About A/B testing | Meta Business Help Centre Log in to Meta for Business Manage your ad accounts and get p…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 200,
+      "match": "A/B",
+      "kwic": "…onalised support. Log in with Facebook Business Help Centre Get support Get support About A/B testing A/B testing lets you compare two versions of an ad strategy by changing variables…"
+     },
+     {
+      "term": "test",
+      "start": 204,
+      "match": "testing",
+      "kwic": "…ised support. Log in with Facebook Business Help Centre Get support Get support About A/B testing A/B testing lets you compare two versions of an ad strategy by changing variables such as…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 212,
+      "match": "A/B",
+      "kwic": "…port. Log in with Facebook Business Help Centre Get support Get support About A/B testing A/B testing lets you compare two versions of an ad strategy by changing variables such as ad…"
+     },
+     {
+      "term": "test",
+      "start": 216,
+      "match": "testing",
+      "kwic": "…. Log in with Facebook Business Help Centre Get support Get support About A/B testing A/B testing lets you compare two versions of an ad strategy by changing variables such as ad images,…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 506,
+      "match": "test",
+      "kwic": "…dy sees both, then determine which version performs best. Before you select a variable to test, choose a hypothesis for your test . For example, you might hypothesise that a custom aud…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 541,
+      "match": "test",
+      "kwic": "…version performs best. Before you select a variable to test, choose a hypothesis for your test . For example, you might hypothesise that a custom audience strategy will outperform an i…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 703,
+      "match": "A/B",
+      "kwic": "…y will outperform an interest-based audience strategy for your business. How to create an A/B test To create an A/B test, you can either duplicate an existing campaign, ad set or ad a…"
+     },
+     {
+      "term": "test",
+      "start": 707,
+      "match": "test",
+      "kwic": "…ll outperform an interest-based audience strategy for your business. How to create an A/B test To create an A/B test, you can either duplicate an existing campaign, ad set or ad and ch…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 725,
+      "match": "A/B",
+      "kwic": "…nterest-based audience strategy for your business. How to create an A/B test To create an A/B test, you can either duplicate an existing campaign, ad set or ad and change a variable,…"
+     },
+     {
+      "term": "test",
+      "start": 729,
+      "match": "test",
+      "kwic": "…est-based audience strategy for your business. How to create an A/B test To create an A/B test, you can either duplicate an existing campaign, ad set or ad and change a variable, or co…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 1110,
+      "match": "test",
+      "kwic": "…ds Manager at the ad set level. We recommend using the same budget for both versions in a test to ensure a fair comparison. A/B testing can then measure the performance of each strateg…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1144,
+      "match": "A/B",
+      "kwic": "…recommend using the same budget for both versions in a test to ensure a fair comparison. A/B testing can then measure the performance of each strategy on a cost per result basis or c…"
+     },
+     {
+      "term": "test",
+      "start": 1148,
+      "match": "testing",
+      "kwic": "…ommend using the same budget for both versions in a test to ensure a fair comparison. A/B testing can then measure the performance of each strategy on a cost per result basis or cost per…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1283,
+      "match": "A/B",
+      "kwic": "…ach strategy on a cost per result basis or cost per conversion lift basis. When to use an A/B test We recommend A/B testing when you're trying to measure changes to your advertising o…"
+     },
+     {
+      "term": "test",
+      "start": 1287,
+      "match": "test",
+      "kwic": "…strategy on a cost per result basis or cost per conversion lift basis. When to use an A/B test We recommend A/B testing when you're trying to measure changes to your advertising or qui…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1305,
+      "match": "A/B",
+      "kwic": "…per result basis or cost per conversion lift basis. When to use an A/B test We recommend A/B testing when you're trying to measure changes to your advertising or quickly compare two…"
+     },
+     {
+      "term": "test",
+      "start": 1309,
+      "match": "testing",
+      "kwic": "…result basis or cost per conversion lift basis. When to use an A/B test We recommend A/B testing when you're trying to measure changes to your advertising or quickly compare two strategi…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 1430,
+      "match": "testing",
+      "kwic": "…easure changes to your advertising or quickly compare two strategies. We do not recommend testing informally, such as by turning ad sets or campaigns on and off manually. This can lead to…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 1567,
+      "match": "test",
+      "kwic": "…or campaigns on and off manually. This can lead to inefficient ad delivery and unreliable test results. For example, A/B testing helps ensure that your audiences will be evenly split a…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1594,
+      "match": "A/B",
+      "kwic": "…ually. This can lead to inefficient ad delivery and unreliable test results. For example, A/B testing helps ensure that your audiences will be evenly split and statistically comparabl…"
+     },
+     {
+      "term": "test",
+      "start": 1598,
+      "match": "testing",
+      "kwic": "…y. This can lead to inefficient ad delivery and unreliable test results. For example, A/B testing helps ensure that your audiences will be evenly split and statistically comparable, while…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 1705,
+      "match": "testing",
+      "kwic": "…ure that your audiences will be evenly split and statistically comparable, while informal testing can lead to overlapping audiences. You can create an A/B test in Meta Ads Manager or in t…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1766,
+      "match": "A/B",
+      "kwic": "…y comparable, while informal testing can lead to overlapping audiences. You can create an A/B test in Meta Ads Manager or in the Experiments tool . Learn more about the ways to create…"
+     },
+     {
+      "term": "test",
+      "start": 1770,
+      "match": "test",
+      "kwic": "…mparable, while informal testing can lead to overlapping audiences. You can create an A/B test in Meta Ads Manager or in the Experiments tool . Learn more about the ways to create an A…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1805,
+      "match": "Experiments",
+      "kwic": "…n lead to overlapping audiences. You can create an A/B test in Meta Ads Manager or in the Experiments tool . Learn more about the ways to create an A/B test . Learn more Create an A/B test in…"
+     },
+     {
+      "term": "A-B",
+      "start": 1863,
+      "match": "A/B",
+      "kwic": "…t in Meta Ads Manager or in the Experiments tool . Learn more about the ways to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Ma…"
+     },
+     {
+      "term": "test",
+      "start": 1867,
+      "match": "test",
+      "kwic": "…Meta Ads Manager or in the Experiments tool . Learn more about the ways to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 1895,
+      "match": "A/B",
+      "kwic": "…Experiments tool . Learn more about the ways to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager Common support topics Abou…"
+     },
+     {
+      "term": "test",
+      "start": 1899,
+      "match": "test",
+      "kwic": "…riments tool . Learn more about the ways to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager Common support topics About adv…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1911,
+      "match": "Experiments",
+      "kwic": "…. Learn more about the ways to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager Common support topics About advertising restrictio…"
+     },
+     {
+      "term": "A-B",
+      "start": 1938,
+      "match": "A/B",
+      "kwic": "…s to create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager Common support topics About advertising restrictions Business Help Ce…"
+     },
+     {
+      "term": "test",
+      "start": 1942,
+      "match": "test",
+      "kwic": "…create an A/B test . Learn more Create an A/B test in the Experiments tool Create an A/B test in Ads Manager Common support topics About advertising restrictions Business Help Centre…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2299,
+      "match": "A/b",
+      "kwic": "…tre Was this information helpful? Yes No Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing mu…"
+     },
+     {
+      "term": "test",
+      "start": 2303,
+      "match": "Testing",
+      "kwic": "…Was this information helpful? Yes No Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple v…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2317,
+      "match": "A/B",
+      "kwic": "…mation helpful? Yes No Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple variables E…"
+     },
+     {
+      "term": "test",
+      "start": 2321,
+      "match": "testing",
+      "kwic": "…on helpful? Yes No Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple variables Edit or c…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2336,
+      "match": "A/B",
+      "kwic": "…No Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple variables Edit or cancel an A/…"
+     },
+     {
+      "term": "test",
+      "start": 2340,
+      "match": "test",
+      "kwic": "…Give feedback More in this section: OPTIMISATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple variables Edit or cancel an A/B tes…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 2382,
+      "match": "Testing",
+      "kwic": "…SATION A/b Testing About A/B testing Basics A/B test types available Selecting a variable Testing multiple variables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario t…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2427,
+      "match": "A/B",
+      "kwic": "…/B test types available Selecting a variable Testing multiple variables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario testing A/B test creation best practices R…"
+     },
+     {
+      "term": "test",
+      "start": 2431,
+      "match": "test",
+      "kwic": "…est types available Selecting a variable Testing multiple variables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario testing A/B test creation best practices Result…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 2478,
+      "match": "testing",
+      "kwic": "…g multiple variables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario testing A/B test creation best practices Results A/B test results Determining a winner Tips Tips…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2486,
+      "match": "A/B",
+      "kwic": "…le variables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario testing A/B test creation best practices Results A/B test results Determining a winner Tips Tips to i…"
+     },
+     {
+      "term": "test",
+      "start": 2490,
+      "match": "test",
+      "kwic": "…ariables Edit or cancel an A/B test Create Duplicate an ad set or ad Scenario testing A/B test creation best practices Results A/B test results Determining a winner Tips Tips to improv…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 2527,
+      "match": "A/B",
+      "kwic": "…reate Duplicate an ad set or ad Scenario testing A/B test creation best practices Results A/B test results Determining a winner Tips Tips to improve Back to Home Have a moment? Tell u…"
+     },
+     {
+      "term": "test",
+      "start": 2531,
+      "match": "test",
+      "kwic": "…e Duplicate an ad set or ad Scenario testing A/B test creation best practices Results A/B test results Determining a winner Tips Tips to improve Back to Home Have a moment? Tell us how…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     }
+    ]
+   },
+   {
     "file": "text/facebook-meta-platforms-ireland-limited-dsa-vlop/043-legal-terms.txt",
     "url": "https://www.facebook.com/legal/terms",
     "sha256": "385645c3806a98a7d5457ea45009e53556fdefbbd5219a39a3c8ee0a6178ba5d",
@@ -6117,6 +6455,72 @@
   ],
   "Google Search (Google Ireland Ltd.; DSA VLOSE)": [
    {
+    "file": "text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/055-privacy.txt",
+    "url": "https://policies.google.com/privacy?hl=en",
+    "sha256": "964eec9bfabd502512b72da05346215f75190393bff2c45b69a6005bedb4f263",
+    "chars": 89981,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 0,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": []
+   },
+   {
+    "file": "text/google-play-google-ireland-ltd-dsa-vlop/061-privacy.txt",
+    "url": "https://policies.google.com/privacy?hl=en-IE&gl=IE",
+    "sha256": "86b4c21ca07c1263d15b951f0d3b981cd70d11aad3a9a46eb48c356ed55f652c",
+    "chars": 90678,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 0,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": []
+   },
+   {
+    "file": "text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/058-technologies-cookies.txt",
+    "url": "https://policies.google.com/technologies/cookies?hl=en",
+    "sha256": "5639b41a9299a6bebaa0f72d14cf9613e3f413d639d2a24841209a97ff9a560d",
+    "chars": 14289,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 0,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": []
+   },
+   {
     "file": "text/google-search-google-ireland-ltd-dsa-vlose/011-technologies-product-privacy.txt",
     "url": "https://policies.google.com/technologies/product-privacy?hl=en",
     "sha256": "050429eaf32d8475be41ec9055269ca407babcd7dd42f484bc70164250802d57",
@@ -6142,6 +6546,36 @@
       "start": 2829,
       "match": "Control group",
       "kwic": "…pen your Google Payments account Set your payment method with a site or app Google Groups Control group permissions Edit group permissions Configure member identity settings Delete a post you a…"
+     }
+    ]
+   },
+   {
+    "file": "text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/056-terms.txt",
+    "url": "https://policies.google.com/terms?hl=en",
+    "sha256": "0781ae19ec6af5ff6013f38db64040424d6f915ad058f0239548410d456be68a",
+    "chars": 36439,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 1,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:1 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 9645,
+      "match": "testing",
+      "kwic": "…reaking, adversarial prompting, or prompt injection, except as part of our safety and bug testing programs accessing or using our services or content in fraudulent or deceptive ways, such…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
      }
     ]
    },
@@ -6370,6 +6804,150 @@
       "start": 5253,
       "match": "experiments",
       "kwic": "…rom community members true Help 1 of 4 Try experiments in Labs 2 of 4 Where Search Labs & experiments are available 3 of 4 Learn about generative AI 4 of 4 “AI Mode” in Search Labs ©2026 Goog…"
+     }
+    ]
+   },
+   {
+    "file": "text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/059-search-howsearchworks-how-search-works-r.txt",
+    "url": "https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/",
+    "sha256": "d2994f8140f4a6fd7d6c9a4c42ab1d159afecf52907ffbc2ad0406f1f0bb6abf",
+    "chars": 6327,
+    "counts": {
+     "experiment": 11,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 7,
+     "trial": 0,
+     "beta": 0,
+     "control group": 1,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:11 / A-B:0 / randomize:0 / test:7 / trial:0 / beta:0 / control group:1 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 14,
+      "match": "Testing",
+      "kwic": "Search Engine Testing & Evaluation - Google Search Jump to Content Overview Our approach Accessing info Info qu…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 224,
+      "match": "testing",
+      "kwic": "…& kids Helping creators How Search works Organizing information Ranking results Rigorous testing Detecting spam Features Our history Improving Search with rigorous testing Our goal is al…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 299,
+      "match": "testing",
+      "kwic": "…sults Rigorous testing Detecting spam Features Our history Improving Search with rigorous testing Our goal is always to provide you with the most useful and relevant information. Any chan…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 521,
+      "match": "Testing",
+      "kwic": "…improve the usefulness of results you see. See how real people make Google Search better Testing for usefulness Search has changed over the years to meet the evolving needs and expectati…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1172,
+      "match": "experiments",
+      "kwic": "…and decide whether to implement a proposed change. Data from these search evaluations and experiments go through a thorough review by experienced engineers and search analysts, as well as oth…"
+     },
+     {
+      "term": "experiment",
+      "start": 1388,
+      "match": "experiments",
+      "kwic": "…rts, who then determine if the change is approved to launch. In 2023, we ran over 700,000 experiments that resulted in more than 4,000 improvements to Search. We evaluate Search in multiple w…"
+     },
+     {
+      "term": "experiment",
+      "start": 1546,
+      "match": "experiments",
+      "kwic": "…We evaluate Search in multiple ways. In 2023, we ran: 4,781 launches 16,871 live traffic experiments 719,326 search quality tests 124,942 side-by-side experiments 4,781 launches Every single…"
+     },
+     {
+      "term": "test",
+      "start": 1581,
+      "match": "tests",
+      "kwic": "…s. In 2023, we ran: 4,781 launches 16,871 live traffic experiments 719,326 search quality tests 124,942 side-by-side experiments 4,781 launches Every single proposed change to Search go…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1608,
+      "match": "experiments",
+      "kwic": "…aunches 16,871 live traffic experiments 719,326 search quality tests 124,942 side-by-side experiments 4,781 launches Every single proposed change to Search goes through a review by our most e…"
+     },
+     {
+      "term": "experiment",
+      "start": 1804,
+      "match": "experiments",
+      "kwic": "…enced engineers and data scientists, who carefully review the data from all the different experiments to decide if the change is approved to launch. If we can’t show that a change actually ma…"
+     },
+     {
+      "term": "experiment",
+      "start": 1975,
+      "match": "experiments",
+      "kwic": "…a change actually makes things better for people, we don’t launch it. 16,871 live traffic experiments We conduct live traffic experiments to see how real people interact with a feature before…"
+     },
+     {
+      "term": "experiment",
+      "start": 2011,
+      "match": "experiments",
+      "kwic": "…r for people, we don’t launch it. 16,871 live traffic experiments We conduct live traffic experiments to see how real people interact with a feature before launching it to everyone. Running e…"
+     },
+     {
+      "term": "experiment",
+      "start": 2111,
+      "match": "experiments",
+      "kwic": "…s to see how real people interact with a feature before launching it to everyone. Running experiments First, we enable the feature in question to just a small percentage of people, usually st…"
+     },
+     {
+      "term": "experiment",
+      "start": 2248,
+      "match": "experiment",
+      "kwic": "…stion to just a small percentage of people, usually starting at 0.1%. We then compare the experiment group to a control group that did not have the feature enabled. Analyzing metrics Next, w…"
+     },
+     {
+      "term": "control group",
+      "start": 2270,
+      "match": "control group",
+      "kwic": "…percentage of people, usually starting at 0.1%. We then compare the experiment group to a control group that did not have the feature enabled. Analyzing metrics Next, we look at a very long lis…"
+     },
+     {
+      "term": "test",
+      "start": 2776,
+      "match": "tests",
+      "kwic": "…creasing the relevance and usefulness of our results for everyone. 719,326 search quality tests We work with external Search Quality Raters to measure the quality of Search results on a…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 4785,
+      "match": "experiments",
+      "kwic": "…our policies that apply to Google Search here . Read more Show less 124,942 side-by-side experiments Search isn’t static. We’re constantly improving our systems to return better results and…"
+     },
+     {
+      "term": "experiment",
+      "start": 4972,
+      "match": "experiment",
+      "kwic": "…and Search Quality Raters play an important role in the launch process. In a side-by-side experiment, we show Raters two different sets of Search results: one with the proposed change alread…"
+     },
+     {
+      "term": "test",
+      "start": 5557,
+      "match": "testing",
+      "kwic": "…elp creators succeed online How Search works Organizing information Our approach Rigorous testing Detecting spam Features For kids & family safety For evaluating information Resources Sea…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
      }
     ]
    }
@@ -6618,6 +7196,43 @@
   ],
   "Instagram": [
    {
+    "file": "text/instagram/manual-581066165581870.txt",
+    "url": "https://help.instagram.com/581066165581870",
+    "sha256": "4de509909ee1f78e165cdd0627d13d654c86356bd8bf2373f483c0de40c260a9",
+    "chars": 26188,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 2,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:2 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 7172,
+      "match": "test",
+      "kwic": "…olicy . Providing and improving Meta Products. We use the information we have to develop, test and improve our Service and collaborate with others on research to make our Service bette…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 7474,
+      "match": "testing",
+      "kwic": "…ers and understanding how people use our Services, for example, by conducting surveys and testing and troubleshooting new features. For more information about how we use your information…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     }
+    ]
+   },
+   {
     "file": "text/instagram/109-privacy-policies-cookies-printable.txt",
     "url": "https://mbasic.facebook.com/privacy/policies/cookies/printable/",
     "sha256": "547da5f88c336ef3ff314c128f1f6ca67adb67d4e5e33d0ddd6bc38e3fe13c69",
@@ -6695,6 +7310,72 @@
     "url": "https://privacycenter.instagram.com/policies/cookies/",
     "sha256": "1b33ff384ca8debc84252da8816a19c035ed6bcbd3d701261e5310e178d5ec32",
     "chars": 3973,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 0,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": []
+   },
+   {
+    "file": "text/instagram/manual-policy.txt",
+    "url": "https://privacycenter.instagram.com/policy/",
+    "sha256": "d155fb0cc91cec071310b7ede989fc8347e91254ab1f15a28bb56d766720524f",
+    "chars": 108301,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 3,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:3 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 25777,
+      "match": "test",
+      "kwic": "…working correctly, such as troubleshooting and fixing it when it's not working Build and test out new products and features to see if they work Get feedback on Meta Products and ideas…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 45546,
+      "match": "test",
+      "kwic": "…g it when it's not working. We also use information that we have to develop, research and test improvements to Meta Products. We use information that we collect to: Develop and improve…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 45673,
+      "match": "test",
+      "kwic": "…e use information that we collect to: Develop and improve products and features Build and test out new products and features to see if they work Get feedback on our ideas for products…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     }
+    ]
+   },
+   {
+    "file": "text/instagram/manual-features-explaining-ranking-ig-feed.txt",
+    "url": "https://transparency.meta.com/features/explaining-ranking/ig-feed/",
+    "sha256": "5a331aaecd8e9c6b79d982bd6222c1d2d8fe8e1284cebb1571b2b2319f42dc57",
+    "chars": 13096,
     "counts": {
      "experiment": 0,
      "A-B": 0,
@@ -7315,6 +7996,458 @@
    }
   ],
   "Pinterest": [
+   {
+    "file": "text/pinterest/manual-pinterest-engineering-scalable-a-b-exper.txt",
+    "url": "https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22",
+    "sha256": "1d9171646392fd8f714b0d51ce00ab9701f8c5db4fc9ece9393475ee4b8ee828",
+    "chars": 11360,
+    "counts": {
+     "experiment": 56,
+     "A-B": 5,
+     "randomize": 0,
+     "test": 9,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:56 / A-B:5 / randomize:0 / test:9 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "A-B",
+      "start": 9,
+      "match": "A/B",
+      "kwic": "Scalable A/B experiments at Pinterest | by Pinterest Engineering | Pinterest Engineering Blog | Medium…"
+     },
+     {
+      "term": "experiment",
+      "start": 13,
+      "match": "experiments",
+      "kwic": "Scalable A/B experiments at Pinterest | by Pinterest Engineering | Pinterest Engineering Blog | Medium Medium Site…"
+     },
+     {
+      "term": "experiment",
+      "start": 244,
+      "match": "experimentation",
+      "kwic": "…Write Search Sign up Sign in Pinterest Engineering Blog · Follow publication Building the experimentation framework Lightweight logging Batch-processing MapReduce workflow Scalable serving of exp…"
+     },
+     {
+      "term": "experiment",
+      "start": 346,
+      "match": "experiment",
+      "kwic": "…ion framework Lightweight logging Batch-processing MapReduce workflow Scalable serving of experiment metrics Real-time data processing Powering data driven decisions Inventive engineers buil…"
+     },
+     {
+      "term": "test",
+      "start": 563,
+      "match": "Testing",
+      "kwic": "…very engine, 300 billion ideas and counting. Follow publication Top highlight Big Data Ab Testing Experimentation Engineering Data Analysis Scalable A/B experiments at Pinterest Pinterest…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 571,
+      "match": "Experimentation",
+      "kwic": "…ine, 300 billion ideas and counting. Follow publication Top highlight Big Data Ab Testing Experimentation Engineering Data Analysis Scalable A/B experiments at Pinterest Pinterest Engineering Fol…"
+     },
+     {
+      "term": "A-B",
+      "start": 622,
+      "match": "A/B",
+      "kwic": "…tion Top highlight Big Data Ab Testing Experimentation Engineering Data Analysis Scalable A/B experiments at Pinterest Pinterest Engineering Follow 8 min read · Aug 21, 2014 95 Listen…"
+     },
+     {
+      "term": "experiment",
+      "start": 626,
+      "match": "experiments",
+      "kwic": "…Top highlight Big Data Ab Testing Experimentation Engineering Data Analysis Scalable A/B experiments at Pinterest Pinterest Engineering Follow 8 min read · Aug 21, 2014 95 Listen Share Chuny…"
+     },
+     {
+      "term": "A-B",
+      "start": 782,
+      "match": "A/B",
+      "kwic": "…Aug 21, 2014 95 Listen Share Chunyan Wang | Pinterest engineer, Data We have hundreds of A/B experiments running at anytime, as we launch new products and improve the quality of the…"
+     },
+     {
+      "term": "experiment",
+      "start": 786,
+      "match": "experiments",
+      "kwic": "…21, 2014 95 Listen Share Chunyan Wang | Pinterest engineer, Data We have hundreds of A/B experiments running at anytime, as we launch new products and improve the quality of the user experie…"
+     },
+     {
+      "term": "experiment",
+      "start": 907,
+      "match": "experiments",
+      "kwic": "…as we launch new products and improve the quality of the user experience. To power these experiments and make timely and data-driven decisions, we built a system to scale the process. Buildi…"
+     },
+     {
+      "term": "experiment",
+      "start": 1015,
+      "match": "experimentation",
+      "kwic": "…ke timely and data-driven decisions, we built a system to scale the process. Building the experimentation framework We set out with three main goals for the framework: Extensible and generic enou…"
+     },
+     {
+      "term": "experiment",
+      "start": 1190,
+      "match": "experiment",
+      "kwic": "…ble and generic enough so that we could easily extract the most valuable information from experiment data to support different kinds of cohort/segmented analysis. Scalable to process and sto…"
+     },
+     {
+      "term": "experiment",
+      "start": 1355,
+      "match": "experiments",
+      "kwic": "…alable to process and store a large amount of data generated by ever increasing number of experiments, users and metrics to track. Compute and serve metrics via dashboards in batch/real time…"
+     },
+     {
+      "term": "test",
+      "start": 1509,
+      "match": "test",
+      "kwic": "…cs via dashboards in batch/real time with high quality, providing the optimal statistical test modules. Each component of the framework needed to be independently and easily scalable,…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1759,
+      "match": "experiment",
+      "kwic": "…the MapReduce jobs Pinball for orchestrating the MapReduce workflows Storm for real-time experiment group validation HBase & MySQL to power the dashboard backend Redshift for interactive an…"
+     },
+     {
+      "term": "experiment",
+      "start": 2059,
+      "match": "experiment",
+      "kwic": "…the middle-left) and real-time processing (on the middle-right) pipelines to process the experiment data. For batch processing, after daily raw log get to s3, we start our nightly experimen…"
+     },
+     {
+      "term": "experiment",
+      "start": 2150,
+      "match": "experiment",
+      "kwic": "…xperiment data. For batch processing, after daily raw log get to s3, we start our nightly experiment workflow to figure out experiment users groups and experiment metrics. We use our in-hous…"
+     },
+     {
+      "term": "experiment",
+      "start": 2184,
+      "match": "experiment",
+      "kwic": "…ng, after daily raw log get to s3, we start our nightly experiment workflow to figure out experiment users groups and experiment metrics. We use our in-house workflow management system Pinba…"
+     },
+     {
+      "term": "experiment",
+      "start": 2212,
+      "match": "experiment",
+      "kwic": "…to s3, we start our nightly experiment workflow to figure out experiment users groups and experiment metrics. We use our in-house workflow management system Pinball to manage the dependencie…"
+     },
+     {
+      "term": "experiment",
+      "start": 2396,
+      "match": "experiment",
+      "kwic": "…dencies of all these MapReduce jobs. The final output is inserted into HBase to serve the experiment dashboard. We also load the output data to Redshift for ad-hoc analysis. For real-time ex…"
+     },
+     {
+      "term": "experiment",
+      "start": 2494,
+      "match": "experiment",
+      "kwic": "…nt dashboard. We also load the output data to Redshift for ad-hoc analysis. For real-time experiment data processing, we use Storm to tail Kafka and process data in real-time and insert metr…"
+     },
+     {
+      "term": "experiment",
+      "start": 2843,
+      "match": "experiment",
+      "kwic": "…o make the process as lightweight as possible. There is no persistence layer involved for experiment group allocation, so that we could minimize the latency/load on our production services.…"
+     },
+     {
+      "term": "experiment",
+      "start": 3042,
+      "match": "experiment",
+      "kwic": "…ll of the complicated metric computations to offline data processing. To determine users’ experiment (feature) group, whenever a request comes through to the application server, we hash by e…"
+     },
+     {
+      "term": "experiment",
+      "start": 3141,
+      "match": "experimentid",
+      "kwic": "…t (feature) group, whenever a request comes through to the application server, we hash by experimentid and userid/requestid to assign the user the right bucket based on group size configuratio…"
+     },
+     {
+      "term": "experiment",
+      "start": 3309,
+      "match": "experiment",
+      "kwic": "…group size configurations, such that the same user would always be allocated to the same experiment group for consistent user experiences. For each request, we log a thrift message in the f…"
+     },
+     {
+      "term": "experiment",
+      "start": 3542,
+      "match": "experiment",
+      "kwic": "…for all users’ actions and context. In later steps, we join these logs against this user experiment activation log to determine the performance of each experiment group and corresponding ac…"
+     },
+     {
+      "term": "experiment",
+      "start": 3605,
+      "match": "experiment",
+      "kwic": "…ese logs against this user experiment activation log to determine the performance of each experiment group and corresponding activity metrics. Since this is a large-scale and time consuming…"
+     },
+     {
+      "term": "experiment",
+      "start": 3840,
+      "match": "experiment",
+      "kwic": "…to do this. Batch-processing MapReduce workflow The MapReduce workflow starts to process experiment data nightly when data of the previous day is copied over from Kafka. At this time, all t…"
+     },
+     {
+      "term": "experiment",
+      "start": 3992,
+      "match": "experiment",
+      "kwic": "…d over from Kafka. At this time, all the raw log requests are transformed into meaningful experiment results and in-depth analysis. To populate experiment data for the dashboard, we have aro…"
+     },
+     {
+      "term": "experiment",
+      "start": 4046,
+      "match": "experiment",
+      "kwic": "…sts are transformed into meaningful experiment results and in-depth analysis. To populate experiment data for the dashboard, we have around 50 jobs running to do all the calculations and tra…"
+     },
+     {
+      "term": "experiment",
+      "start": 4383,
+      "match": "experiment",
+      "kwic": "…er me for faster sign in To support ‘days-in’ analysis for separating novelty effect, the experiment workflow starts by first figuring out the first day the user joining the experiment, then…"
+     },
+     {
+      "term": "experiment",
+      "start": 4467,
+      "match": "experiment",
+      "kwic": "…, the experiment workflow starts by first figuring out the first day the user joining the experiment, then that information together with the user’s other attributes (such as gender and coun…"
+     },
+     {
+      "term": "experiment",
+      "start": 4719,
+      "match": "experimental",
+      "kwic": "…context). Later, the aggregator job will do the aggregation on these activity metrics per experimental group, per segmentation, per days-in. The segment rollup job will then generate both full…"
+     },
+     {
+      "term": "experiment",
+      "start": 4945,
+      "match": "experiment",
+      "kwic": "…insert into HBase. To account for novelty decay effect of features, for each user in the experiment, we first figure out the earliest date when the user was first seen in the experiment gro…"
+     },
+     {
+      "term": "experiment",
+      "start": 5031,
+      "match": "experiment",
+      "kwic": "…the experiment, we first figure out the earliest date when the user was first seen in the experiment group, then for each experiment group, we join experiment users with their subsequent act…"
+     },
+     {
+      "term": "experiment",
+      "start": 5063,
+      "match": "experiment",
+      "kwic": "…out the earliest date when the user was first seen in the experiment group, then for each experiment group, we join experiment users with their subsequent actions on a particular day, so tha…"
+     },
+     {
+      "term": "experiment",
+      "start": 5089,
+      "match": "experiment",
+      "kwic": "…the user was first seen in the experiment group, then for each experiment group, we join experiment users with their subsequent actions on a particular day, so that user activities are grou…"
+     },
+     {
+      "term": "experiment",
+      "start": 5196,
+      "match": "experiment",
+      "kwic": "…with their subsequent actions on a particular day, so that user activities are grouped by experiment group and also the number of days the user was in the experiment. To support segmented an…"
+     },
+     {
+      "term": "experiment",
+      "start": 5261,
+      "match": "experiment",
+      "kwic": "…ctivities are grouped by experiment group and also the number of days the user was in the experiment. To support segmented analysis of features’ impact on a particular group, e.g. iPhone act…"
+     },
+     {
+      "term": "experiment",
+      "start": 5885,
+      "match": "experiment",
+      "kwic": "…ngestion latency to a few mins and the reads also became much faster. Scalable serving of experiment metrics After the MapReduce workflow computation, we end up with around 20TB of experimen…"
+     },
+     {
+      "term": "experiment",
+      "start": 5976,
+      "match": "experiment",
+      "kwic": "…xperiment metrics After the MapReduce workflow computation, we end up with around 20TB of experiment metrics data (every six months). To make that data easily accessible within sub seconds,…"
+     },
+     {
+      "term": "experiment",
+      "start": 6104,
+      "match": "experiment",
+      "kwic": "…ths). To make that data easily accessible within sub seconds, we built a service to serve experiment metrics data using HBase as backend. HBase is essentially a key/value store, where each k…"
+     },
+     {
+      "term": "experiment",
+      "start": 6300,
+      "match": "experiment",
+      "kwic": "…sists of the following parts: row-key, column family, column and time-stamp. We store our experiment metrics, such as number of active users and number of actions, with the following schema.…"
+     },
+     {
+      "term": "experiment",
+      "start": 6676,
+      "match": "experiment",
+      "kwic": "…sometimes we need aggregated metrics across certain segments (e.g. we need metrics of the experiment across all the countries). To support that, we do aggregations over different segment coh…"
+     },
+     {
+      "term": "experiment",
+      "start": 8043,
+      "match": "experiments",
+      "kwic": "…wanted to achieve real-time data processing. For example, to improve the success rate of experiments, we needed to figure out experiment group allocations in real-time once the experiment co…"
+     },
+     {
+      "term": "experiment",
+      "start": 8080,
+      "match": "experiment",
+      "kwic": "…cessing. For example, to improve the success rate of experiments, we needed to figure out experiment group allocations in real-time once the experiment configuration was pushed out to produc…"
+     },
+     {
+      "term": "experiment",
+      "start": 8131,
+      "match": "experiment",
+      "kwic": "…f experiments, we needed to figure out experiment group allocations in real-time once the experiment configuration was pushed out to production. We used Storm to tail Kafka and compute aggre…"
+     },
+     {
+      "term": "experiment",
+      "start": 8327,
+      "match": "experiment",
+      "kwic": "…metrics in real-time to provide crucial stats. Powering data driven decisions We rendered experiment results through an experiment dashboard, which is constituted by many useful tools to mak…"
+     },
+     {
+      "term": "experiment",
+      "start": 8357,
+      "match": "experiment",
+      "kwic": "…e crucial stats. Powering data driven decisions We rendered experiment results through an experiment dashboard, which is constituted by many useful tools to make the experiment results easil…"
+     },
+     {
+      "term": "experiment",
+      "start": 8433,
+      "match": "experiment",
+      "kwic": "…ts through an experiment dashboard, which is constituted by many useful tools to make the experiment results easily accessible. Cohort analysis : From the dashboard, the experiment owner cou…"
+     },
+     {
+      "term": "experiment",
+      "start": 8513,
+      "match": "experiment",
+      "kwic": "…make the experiment results easily accessible. Cohort analysis : From the dashboard, the experiment owner could compare metrics from different user group such as country, gender, user state…"
+     },
+     {
+      "term": "experiment",
+      "start": 8688,
+      "match": "experiment",
+      "kwic": "…der, user state and app type. It’s also possible to filter by the time when they join the experiment. Days-in analysis : User actions happened in the same days-in are grouped together and co…"
+     },
+     {
+      "term": "experiment",
+      "start": 8865,
+      "match": "experiment",
+      "kwic": "…gether and compared as shown in the following graph grouped in different days joining the experiment. The days-in analysis powers us to understand user behavior under the impact of novelty d…"
+     },
+     {
+      "term": "experiment",
+      "start": 9060,
+      "match": "experiment",
+      "kwic": "…Statistical significance : To provide guidance on the significance of differences across experiment groups, we used unpaired t-test for num_active and num_actions test. The test relied on t…"
+     },
+     {
+      "term": "test",
+      "start": 9098,
+      "match": "test",
+      "kwic": "…guidance on the significance of differences across experiment groups, we used unpaired t-test for num_active and num_actions test. The test relied on the assumption that the sample da…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 9134,
+      "match": "test",
+      "kwic": "…ferences across experiment groups, we used unpaired t-test for num_active and num_actions test. The test relied on the assumption that the sample data was independently and identically…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 9144,
+      "match": "test",
+      "kwic": "…cross experiment groups, we used unpaired t-test for num_active and num_actions test. The test relied on the assumption that the sample data was independently and identically distribut…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 9712,
+      "match": "experiment",
+      "kwic": "…d the result using blue/orange color, as shown in above graph. Group validation : To help experiment launches successfully, we also support automated group allocation test to ensure that use…"
+     },
+     {
+      "term": "test",
+      "start": 9789,
+      "match": "test",
+      "kwic": "…on : To help experiment launches successfully, we also support automated group allocation test to ensure that users of each segmentation are allocated as expected. For group allocation…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 9895,
+      "match": "test",
+      "kwic": "…hat users of each segmentation are allocated as expected. For group allocation validation test, we used Pearson’s chi-square test. A red-glow box would remind experiment owners for gro…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 9930,
+      "match": "test",
+      "kwic": "…allocated as expected. For group allocation validation test, we used Pearson’s chi-square test. A red-glow box would remind experiment owners for group allocation anomalies. This exper…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 9964,
+      "match": "experiment",
+      "kwic": "…llocation validation test, we used Pearson’s chi-square test. A red-glow box would remind experiment owners for group allocation anomalies. This experimentation framework powers all types of…"
+     },
+     {
+      "term": "experiment",
+      "start": 10019,
+      "match": "experimentation",
+      "kwic": "…test. A red-glow box would remind experiment owners for group allocation anomalies. This experimentation framework powers all types of data driven decisions at Pinterest, and has helped us to un…"
+     },
+     {
+      "term": "A-B",
+      "start": 10145,
+      "match": "A/B",
+      "kwic": "…types of data driven decisions at Pinterest, and has helped us to understand hundreds of A/B experimental results and deciding the launch of new features. If challenges like this int…"
+     },
+     {
+      "term": "experiment",
+      "start": 10149,
+      "match": "experimental",
+      "kwic": "…es of data driven decisions at Pinterest, and has helped us to understand hundreds of A/B experimental results and deciding the launch of new features. If challenges like this interest you, jo…"
+     },
+     {
+      "term": "A-B",
+      "start": 10384,
+      "match": "A/B",
+      "kwic": "…Wang is a software engineer at Pinterest. Acknowledgements: The core contributors to the A/B experimentation analytics framework were Chunyan Wang, Joshua Inkenbrandt, Anastassia Kor…"
+     },
+     {
+      "term": "experiment",
+      "start": 10388,
+      "match": "experimentation",
+      "kwic": "…g is a software engineer at Pinterest. Acknowledgements: The core contributors to the A/B experimentation analytics framework were Chunyan Wang, Joshua Inkenbrandt, Anastassia Kornilova, Andrea B…"
+     },
+     {
+      "term": "test",
+      "start": 10703,
+      "match": "Testing",
+      "kwic": "…nally, a number of engineers across the company provided helpful feedback. 95 Big Data Ab Testing Experimentation Engineering Data Analysis 95 95 Follow Written by Pinterest Engineering 6…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 10711,
+      "match": "Experimentation",
+      "kwic": "…number of engineers across the company provided helpful feedback. 95 Big Data Ab Testing Experimentation Engineering Data Analysis 95 95 Follow Written by Pinterest Engineering 64K followers · 3…"
+     }
+    ]
+   },
    {
     "file": "text/pinterest/003-en-cookies.txt",
     "url": "https://policy.pinterest.com/en/cookies",
@@ -11180,6 +12313,70 @@
   ],
   "XVideos (WebGroup Czech Republic, a.s.; DSA VLOP)": [
    {
+    "file": "text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/manual-p2b-contrib-versions-blob-main-xvideos-t.txt",
+    "url": "https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md",
+    "sha256": "3b4954561527ee99b620b89daec68af63b28f25c5d3e5017de9bc8df13211730",
+    "chars": 72760,
+    "counts": {
+     "experiment": 1,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 3,
+     "trial": 2,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:1 / A-B:0 / randomize:0 / test:3 / trial:2 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 112,
+      "match": "testemunhos",
+      "kwic": "…ce.md · main · Digital Services / contrib-versions · GitLab Esta página utiliza cookies («testemunhos de conexão»). Visite a página sobre a nossa política de «cookies» ou clique na ligação vi…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 325,
+      "match": "testemunhos",
+      "kwic": "…lquer página para mais informações ou para alterar as suas preferências. Aceitar todos os testemunhos Aceitar apenas os testemunhos essenciais Code development platform for open source projec…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 355,
+      "match": "testemunhos",
+      "kwic": "…ções ou para alterar as suas preferências. Aceitar todos os testemunhos Aceitar apenas os testemunhos essenciais Code development platform for open source projects from the European Union ins…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1182,
+      "match": "Experimentos",
+      "kwic": "…aborador Análise do repositório Análises de revisão de código Análises de issues Insights Experimentos de modelo Ajuda Ajuda Suporte Documentação da GitLab GitLab University Comparar planos do…"
+     },
+     {
+      "term": "trial",
+      "start": 8024,
+      "match": "trial",
+      "kwic": "…e contain a binding arbitration agreement whereby you agree to waive your right to a jury trial and further agree to waive your right to bring any dispute or claim as part of a class or…",
+      "flag": "falso positivo comum: 'free trial' / período de teste de assinatura NÃO é experimentação (§2, V1)"
+     },
+     {
+      "term": "trial",
+      "start": 63296,
+      "match": "trial",
+      "kwic": "…tarily accepting these Terms of Service, you and WebGroup agree to give up the right to a trial before a judge and jury with respect to any and all claims relating to, arising out of, o…",
+      "flag": "falso positivo comum: 'free trial' / período de teste de assinatura NÃO é experimentação (§2, V1)"
+     }
+    ]
+   },
+   {
     "file": "text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/128-legal-cookiepolicy.txt",
     "url": "https://info.xvideos.com/legal/cookiepolicy",
     "sha256": "bc23def1feb345cd6f9ef1de54352820d189a713ffdb19753048197381019eab",
@@ -12259,6 +13456,475 @@
     ]
    },
    {
+    "file": "text/youtube-provider-google-ireland-limited-dsa-type-vlop/manual-youtube-thread-18138167.txt",
+    "url": "https://support.google.com/youtube/thread/18138167",
+    "sha256": "e6b1f1b6b1e92f7f61878a46e7f319dc2e5558f267195d26b84564c656562f4d",
+    "chars": 18479,
+    "counts": {
+     "experiment": 43,
+     "A-B": 1,
+     "randomize": 0,
+     "test": 26,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:43 / A-B:1 / randomize:0 / test:26 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 8,
+      "match": "test",
+      "kwic": "YouTube test features and experiments - YouTube Community Skip to main content YouTube Help Sign in Se…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 26,
+      "match": "experiments",
+      "kwic": "YouTube test features and experiments - YouTube Community Skip to main content YouTube Help Sign in Send feedback on... This he…"
+     },
+     {
+      "term": "test",
+      "start": 350,
+      "match": "test",
+      "kwic": "…e) Google Employee • Original Poster Oct 30, 2019 10/30/2019, 7:54:25 PM Get link YouTube test features and experiments What are YouTube experiments? YouTube product teams are constant…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 368,
+      "match": "experiments",
+      "kwic": "…• Original Poster Oct 30, 2019 10/30/2019, 7:54:25 PM Get link YouTube test features and experiments What are YouTube experiments? YouTube product teams are constantly testing out new tools…"
+     },
+     {
+      "term": "experiment",
+      "start": 397,
+      "match": "experiments",
+      "kwic": "…19 10/30/2019, 7:54:25 PM Get link YouTube test features and experiments What are YouTube experiments? YouTube product teams are constantly testing out new tools and features to help you find…"
+     },
+     {
+      "term": "test",
+      "start": 447,
+      "match": "testing",
+      "kwic": "…atures and experiments What are YouTube experiments? YouTube product teams are constantly testing out new tools and features to help you find, watch, share and create content more easily.…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 551,
+      "match": "test",
+      "kwic": "…w tools and features to help you find, watch, share and create content more easily. These test features (sometimes also called “betas” or “experiments”) are usually available for a sho…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 600,
+      "match": "experiments",
+      "kwic": "…re and create content more easily. These test features (sometimes also called “betas” or “experiments”) are usually available for a short period of time and only for a small group of people.…"
+     },
+     {
+      "term": "experiment",
+      "start": 844,
+      "match": "experiments",
+      "kwic": "…for you than it does for your friend or family member, you’re likely seeing one of these experiments. Be sure to give YouTube feedback and report any potential technical issues – our teams u…"
+     },
+     {
+      "term": "experiment",
+      "start": 969,
+      "match": "experiment",
+      "kwic": "…e feedback and report any potential technical issues – our teams use this information and experiment results to help us decide if, when, and how to release these features more broadly. Learn…"
+     },
+     {
+      "term": "experiment",
+      "start": 1103,
+      "match": "experiments",
+      "kwic": "…n, and how to release these features more broadly. Learn more about some existing feature experiments To help you keep up with these test features, our TeamYouTube Community Managers will pil…"
+     },
+     {
+      "term": "test",
+      "start": 1146,
+      "match": "test",
+      "kwic": "…roadly. Learn more about some existing feature experiments To help you keep up with these test features, our TeamYouTube Community Managers will pilot keeping this forum thread updated…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1349,
+      "match": "experiment",
+      "kwic": "…resting ones that we think you’ll want to know about! While this post won’t include every experiment, it’s a good place to start if you’re curious about what we’re testing out, or whether or…"
+     },
+     {
+      "term": "test",
+      "start": 1423,
+      "match": "testing",
+      "kwic": "…t include every experiment, it’s a good place to start if you’re curious about what we’re testing out, or whether or not you’re currently seeing an experiment. To learn about previous exp…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 1481,
+      "match": "experiment",
+      "kwic": "…you’re curious about what we’re testing out, or whether or not you’re currently seeing an experiment. To learn about previous experiments, check out this post . Details Watching Videos , Web…"
+     },
+     {
+      "term": "experiment",
+      "start": 1517,
+      "match": "experiments",
+      "kwic": "…ing out, or whether or not you’re currently seeing an experiment. To learn about previous experiments, check out this post . Details Watching Videos , Web , Viewer Locked Informational notifi…"
+     },
+     {
+      "term": "A-B",
+      "start": 1967,
+      "match": "A/B",
+      "kwic": "…rictions for users under ... Get access to intermediate and advanced features You can now A/B test titles and thumbnails on your videos! 🥳 Learn more about how YouTube works for you Y…"
+     },
+     {
+      "term": "test",
+      "start": 1971,
+      "match": "test",
+      "kwic": "…ions for users under ... Get access to intermediate and advanced features You can now A/B test titles and thumbnails on your videos! 🥳 Learn more about how YouTube works for you YouTub…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 2075,
+      "match": "experiments",
+      "kwic": "…d thumbnails on your videos! 🥳 Learn more about how YouTube works for you YouTube feature experiments & rollouts All Replies (82) Meaghan - TeamYouTube Google Employee Jul 8, 2024 7/8/2024, 1…"
+     },
+     {
+      "term": "test",
+      "start": 2212,
+      "match": "Testing",
+      "kwic": "…- TeamYouTube Google Employee Jul 8, 2024 7/8/2024, 10:44:58 AM Get link [June 27, 2024] Testing mentions in comments on mobile: We’re experimenting with the ability to mention YouTube c…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 2258,
+      "match": "experimenting",
+      "kwic": "…/2024, 10:44:58 AM Get link [June 27, 2024] Testing mentions in comments on mobile: We’re experimenting with the ability to mention YouTube channels in comments. If you’re in the experiment gro…"
+     },
+     {
+      "term": "experiment",
+      "start": 2347,
+      "match": "experiment",
+      "kwic": "…experimenting with the ability to mention YouTube channels in comments. If you’re in the experiment group, typing the “@” symbol on an Android or iOS device followed by letters or character…"
+     },
+     {
+      "term": "experiment",
+      "start": 2715,
+      "match": "experiment",
+      "kwic": "…d the handle will appear as the clickable linked mention! While we gather feedback in the experiment phase, only a small group of creators can post comments that include mentions BUT all vie…"
+     },
+     {
+      "term": "test",
+      "start": 3006,
+      "match": "Testing",
+      "kwic": "…TeamYouTube) Google Employee Apr 14, 2026 4/14/2026, 6:00:11 PM Get link [April 14, 2026] Testing new ways to connect with Posts: We’re experimenting with showing image posts and carousel…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 3052,
+      "match": "experimenting",
+      "kwic": "…/2026, 6:00:11 PM Get link [April 14, 2026] Testing new ways to connect with Posts: We’re experimenting with showing image posts and carousels in the Shorts feed to help you connect with your a…"
+     },
+     {
+      "term": "test",
+      "start": 3208,
+      "match": "test",
+      "kwic": "…feed to help you connect with your audience in a new place and with new formats. You can test up to 10 images in a single carousel, add text overlays directly to your images and add r…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 3443,
+      "match": "experiment",
+      "kwic": "…generate a soundtrack from Dream Track (in eligible markets ) to help set the tone. This experiment is rolling out globally on the YouTube mobile app. This is the first of many updates comi…"
+     },
+     {
+      "term": "experiment",
+      "start": 3609,
+      "match": "experiment",
+      "kwic": "…rst of many updates coming to Posts as we continue to expand the format. If you’re in the experiment group, try it out and let us know what you think! Dave (TeamYouTube) Google Employee Apr…"
+     },
+     {
+      "term": "test",
+      "start": 3766,
+      "match": "Testing",
+      "kwic": "…TeamYouTube) Google Employee Apr 27, 2026 4/27/2026, 6:00:36 PM Get link [April 27, 2026] Testing a new search experience on YouTube: We’re testing a conversational search experience to c…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 3816,
+      "match": "testing",
+      "kwic": "…6, 6:00:36 PM Get link [April 27, 2026] Testing a new search experience on YouTube: We’re testing a conversational search experience to complement how you already search on YouTube. Our g…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 4025,
+      "match": "experiment",
+      "kwic": "…e deeper into the topics you’re curious about in a more interactive way. If you’re in the experiment, you can try it out by selecting \"Ask YouTube\" in the search bar. For example, you can as…"
+     },
+     {
+      "term": "experiment",
+      "start": 4728,
+      "match": "experiment",
+      "kwic": "…sy to discover new creators and jump into the most helpful content from your search. This experiment is currently available for YouTube Premium members 18+ in the US who opt-in via youtube.c…"
+     },
+     {
+      "term": "experiment",
+      "start": 4868,
+      "match": "experiment",
+      "kwic": "…ium members 18+ in the US who opt-in via youtube.com/new . We’re working on expanding the experiment to non-Premium users in the future. Dave (TeamYouTube) Google Employee Aug 12, 2026 8/12/…"
+     },
+     {
+      "term": "experiment",
+      "start": 5032,
+      "match": "experiment",
+      "kwic": "…mployee Aug 12, 2026 8/12/2026, 2:21:44 PM Get link [August 12, 2026] Quick update on our experiment: We’re rolling out Ask YouTube to mobile devices! Now, you can have a conversational sear…"
+     },
+     {
+      "term": "experiment",
+      "start": 5320,
+      "match": "experiments",
+      "kwic": "…on your phone, and tap “Ask” and enter a question to start the conversation. Ask YouTube experiments will be available for signed-in viewers who are 13 years or older, in English on desktop,…"
+     },
+     {
+      "term": "test",
+      "start": 5661,
+      "match": "Testing",
+      "kwic": "…TeamYouTube) Google Employee Apr 29, 2026 4/29/2026, 6:09:50 PM Get link [April 29, 2026] Testing thumbnail & video sizes on the Home feed on mobile: We're testing new ways to make the Ho…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 5727,
+      "match": "testing",
+      "kwic": "…t link [April 29, 2026] Testing thumbnail & video sizes on the Home feed on mobile: We're testing new ways to make the Home feed more immersive on Android and iOS devices. To help content…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 5888,
+      "match": "experiment",
+      "kwic": "…S devices. To help content stand out on mobile screens, we’re currently running a limited experiment that would automatically adjust video and thumbnail sizes for your device. During this ex…"
+     },
+     {
+      "term": "experiment",
+      "start": 5986,
+      "match": "experiment",
+      "kwic": "…nt that would automatically adjust video and thumbnail sizes for your device. During this experiment, you may notice that some thumbnail or video sizes are more varied. For creators: While s…"
+     },
+     {
+      "term": "experiment",
+      "start": 6176,
+      "match": "experiment",
+      "kwic": "…ome thumbnails may appear cropped, we’re not editing or altering the original files. This experiment is intended to help us understand and improve the impact of thumbnail presentation, with…"
+     },
+     {
+      "term": "test",
+      "start": 6461,
+      "match": "Testing",
+      "kwic": "…TeamYouTube) Google Employee Apr 30, 2026 4/30/2026, 1:11:57 PM Get link [April 30, 2026] Testing a new comment search tool in Studio: We’re experimenting with a new tool in YouTube Studi…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 6512,
+      "match": "experimenting",
+      "kwic": "…, 1:11:57 PM Get link [April 30, 2026] Testing a new comment search tool in Studio: We’re experimenting with a new tool in YouTube Studio that uses AI to help creators more easily find and mode…"
+     },
+     {
+      "term": "experiment",
+      "start": 6796,
+      "match": "experiment",
+      "kwic": "…anage, and respond to comments based on their broader topic or meaning. If you are in the experiment group, you will see a new \"Search\" filter (the old search field is now labeled as \"Keywor…"
+     },
+     {
+      "term": "test",
+      "start": 7776,
+      "match": "Testing",
+      "kwic": "…ave (TeamYouTube) Google Employee May 7, 2026 5/7/2026, 3:11:26 PM Get link [May 7, 2026] Testing a new feed navigation experience on mobile: We're experimenting with new ways for you to…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 7834,
+      "match": "experimenting",
+      "kwic": "…11:26 PM Get link [May 7, 2026] Testing a new feed navigation experience on mobile: We're experimenting with new ways for you to navigate different feeds in the YouTube Mobile app, with the goa…"
+     },
+     {
+      "term": "experiment",
+      "start": 8019,
+      "match": "experiment",
+      "kwic": "…the goal of making it easier to find the content you care about. If you are part of this experiment, you might notice a few placement changes to your Home and Subscriptions feeds. Specifica…"
+     },
+     {
+      "term": "test",
+      "start": 8130,
+      "match": "testing",
+      "kwic": "…notice a few placement changes to your Home and Subscriptions feeds. Specifically, we're testing a shift in the placement of the Subscriptions feed, moving it from the bottom navigation…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 8341,
+      "match": "test",
+      "kwic": "…creen as part of a new, swipeable Subscriptions and Home feed tab experience. We may also test moving other content feeds, like Movies & TV, to this top navigation area to help you acc…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 8705,
+      "match": "testing",
+      "kwic": "…rolling out slowly to a small percentage of viewers on Android and iOS globally. We’ll be testing to see if these changes simplify how you navigate your feeds and will keep you posted on…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 9013,
+      "match": "experiment",
+      "kwic": "…Ask YouTube search experience to TVs: By now, you may have seen our conversational search experiment , Ask YouTube, on your desktop. We're excited to announce that as of today, we're expandi…"
+     },
+     {
+      "term": "experiment",
+      "start": 10051,
+      "match": "Experiment",
+      "kwic": "…n 4, 2026 6/4/2026, 5:35:35 PM Get link [June 3, 2026] Winding down Product Tags in Posts Experiment: We’re winding down the experiment that allowed eligible creators to tag Shopping product…"
+     },
+     {
+      "term": "experiment",
+      "start": 10086,
+      "match": "experiment",
+      "kwic": "…link [June 3, 2026] Winding down Product Tags in Posts Experiment: We’re winding down the experiment that allowed eligible creators to tag Shopping products in community posts. Here’s what y…"
+     },
+     {
+      "term": "test",
+      "start": 10507,
+      "match": "test",
+      "kwic": "…ue tagging products in your long-form videos and Shorts! Data: Since this was a temporary test, no historical analytics or performance data is available for these tags. We’re always wo…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 10793,
+      "match": "Testing",
+      "kwic": "…TeamYouTube Google Employee Jul 16, 2026 7/16/2026, 12:50:02 PM Get link [July 16, 2026] Testing a streamlined, insights-first experience in YouTube Studio: We’re kicking off an experime…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 10882,
+      "match": "experiment",
+      "kwic": "…Testing a streamlined, insights-first experience in YouTube Studio: We’re kicking off an experiment on desktop designed to help you quickly spot trends and get deeper insights on how your c…"
+     },
+     {
+      "term": "experiment",
+      "start": 11072,
+      "match": "experiment",
+      "kwic": "…ontent is performing. Here’s a look at what’s changing in YouTube Studio for those in the experiment group: What to expect during this test: Insights-first experience in Studio: We’re renami…"
+     },
+     {
+      "term": "test",
+      "start": 11117,
+      "match": "test",
+      "kwic": "…changing in YouTube Studio for those in the experiment group: What to expect during this test: Insights-first experience in Studio: We’re renaming the \"Analytics\" tab in YouTube Studi…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 11931,
+      "match": "test",
+      "kwic": "…powered insight cards: If you’re eligible for Ask Studio, select creators will be able to test four new AI cards—Channel summary, Content patterns, Audience loyalty, and Video summary.…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 12042,
+      "match": "experimenting",
+      "kwic": "…s—Channel summary, Content patterns, Audience loyalty, and Video summary. Research: We’re experimenting with evolving the Trends tab in Studio into a destination called Research — with tools to…"
+     },
+     {
+      "term": "experiment",
+      "start": 12488,
+      "match": "experiment",
+      "kwic": "…e months via the link in your Research notification by clicking “download keywords”. This experiment is currently rolling out to a small group of creators, and we’ll keep you updated on any…"
+     },
+     {
+      "term": "experiment",
+      "start": 13634,
+      "match": "experiment",
+      "kwic": "…and Turkiye. For creators, we are starting with a limited number of new creators for this experiment, and will keep you up to date when we expand. If you see a Station in your feed, jump in…"
+     },
+     {
+      "term": "experiment",
+      "start": 14181,
+      "match": "experiment",
+      "kwic": "…d save multiple custom feeds, pinned to the top of your Home feed. If you're part of this experiment, here’s how you can try it out: Get started: Swipe left or click the \"custom feed\" tab at…"
+     },
+     {
+      "term": "experiment",
+      "start": 15265,
+      "match": "experiment",
+      "kwic": "…efer classic topic chips, they are still available when browsing YouTube on desktop. This experiment is currently rolling out to signed-in viewers on mobile (Android and iOS) and desktop in…"
+     },
+     {
+      "term": "test",
+      "start": 15451,
+      "match": "test",
+      "kwic": "…in the U.S. with English language settings and watch history turned on. If you're in the test, try it out and share your feedback by clicking the “Feedback” link under the prompt. Las…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 15664,
+      "match": "Experimenting",
+      "kwic": "…eamYouTube) Google Employee Sep 2, 2026 9/2/2026, 3:31:42 PM Get link [September 2, 2026] Experimenting with alternative retailer options for tagged affiliate products: We’re running a small af…"
+     },
+     {
+      "term": "experiment",
+      "start": 15784,
+      "match": "experiment",
+      "kwic": "…retailer options for tagged affiliate products: We’re running a small affiliate shopping experiment to show the exact same creator-tagged affiliate product, but sourced from a different eli…"
+     },
+     {
+      "term": "test",
+      "start": 15911,
+      "match": "test",
+      "kwic": "…ator-tagged affiliate product, but sourced from a different eligible local retailer. This test helps us measure if we can improve shopping performance by auto-optimizing which local me…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 16336,
+      "match": "testing",
+      "kwic": "…[September 3, 2026] Expanding the Watch With live stream feature to more streamers: We’re testing an expansion of the Watch With feature, making it easy for eligible mobile creators to go…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "experiment",
+      "start": 16572,
+      "match": "experiment",
+      "kwic": "…eators’ live streams across YouTube. How it works for reacting creators: If you're in the experiment group, you will see a \"React live\" button in the Share panel when viewing eligible stream…"
+     },
+     {
+      "term": "experiment",
+      "start": 17816,
+      "match": "experiment",
+      "kwic": "…r from \"Allow eligible channels\" to \"No one\". This feature is currently rolling out as an experiment. If you have access , give it a try on your next stream and let us know how it goes at ht…"
+     }
+    ]
+   },
+   {
     "file": "text/youtube-provider-google-ireland-limited-dsa-type-vlop/144-howyoutubeworks.txt",
     "url": "https://www.youtube.com/howyoutubeworks/",
     "sha256": "370ff119ca0fa9d4f61d08cc89f744b6141cdc18683c086c536e005e4704d493",
@@ -12327,6 +13993,28 @@
   ],
   "Zalando": [
    {
+    "file": "text/zalando/manual-terms-of-use.txt",
+    "url": "https://accounts.zalando.com/terms-of-use",
+    "sha256": "8241eff8c4d29cdb0ff23ae885eb5efe3fbaaf9862bc721a94a3f220f00fac80",
+    "chars": 16042,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 0,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": []
+   },
+   {
     "file": "text/zalando/008-en-zalando-data-protection-statement.txt",
     "url": "https://corporate.zalando.com/en/zalando-data-protection-statement",
     "sha256": "bfa3f68d3ac7cd654ade7d8b9b1e1c6cb68d0f363e4166f098bbb6220d36ffd2",
@@ -12376,6 +14064,187 @@
       "start": 19087,
       "match": "tests",
       "kwic": "…ata on the basis of legal specifications, e.g. retention obligations and money laundering tests under tax law, the legal basis is Article 6 (1) c GDPR. 2.4 On the basis of your consent…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     }
+    ]
+   },
+   {
+    "file": "text/zalando/manual-zalando-privacy-policy.txt",
+    "url": "https://en.zalando.de/zalando-privacy-policy/",
+    "sha256": "706b6b68cea394a93dd30679f26b30d531210950a03ca33468fb825639b17006",
+    "chars": 133437,
+    "counts": {
+     "experiment": 0,
+     "A-B": 3,
+     "randomize": 0,
+     "test": 8,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 9
+    },
+    "log_line": "experiment:0 / A-B:3 / randomize:0 / test:8 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:9",
+    "hits": [
+     {
+      "term": "risk assessment",
+      "start": 43173,
+      "match": "risk assessment",
+      "kwic": "…ent to a specific user. Over the course of the order process on our website, we request a risk assessment for the user's end device from the database of providers. This risk assessment on the lik…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 43252,
+      "match": "risk assessment",
+      "kwic": "…request a risk assessment for the user's end device from the database of providers. This risk assessment on the likelihood of attempted fraud considers, amongst other things, whether the end dev…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 44057,
+      "match": "risk assessment",
+      "kwic": "…you the payment methods available for a purchase, Zalando Payments GmbH will carry out a risk assessment and include the total costs for an order with Zalando. Your previously collected purchase…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 44405,
+      "match": "risk assessment",
+      "kwic": "…delivery and billing address, email address, date of birth) will be used to carry out the risk assessment. The assessment and evaluation will be carried out automatically using statistically just…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 44662,
+      "match": "risk assessments",
+      "kwic": "…methods we offer. The use of the previously collected data enhances the accuracy of such risk assessments. In the event that payment via Invoice is available in your country and you select paymen…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 45492,
+      "match": "risk assessment",
+      "kwic": "…ct Debit. Which specific creditworthiness data is taken into account in the course of the risk assessment may vary from country to country. Note You can find country-specific information on the c…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 45642,
+      "match": "risk assessment",
+      "kwic": "…an find country-specific information on the credit agencies charged with carrying out the risk assessment and on the creditworthiness data used under “country-specific information” . When decidin…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 46638,
+      "match": "risk assessment",
+      "kwic": "…lt risk is assessed separately for each payment method in the form of an estimate. If the risk assessment yields a positive result, we can offer all the payment methods we generally offer. Otherw…"
+     },
+     {
+      "term": "risk assessment",
+      "start": 47238,
+      "match": "risk assessment",
+      "kwic": "…you. There have been payment disruptions with particular payment methods in the past. The risk assessment will not mean that you are not offered any payment method. If you are not in agreement wi…"
+     },
+     {
+      "term": "test",
+      "start": 49775,
+      "match": "test",
+      "kwic": "…re such data processing operations take place, your above-mentioned data might be used to test the efficiency of the respective procedure and/or the respective cooperation. 2.5 Transfe…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 54648,
+      "match": "testing",
+      "kwic": "…e.g. by pseudonymisation, encryption and anonymisation technologies. The development and testing of software solutions for the optimisation of necessary business and logistics processes.…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 56983,
+      "match": "tests",
+      "kwic": "…ata on the basis of legal specifications, e.g. retention obligations and money laundering tests under tax law, the legal basis is Article 6 (1) c GDPR. 2.9 Enabling interactions between…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 82012,
+      "match": "A/B",
+      "kwic": "…d and which browsers and devices our users generally use. We may also carry out so-called A/B tests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/…"
+     },
+     {
+      "term": "test",
+      "start": 82016,
+      "match": "tests",
+      "kwic": "…d which browsers and devices our users generally use. We may also carry out so-called A/B tests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/B test…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 82055,
+      "match": "A/B",
+      "kwic": "…generally use. We may also carry out so-called A/B tests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/B testing (also known as split testing) is…"
+     },
+     {
+      "term": "test",
+      "start": 82059,
+      "match": "tests",
+      "kwic": "…rally use. We may also carry out so-called A/B tests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/B testing (also known as split testing) is an app…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "A-B",
+      "start": 82103,
+      "match": "A/B",
+      "kwic": "…/B tests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/B testing (also known as split testing) is an approach to comparing two versions of a websi…"
+     },
+     {
+      "term": "test",
+      "start": 82107,
+      "match": "testing",
+      "kwic": "…ests in the course of usage analysis. A/B tests are a special kind of usage analysis. A/B testing (also known as split testing) is an approach to comparing two versions of a website or ap…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 82136,
+      "match": "testing",
+      "kwic": "…nalysis. A/B tests are a special kind of usage analysis. A/B testing (also known as split testing) is an approach to comparing two versions of a website or app in order to find out which…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     },
+     {
+      "term": "test",
+      "start": 82362,
+      "match": "testing",
+      "kwic": "…r or lets users find their desired content quicker. Producing version A and version B and testing both versions provides data which makes it easier and faster to make changes to services…",
+      "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
+     }
+    ]
+   },
+   {
+    "file": "text/zalando/manual-zalando-terms.txt",
+    "url": "https://en.zalando.de/zalando-terms/",
+    "sha256": "c444a443154b31dc9d4b926c286275dc345416d31a672d290d1ff1e02b68e946",
+    "chars": 35744,
+    "counts": {
+     "experiment": 0,
+     "A-B": 0,
+     "randomize": 0,
+     "test": 1,
+     "trial": 0,
+     "beta": 0,
+     "control group": 0,
+     "debrief": 0,
+     "ethics": 0,
+     "review board": 0,
+     "IRB": 0,
+     "risk assessment": 0
+    },
+    "log_line": "experiment:0 / A-B:0 / randomize:0 / test:1 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+    "hits": [
+     {
+      "term": "test",
+      "start": 33158,
+      "match": "testing",
+      "kwic": "…relevance, our recommender system is monitored and updated regularly. We conduct rigorous testing to identify potential biases and continuously improve the algorithm to align with your ne…",
       "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' não são experimentação comportamental (§3)"
      }
     ]

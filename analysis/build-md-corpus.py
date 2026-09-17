@@ -234,7 +234,13 @@ def construir(frozen: Path, saida: Path, verboso: bool = True) -> dict:
                     "role": doc.get("role_hint")}
 
         if doc.get("error"):
-            excluidos.append({**registro, "motivo": f"captura falhou: {doc['error']}"})
+            # A nota de recaptura, quando existe, é o que o codificador precisa
+            # ler: o `error` é a medição da tentativa automatizada, e depois de
+            # uma recaptura manual ele pode ter virado conselho obsoleto.
+            motivo = f"captura falhou: {doc['error']}"
+            if doc.get("recapture_note"):
+                motivo += f" · {doc['recapture_note']}"
+            excluidos.append({**registro, "motivo": motivo})
             continue
         if not doc.get("text_path"):
             excluidos.append({**registro, "motivo": "sem texto extraído"})
@@ -323,9 +329,24 @@ def construir(frozen: Path, saida: Path, verboso: bool = True) -> dict:
             "n_binding": sum(1 for d in docs_indice if d["role"] == "binding"),
         })
 
+    # Resto de build anterior tem de sair. Uma recaptura renumera os documentos
+    # do serviço, e o arquivo com o nome velho continuaria em disco, fora do
+    # índice: quem navegasse a pasta em vez de ler o índice leria uma versão que
+    # o corpus já não declara. O `--check` acusa isso, e aqui é onde se resolve.
+    declarados = {saida / d["file"] for s in indice["services"] for d in s["docs"]}
+    sobraram = [p for p in saida.rglob("*.md") if p not in declarados]
+    for p in sobraram:
+        p.unlink()
+    for pasta in saida.iterdir():
+        if pasta.is_dir() and not any(pasta.iterdir()):
+            pasta.rmdir()
+
     (saida / "index.json").write_text(
         json.dumps(indice, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
+    if verboso and sobraram:
+        print(f"{len(sobraram)} arquivo(s) de build anterior removidos "
+              f"(ex.: {sobraram[0].relative_to(saida)})")
     if verboso:
         total = sum(len(s["docs"]) for s in indice["services"])
         print(f"{total} documentos · {len(indice['services'])} serviços · "
