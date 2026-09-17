@@ -30,15 +30,32 @@ for arq in $(grep -rl "FREEZE-SOURCE" "$DL" --include="*.html" 2>/dev/null | sor
   url=$(sed -n 's/.*<!-- FREEZE-SOURCE \(.*\) -->.*/\1/p' "$arq" | head -1)
   [ -z "$url" ] && continue
   linha=$(awk -F'\t' -v u="$url" '$4==u {print; exit}' "$TSV")
+  # A página pode ter redirecionado — a Booking acrescenta ?label=…, a Meta
+  # acrescenta parâmetros —, e aí a URL gravada no arquivo não é a da lista.
+  # Casa então sem query, fragmento e barra final, e só se sobrar UMA linha: dois
+  # candidatos é ambiguidade, e ambiguidade não se resolve em silêncio.
   if [ -z "$linha" ]; then
-    printf '  ?       %s\n          não está em pendentes.tsv — pulando\n' "${url:0:78}"
+    linha=$(awk -F'\t' -v u="$url" '
+      function base(s) { sub(/[?#].*$/, "", s); sub(/\/$/, "", s); return s }
+      base($4) == base(u) { n++; l = $0 }
+      END { if (n == 1) print l }' "$TSV")
+  fi
+  if [ -z "$linha" ]; then
+    printf '  ?       %s\n          não casa com pendentes.tsv — se redirecionou para outro caminho, adote com --url\n' "${url:0:78}"
     ruim=$((ruim+1)); continue
   fi
   papel=$(printf '%s' "$linha" | cut -f2)
   servico=$(printf '%s' "$linha" | cut -f3)
-  printf '%s\n' "$url" >> "$VISTAS"
+  # O manifesto guarda a URL da lista, que é a chave do inventário: gravar a URL
+  # redirecionada deixaria a entrada com erro intacta e o documento órfão. O
+  # redirecionamento fica registrado na nota, que é procedência.
+  alvo=$(printf '%s' "$linha" | cut -f4)
+  nota="salvo pelo navegador na VPN da UE"
+  [ "$alvo" != "$url" ] && nota="$nota; a página redirecionou para $url"
+  printf '%s\n' "$alvo" >> "$VISTAS"
   if saida=$(python3 analysis/freeze-sources.py adopt --out-dir "$FROZEN" \
-               --file "$arq" --service "$servico" --role "$papel" --vantage "$VANT" 2>&1); then
+               --file "$arq" --url "$alvo" --service "$servico" --role "$papel" \
+               --vantage "$VANT" --note "$nota" 2>&1); then
     printf '  ADOTADO %-62s %s\n' "${url:0:62}" \
       "$(printf '%s' "$saida" | sed -n 's/.*  \([0-9][0-9]*\) chars.*/\1 ch/p' | head -1)"
     ok=$((ok+1))
