@@ -63,6 +63,20 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codebook as C  # noqa: E402
 
+
+def _carregar_freeze_sources():
+    # Hífen no nome: não importa por `import`. A regra de pertença dos documentos
+    # vive lá e só lá — reescrevê-la aqui seria a segunda cópia que divergiria.
+    import importlib.util
+    caminho = Path(__file__).resolve().parent / "freeze-sources.py"
+    spec = importlib.util.spec_from_file_location("freeze_sources", caminho)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+FS = _carregar_freeze_sources()
+
 LIMIAR_ILEGIVEL = 0.02  # mesmo limiar do freeze-sources.py
 ORDEM_REGISTRO = {"binding": 0, "unknown": 1, None: 1, "non-binding": 2}
 
@@ -189,21 +203,24 @@ def separar(markdown: str) -> tuple[dict, str]:
 
 # --------------------------------------------------------------------- build
 
-def carregar_manifesto(frozen: Path) -> tuple[dict, list[dict]]:
-    caminho = frozen / "manifest.json"
-    if not caminho.exists():
-        raise ErroDeEntrada(f"manifesto não encontrado em {caminho}")
-    m = json.loads(caminho.read_text(encoding="utf-8"))
-    docs = m.get("documents")
-    if isinstance(docs, dict):
-        docs = list(docs.values())
+def carregar_membros(frozen: Path) -> tuple[dict, list[dict]]:
+    """(manifesto, [documento com o serviço que o USA]) — um item por par serviço–URL.
+
+    Documento compartilhado aparece uma vez para cada serviço cuja lista da
+    passada 1 o inclui. Ver `membros` em `freeze-sources.py` para o porquê: agrupar
+    pelo `service` do manifesto tirava cinco documentos do Google Search.
+    """
+    if not (frozen / "manifest.json").exists():
+        raise ErroDeEntrada(f"manifesto não encontrado em {frozen / 'manifest.json'}")
+    manifesto, grupos = FS.carregar_membros(frozen)
+    docs = [d for entradas in grupos.values() for d in entradas]
     if not docs:
         raise ErroDeEntrada("manifesto sem documentos")
-    return m, docs
+    return manifesto, docs
 
 
 def construir(frozen: Path, saida: Path, verboso: bool = True) -> dict:
-    manifesto, docs = carregar_manifesto(frozen)
+    manifesto, docs = carregar_membros(frozen)
     vantagem = (manifesto.get("vantage") or {}).get("country")
 
     servicos: dict[str, list[dict]] = {}
@@ -324,10 +341,25 @@ def construir(frozen: Path, saida: Path, verboso: bool = True) -> dict:
 
 # --------------------------------------------------------------------- check
 
-def checar(saida: Path) -> int:
-    """Afirma o que o corpus tem que satisfazer. Ruidoso de propósito."""
+def checar(saida: Path, frozen: Path | None = None) -> int:
+    """Afirma o que o corpus tem que satisfazer. Ruidoso de propósito.
+
+    Com `frozen`, confere também a pertença contra o inventário: todo par
+    serviço–URL da passada 1 com captura boa tem de estar no serviço dele. É o
+    teste que teria pego o Google Search com dois documentos em vez de sete.
+    """
     problemas: list[str] = []
     indice = json.loads((saida / "index.json").read_text(encoding="utf-8"))
+
+    if frozen is not None:
+        _, docs = carregar_membros(frozen)
+        publicados = {(s["name"], d["url"]) for s in indice["services"] for d in s["docs"]}
+        excluidos = {(e["servico"], e["url"]) for e in indice.get("excluidos", [])}
+        for d in docs:
+            par = (canonizar(d["service"]), d["url"])
+            if par not in publicados and par not in excluidos:
+                problemas.append(f"{par[0]}: {par[1][:70]} está no inventário "
+                                 "e sumiu do corpus sem ir para excluídos")
 
     declarados = set()
     for servico in indice["services"]:
@@ -379,7 +411,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.check:
-        return checar(args.out)
+        return checar(args.out, args.frozen)
     if not args.frozen:
         ap.error("--frozen é obrigatório para construir")
     try:
@@ -387,7 +419,7 @@ def main() -> int:
     except ErroDeEntrada as e:
         print(f"erro: {e}", file=sys.stderr)
         return 2
-    return checar(args.out)
+    return checar(args.out, args.frozen)
 
 
 if __name__ == "__main__":
