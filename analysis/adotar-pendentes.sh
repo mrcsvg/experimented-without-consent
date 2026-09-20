@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 # Adota tudo que foi salvo pelo navegador, sem você digitar nome nem URL.
 #
-# A automação de navegador não serve para esta parte: medido, a máquina sai em
-# IT com a VPN ligada, mas o navegador sob controle de ferramenta sai em US —
-# mesmo IP em dois navegadores distintos. Como parte destes documentos varia
-# por região, a captura tem de ser à mão, na VPN. O resto é este script.
+# SOBRE VANTAGEM E AUTOMAÇÃO. Em julho, medido: a máquina saía em IT com a VPN
+# ligada e o navegador sob controle de ferramenta saía nos EUA, então a captura
+# tinha de ser à mão. Em 17/09/2026 a medição foi repetida e o navegador
+# embutido do app saiu pelo MESMO IP da máquina (sha256 do IP idêntico ao do
+# preflight), e foi por ele que 10 documentos entraram. A regra, portanto, não é
+# "à mão sempre": é MEDIR ANTES, sempre, porque parte destes documentos varia
+# por região. Como medir: abrir https://ipinfo.io/json no navegador que for
+# capturar e comparar o IP com o que o `preflight` reporta.
+#
+# E MEDIR O IDIOMA TAMBÉM. Meta, TikTok e GitLab respondem no idioma do
+# navegador. Os 12 termos do §3 são ingleses: documento em português dá zero em
+# todos, e o zero entra como achado. Forçar por ?locale=en_GB, /en-gb/ no
+# caminho ou ?hl=en, e conferir o atributo lang antes de adotar.
 #
 # Uso:
 #   1. VPN da UE ligada:   python3 analysis/freeze-sources.py preflight
@@ -21,9 +30,21 @@ TSV="analysis/pendentes.tsv"
 FROZEN="${1:-../ethics-in-digita-experimentation/audit/frozen}"
 DL="${2:-$HOME/Downloads}"
 VANT="${VANTAGEM:-IT}"
-VISTAS="$(mktemp)"; trap 'rm -f "$VISTAS"' EXIT
+VISTAS="$(mktemp)"; BONS="$(mktemp)"; trap 'rm -f "$VISTAS" "$BONS"' EXIT
 
-ok=0; ruim=0
+# URLs que já estão congeladas e íntegras. O Downloads é um diretório que
+# acumula: o lote de julho continua lá, e sem esta lista uma segunda rodada
+# readotaria tudo — reescrevendo a data de captura de documentos congelados
+# meses antes, e trocando uma captura por outra de vantagem diferente sob a
+# etiqueta nova. Recongelar é possível, mas tem de ser pedido: FORCAR=1.
+python3 - "$FROZEN/manifest.json" > "$BONS" <<'PY' || true
+import json, sys
+for d in json.load(open(sys.argv[1], encoding="utf-8"))["documents"]:
+    if d.get("sha256_text") and not d.get("error"):
+        print(d["url"])
+PY
+
+ok=0; ruim=0; pulados=0
 # O vínculo arquivo->documento vem do marcador dentro do arquivo, não do nome:
 # o nome quem decide é o navegador, e casar por nome erra em silêncio.
 for arq in $(grep -rl "FREEZE-SOURCE" "$DL" --include="*.html" 2>/dev/null | sort); do
@@ -62,6 +83,11 @@ for arq in $(grep -rl "FREEZE-SOURCE" "$DL" --include="*.html" 2>/dev/null | sor
   # redirecionada deixaria a entrada com erro intacta e o documento órfão. O
   # redirecionamento fica registrado na nota, que é procedência.
   alvo=$(printf '%s' "$linha" | cut -f4)
+  if [ "${FORCAR:-0}" != "1" ] && grep -qxF "$alvo" "$BONS"; then
+    printf '  JÁ TEM  %-62s congelado e íntegro\n' "${alvo:0:62}"
+    printf '%s\n' "$alvo" >> "$VISTAS"
+    pulados=$((pulados+1)); continue
+  fi
   # A nota é procedência e vai para o manifesto. Sobrescreva com NOTA= quando a
   # captura não foi um humano salvando à mão — a diferença importa, porque o
   # navegador sob automação já saiu por outra vantagem que a da máquina.
@@ -90,5 +116,5 @@ while IFS=$'\t' read -r apelido papel servico url; do
 done < "$TSV"
 
 echo
-echo "adotados $ok · com problema $ruim"
+echo "adotados $ok · pulados (já congelados) $pulados · com problema $ruim"
 python3 analysis/freeze-sources.py status --out-dir "$FROZEN" | tail -3
