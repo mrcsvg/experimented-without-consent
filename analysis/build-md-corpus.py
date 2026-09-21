@@ -64,18 +64,34 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codebook as C  # noqa: E402
 
 
-def _carregar_freeze_sources():
-    # Hífen no nome: não importa por `import`. A regra de pertença dos documentos
-    # vive lá e só lá — reescrevê-la aqui seria a segunda cópia que divergiria.
-    import importlib.util
-    caminho = Path(__file__).resolve().parent / "freeze-sources.py"
-    spec = importlib.util.spec_from_file_location("freeze_sources", caminho)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+_FS = None
 
 
-FS = _carregar_freeze_sources()
+def _freeze_sources():
+    """Carrega `freeze-sources.py` por caminho, e só quando for preciso.
+
+    Hífen no nome: não importa por `import`. A regra de pertença dos documentos
+    vive lá e só lá — reescrevê-la aqui seria a segunda cópia que divergiria.
+
+    E o carregamento é TARDIO de propósito. O `revisao.py` importa este módulo
+    só pelo par separar/sha256, e o runtime que o notebook baixa do site leva
+    seis arquivos, sem o `freeze-sources.py` — que é ferramenta de captura e não
+    tem o que fazer no Colab. Carregando no topo, `import revisao` morria com
+    FileNotFoundError na célula de setup. Quem precisa da pertença é quem
+    constrói o corpus, e aí o arquivo está ao lado.
+    """
+    global _FS
+    if _FS is None:
+        import importlib.util
+        caminho = Path(__file__).resolve().parent / "freeze-sources.py"
+        if not caminho.exists():
+            raise ErroDeEntrada(
+                f"{caminho.name} não está ao lado deste módulo. Construir o corpus "
+                "precisa da ferramenta de captura; ler o corpus, não.")
+        spec = importlib.util.spec_from_file_location("freeze_sources", caminho)
+        _FS = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_FS)
+    return _FS
 
 LIMIAR_ILEGIVEL = 0.02  # mesmo limiar do freeze-sources.py
 ORDEM_REGISTRO = {"binding": 0, "unknown": 1, None: 1, "non-binding": 2}
@@ -212,7 +228,7 @@ def carregar_membros(frozen: Path) -> tuple[dict, list[dict]]:
     """
     if not (frozen / "manifest.json").exists():
         raise ErroDeEntrada(f"manifesto não encontrado em {frozen / 'manifest.json'}")
-    manifesto, grupos = FS.carregar_membros(frozen)
+    manifesto, grupos = _freeze_sources().carregar_membros(frozen)
     docs = [d for entradas in grupos.values() for d in entradas]
     if not docs:
         raise ErroDeEntrada("manifesto sem documentos")

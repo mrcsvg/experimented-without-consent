@@ -44,7 +44,9 @@ import argparse
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -89,6 +91,30 @@ def publicar_runtime(destino: Path) -> dict:
     return manifesto
 
 
+def importavel(destino: Path) -> str | None:
+    """Importa o runtime publicado num processo limpo, com só `lib/` no caminho.
+
+    O pacote leva seis arquivos. Basta um `import` novo em qualquer um deles
+    para a célula de setup morrer no Colab, e o erro não aparece aqui, onde o
+    repositório inteiro está ao lado — foi exatamente assim que o
+    `build-md-corpus.py` passou a carregar o `freeze-sources.py` no topo e
+    deixou o runtime publicado sem subir. Este teste roda o import a partir de
+    uma cópia isolada do que foi publicado, que é o que o revisor recebe.
+
+    Devolve None se importa, ou a última linha do erro.
+    """
+    with tempfile.TemporaryDirectory(prefix="lib-") as tmp:
+        alvo = Path(tmp) / "lib"
+        shutil.copytree(destino / "lib", alvo)
+        r = subprocess.run(
+            [sys.executable, "-c",
+             "import sys; sys.path.insert(0, 'lib/analysis'); "
+             "import patterns, codebook, coding_flow, revisao; "
+             "assert revisao.CORPUS_PADRAO and len(codebook.SERVICOS) == 26"],
+            cwd=tmp, capture_output=True, text=True)
+        return None if r.returncode == 0 else (r.stderr.strip().splitlines() or ["?"])[-1]
+
+
 def checar(destino: Path) -> int:
     problemas = []
     lib = destino / "lib"
@@ -119,6 +145,10 @@ def checar(destino: Path) -> int:
     md = destino / "md" / "index.json"
     if not md.exists():
         problemas.append("md/index.json: corpus não publicado")
+
+    erro = importavel(destino)
+    if erro:
+        problemas.append(f"lib/ não importa isolado (o setup do notebook morreria): {erro}")
 
     if problemas:
         print(f"FALHOU — {len(problemas)} problema(s):")
