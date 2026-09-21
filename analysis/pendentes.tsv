@@ -1,13 +1,15 @@
-temu-tos	binding	Temu (Whaleco Technology Limited; DSA VLOP)	https://www.temu.com/no-en/terms-of-use.html
-temu-privacy	binding	Temu (Whaleco Technology Limited; DSA VLOP)	https://www.temu.com/no-en/privacy-and-cookie-policy.html
-temu-cookies	binding	Temu (Whaleco Technology Limited; DSA VLOP)	https://www.temu.com/no-en/cookie-and-similar-technologies-policy.html
-temu-support	non-binding	Temu (Whaleco Technology Limited; DSA VLOP)	https://www.temu.com/support/c2/-in-f-55.html
-shein-privacy	binding	Shein	https://eur.shein.com/Consumer-Privacy-Notice-s-101.html
-shein-terms	binding	Shein	https://eur.shein.com/Terms-and-Conditions-a-399.html
-shein-ranking	non-binding	Shein	https://eur.shein.com/ranking-policy-a-1979.html
-x-legal-bases	binding	X	https://help.x.com/en/rules-and-policies/data-processing-legal-bases
-x-cookies	binding	X	https://help.x.com/en/rules-and-policies/x-cookies
-x-beta	non-binding	X	https://help.x.com/en/rules-and-policies/x-beta-experiments-program
-x-user-research	non-binding	X	https://help.x.com/en/rules-and-policies/x-user-research
-x-research-cat	non-binding	X	https://help.x.com/en/rules-and-policies#research-and-experiments
-x-eng-blog	non-binding	X	https://blog.x.com/engineering/en_us/a/2015/the-what-and-why-of-product-experimentation-at-twitter-0
+ig-privacy	unknown	Instagram	https://privacycenter.instagram.com/policy/
+ig-terms	unknown	Instagram	https://help.instagram.com/581066165581870
+ig-feed-ranking	unknown	Instagram	https://transparency.meta.com/features/explaining-ranking/ig-feed/
+fb-ab-help	non-binding	Facebook (Meta Platforms Ireland Limited; DSA VLOP)	https://www.facebook.com/business/help/1738164643098669
+gsearch-labs	unknown	Google Search (Google Ireland Ltd.; DSA VLOSE)	https://labs.google.com/search/
+tiktok-recsys	unknown	TikTok	https://www.tiktok.com/safety/en/policies-and-engagement/recommendation-system
+xvideos-p2b-tos	unknown	XVideos (WebGroup Czech Republic, a.s.; DSA VLOP)	https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md
+yt-test-features	unknown	YouTube (provider: Google Ireland Limited; DSA type: VLOP)	https://support.google.com/youtube/thread/18138167
+booking-cookie	unknown	Booking.com	https://www.booking.com/content/cookie.html
+booking-medium	non-binding	Booking.com	https://medium.com/booking-com-development
+booking-ai	non-binding	Booking.com	https://booking.ai/
+pinterest-medium-ab	non-binding	Pinterest	https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22
+zalando-privacy	unknown	Zalando	https://en.zalando.de/zalando-privacy-policy/
+zalando-terms	unknown	Zalando	https://en.zalando.de/zalando-terms/
+zalando-account-terms	unknown	Zalando	https://accounts.zalando.com/terms-of-use

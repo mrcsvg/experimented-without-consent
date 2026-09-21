@@ -280,6 +280,58 @@ def cmd_inventory(args):
     return 0
 
 
+def membros(man, inv):
+    """{serviço: [entrada, ...]} — quem USA cada documento, não quem disparou a captura.
+
+    O manifesto guarda uma entrada por URL, e está certo assim: capturar a mesma
+    página duas vezes, em horas diferentes, poria duas versões do mesmo
+    documento no corpus. Mas a unidade de análise é o serviço, e a passada 1
+    listou a mesma Privacy Policy do Google para os cinco serviços do Google. O
+    `service` de uma entrada só diz qual serviço estava na vez quando a URL foi
+    buscada. Agrupar por ele tirou do Google Search cinco documentos que a
+    passada 1 leu — a Privacy Policy em duas localizações, os Terms, a política
+    de cookies e a página "rigorous testing", a dos 700 mil experimentos — e os
+    deixou só com o Shopping e o Play. O instrumento em HTML escapou porque
+    mapeia por URL; o índice do kit, a varredura do §3 e o corpus em Markdown,
+    que agrupavam por `service`, não.
+
+    A pertença vem do inventário (os pares serviço–URL da passada 1); o conteúdo,
+    do manifesto. Entrada adotada à mão cuja URL não está no inventário fica com
+    o serviço que o `adopt` gravou, que é a única atribuição existente para ela.
+    O `role_hint` vem do par, porque é o contexto daquele serviço que rotulou.
+    """
+    por_url = {d["url"]: d for d in man["documents"]}
+    grupos, usadas = {}, set()
+    for par in inv["documents"]:
+        entrada = por_url.get(par["url"])
+        if entrada is None:
+            continue
+        usadas.add(par["url"])
+        grupos.setdefault(par["service"], []).append(
+            {**entrada, "service": par["service"],
+             "role_hint": par.get("role_hint") or entrada.get("role_hint")})
+    for d in man["documents"]:
+        if d["url"] not in usadas:
+            grupos.setdefault(d["service"], []).append(d)
+    return grupos
+
+
+def carregar_membros(out):
+    """Lê manifesto e inventário de `out` e devolve (manifesto, membros).
+
+    Sem o inventário não há como saber quem usa cada documento, e cair de volta
+    no `service` do manifesto é exatamente o erro que `membros` corrige — por
+    isso a falta dele é erro, não fallback."""
+    out = Path(out)
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    caminho = out / "inventory.json"
+    if not caminho.exists():
+        sys.exit(f"{caminho} não existe. Sem o inventário, a pertença dos documentos "
+                 "compartilhados cairia para o serviço que disparou a captura.")
+    inv = json.loads(caminho.read_text(encoding="utf-8"))
+    return man, membros(man, inv)
+
+
 # ------------------------------------------------------------ Wayback
 
 def wayback_save(url, pause):
@@ -514,13 +566,15 @@ def cmd_package(args):
     quebraria a cegueira que o 2º passe existe para estabelecer. Daqui sai um
     zip com o texto, um índice por serviço e as instruções, e nada mais."""
     out, dest = Path(args.out_dir), Path(args.dest)
-    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
-    good = [d for d in man["documents"]
-            if d.get("text_path") and not d.get("error")
-            and (d.get("capture_method") == "manual" or (d.get("text_chars") or 0) >= args.min_text)]
-    by = {}
-    for d in good:
-        by.setdefault(d["service"], []).append(d)
+    man, grupos = carregar_membros(out)
+
+    def bom(d):
+        return (d.get("text_path") and not d.get("error")
+                and (d.get("capture_method") == "manual" or (d.get("text_chars") or 0) >= args.min_text))
+
+    good = [d for d in man["documents"] if bom(d)]
+    by = {s: [d for d in v if bom(d)] for s, v in grupos.items()}
+    by = {s: v for s, v in by.items() if v}
 
     idx = {"built_at": now_iso(), "frozen_at": man.get("captured_at"),
            "vantage": (man.get("vantage") or {}).get("country"),
