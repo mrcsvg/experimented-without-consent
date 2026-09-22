@@ -238,7 +238,14 @@ def relatorio(res: dict) -> str:
 
 # ----------------------------------------------------------------------- execução
 
-def rodar(corpus_origem: str, modelo: str, gastar: bool, cliente=None) -> dict:
+def rodar(corpus_origem: str, modelo: str, gastar: bool, cliente=None,
+          servicos: list[str] | None = None, rodadas_extra: list[str] | None = None) -> dict:
+    # A amostra pré-registrada é o default. `--servicos` existe para provar o
+    # caminho com um serviço barato antes de gastar a rodada inteira, e para
+    # repetir um serviço isolado depois de uma falha de rede — não para escolher
+    # amostra a gosto depois de ver resultado.
+    amostra = servicos or AMOSTRA
+    duas = rodadas_extra if rodadas_extra is not None else DUAS_RODADAS
     corpus = R.configurar(corpus=corpus_origem, modelo=modelo)
     res = {"modelo": modelo, "corpus": corpus_origem, "quando": datetime.now(timezone.utc)
            .isoformat(timespec="seconds"), "prompt": impressao_do_prompt(),
@@ -247,26 +254,30 @@ def rodar(corpus_origem: str, modelo: str, gastar: bool, cliente=None) -> dict:
            "servicos": {}, "estabilidade": {}, "tokens_entrada": 0, "tokens_saida": 0}
 
     if not gastar:
-        total = 0
+        total = chamadas = 0
         print("amostra e estimativa (nada foi chamado):\n")
-        for s in AMOSTRA:
+        for s in amostra:
             n = sum(d["chars"] for d in corpus.docs(s))
-            rodadas = 2 if s in DUAS_RODADAS else 1
+            rodadas = 2 if s in duas else 1
             tok = int(n / 3.6) * rodadas
             total += tok
+            chamadas += rodadas
             print(f"  {s:<16} {len(corpus.docs(s))} docs · {n:>7} ch · "
                   f"{rodadas} rodada(s) · ~{tok:>7,} tokens".replace(",", "."))
-        custo = total / 1e6 * PRECO["entrada"] + 0.064 * PRECO["saida"]
-        print(f"\n  ~{total:,} tokens de entrada · estimativa ~US$ {custo:.2f}".replace(",", "."))
+        # ~8 mil tokens de saída por chamada (pensamento + o JSON do esquema).
+        saida = chamadas * 8_000
+        custo = total / 1e6 * PRECO["entrada"] + saida / 1e6 * PRECO["saida"]
+        print(f"\n  {chamadas} chamada(s) · ~{total:,} tokens de entrada · "
+              f"~{saida:,} de saída · estimativa ~US$ {custo:.2f}".replace(",", "."))
         print("\n  heurística de 3,6 caracteres por token; a contagem exata precisa da chave.")
         print("  para rodar de verdade: acrescente --go")
         return res
 
-    for servico in AMOSTRA:
+    for servico in amostra:
         ref = referencia(servico, corpus)
         ref["_textos"] = [corpus.texto(d) or "" for d in corpus.docs(servico)]
         medidas = []
-        for rodada in range(2 if servico in DUAS_RODADAS else 1):
+        for rodada in range(2 if servico in duas else 1):
             t0 = time.time()
             sug = R.sugerir(servico, corpus, modelo=modelo, cliente=cliente)
             m = medir(servico, sug, ref)
@@ -387,12 +398,15 @@ def main() -> int:
     ap.add_argument("--go", action="store_true", help="chama o modelo de verdade (gasta)")
     ap.add_argument("--simular", action="store_true", help="self-test com cliente falso")
     ap.add_argument("--out", type=Path, help="onde gravar o relatório em Markdown")
+    ap.add_argument("--servicos", nargs="+", help="sobrepõe a amostra pré-registrada")
+    ap.add_argument("--uma-rodada", action="store_true", help="sem a segunda rodada de C6")
     a = ap.parse_args()
 
     if a.simular:
         return _self_test(a.corpus)
 
-    res = rodar(a.corpus, a.modelo, a.go)
+    res = rodar(a.corpus, a.modelo, a.go, servicos=a.servicos,
+                rodadas_extra=[] if a.uma_rodada else None)
     if not a.go:
         return 0
     texto = relatorio(res)
