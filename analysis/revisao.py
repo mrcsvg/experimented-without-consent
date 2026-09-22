@@ -243,18 +243,24 @@ class Sugestao:
 
 
 def _cliente():
-    """Cliente Anthropic com a chave vinda do cofre do Colab, não do notebook.
+    """Cliente Anthropic com a chave vinda do cofre, nunca de dentro do notebook.
 
-    Ordem: variável de ambiente, depois os Secrets do Colab (o cadeado na barra
-    lateral, com "Notebook access" ligado). A chave nunca entra numa célula —
-    este repositório é público, e output de notebook já viajou para dentro de
-    clone antes (ver `nb-clean.py`).
+    Ordem: `EWC_ANTHROPIC_KEY`, depois `ANTHROPIC_API_KEY`, depois os Secrets do
+    Colab (o cadeado na barra lateral, com "Notebook access" ligado). A chave
+    nunca entra numa célula — este repositório é público, e output de notebook
+    já viajou para dentro de clone antes (ver `nb-clean.py`).
+
+    POR QUE UM NOME PRÓPRIO VEM PRIMEIRO. Numa máquina de trabalho, exportar
+    `ANTHROPIC_API_KEY` no perfil do shell muda o comportamento de outras
+    ferramentas: a CLI do Claude, por exemplo, passa a autenticar por chave de
+    API e a cobrar creditos de API em vez do plano. `EWC_ANTHROPIC_KEY` só
+    existe para este projeto, e quem exporta essa não altera mais nada.
     """
     try:
         import anthropic
     except ImportError:
         raise RuntimeError("falta o SDK: pip install -q anthropic")
-    chave = os.environ.get("ANTHROPIC_API_KEY")
+    chave = os.environ.get("EWC_ANTHROPIC_KEY") or os.environ.get("ANTHROPIC_API_KEY")
     if not chave:
         try:
             from google.colab import userdata
@@ -263,8 +269,9 @@ def _cliente():
             chave = None
     if not chave:
         raise RuntimeError(
-            "sem ANTHROPIC_API_KEY. No Colab: cadeado da barra lateral → "
-            "novo secret ANTHROPIC_API_KEY → ligar 'Notebook access'.")
+            "sem chave. Local: exporte EWC_ANTHROPIC_KEY no perfil do shell. "
+            "No Colab: cadeado da barra lateral → novo secret ANTHROPIC_API_KEY "
+            "→ ligar 'Notebook access'.")
     return anthropic.Anthropic(api_key=chave, timeout=600.0)
 
 
