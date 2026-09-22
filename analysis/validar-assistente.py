@@ -284,8 +284,10 @@ def rodar(corpus_origem: str, modelo: str, gastar: bool, cliente=None,
             medidas.append(m)
             res["tokens_entrada"] += sug.uso.get("input", 0)
             res["tokens_saida"] += sug.uso.get("output", 0)
+            # flush: uma rodada leva minutos, e fora de terminal o Python
+            # segura a saída no buffer — quem está esperando não vê progresso.
             print(f"  {servico:<16} rodada {rodada + 1}: {m['citacoes']} citações, "
-                  f"{m['descartadas']} descartes, {time.time() - t0:.0f}s")
+                  f"{m['descartadas']} descartes, {time.time() - t0:.0f}s", flush=True)
         res["servicos"][servico] = medidas[0]
         if len(medidas) == 2:
             res["estabilidade"][servico] = estabilidade(medidas[0], medidas[1])
