@@ -183,6 +183,66 @@ def varredura(servico: str, corpus: "Corpus | None" = None) -> list[dict]:
     return saida
 
 
+# --------------------------------------------------------- piso determinístico
+
+# Endereço de cada termo do §3: a qual variável o hit interessa. É endereço, não
+# julgamento — o hit chega à tela da variável, e quem decide se ele vale é o
+# avaliador. Um termo pode servir a mais de uma.
+TERMO_PARA_VARIAVEL = {
+    "experiment": ("V1", "V3"),
+    "A-B": ("V1", "V3"),
+    "randomize": ("V1", "V3"),
+    "control group": ("V1", "V3"),
+    "test": ("V1", "V6"),
+    "trial": ("V1", "V6"),
+    "beta": ("V6",),
+    "debrief": ("V7",),
+    "ethics": ("V8",),
+    "review board": ("V8",),
+    "IRB": ("V8",),
+    "risk assessment": ("V8",),
+}
+
+# Por (variável, termo, documento). Sem teto, 421 ocorrências de "experiment"
+# afogariam a V1; a contagem completa por documento continua na lista de
+# documentos e no log do §3, que é o que o codebook exige registrar.
+TETO_POR_TERMO_DOC = 3
+
+
+def piso(servico: str, corpus: "Corpus | None" = None, dossie: list | None = None) -> dict:
+    """Hits da varredura determinística, endereçados por variável. O chão da tela.
+
+    Uma regex sobre o texto congelado não esquece nada, e é por isso que ela vem
+    primeiro: o que o modelo devolve só pode ACRESCENTAR. A triagem segue sendo
+    do avaliador, e o hit chega com a nota de falso positivo quando o termo tem
+    uma — distinguir "Our Code of Ethics" no menu de revisão ética de
+    experimento é julgamento, e julgamento não é da máquina.
+
+    POR QUE ESTE PISO EXISTE. Medido em 20/09/2026, na validação: no Zalando o
+    modelo filtrou em silêncio os hits de `ethics` e `risk assessment`. Sobre o
+    conteúdo ele estava certo — eram item de menu e escore antifraude —, mas
+    quem tinha de descartar era o avaliador, e ele nunca os viu. O modelo também
+    não devolvia a mesma seleção em duas rodadas. Com o piso, a tela deixa de
+    depender de qual passagem o modelo achou decisiva naquela vez.
+    """
+    dossie = dossie if dossie is not None else varredura(servico, corpus)
+    por_variavel: dict[str, list] = {}
+    for d in dossie:
+        vistos: dict[tuple, int] = {}
+        for h in d["hits"]:
+            for vid in TERMO_PARA_VARIAVEL.get(h["term"], ()):
+                chave = (vid, h["term"], d["file"])
+                vistos[chave] = vistos.get(chave, 0) + 1
+                if vistos[chave] > TETO_POR_TERMO_DOC:
+                    continue
+                por_variavel.setdefault(vid, []).append({
+                    "termo": h["term"], "kwic": h["kwic"], "flag": h["flag"],
+                    "file": d["file"], "role": d["role"],
+                    "total_no_doc": d["counts"][h["term"]],
+                })
+    return por_variavel
+
+
 # ------------------------------------------------------------------ o modelo
 
 SISTEMA = """Você localiza evidência em documentos congelados de plataformas online. \
@@ -391,6 +451,9 @@ class Painel:
         self.servico = servico
         self.docs = self.corpus.docs(servico)
         self.dossie_local = varredura(servico, self.corpus)
+        # O piso é montado na construção e não depende de rede nem de chave: a
+        # tela tem evidência para mostrar mesmo sem o modelo.
+        self.piso = piso(servico, self.corpus, self.dossie_local)
         self.estado = estado if estado is not None else F.Estado(offline=CFG.offline)
         # O `Fluxo` resolve o serviço contra o dossiê na construção; passamos o
         # dossiê já chaveado pelo nome canônico, que é o do roster.
@@ -407,8 +470,13 @@ class Painel:
         return self.sugestao
 
     def evidencia_de(self, vid: str) -> list[dict]:
+        """O que o MODELO acrescentou nesta variável. Pode ser vazio."""
         s = self.sugestao.por_variavel.get(vid, {}) if self.sugestao else {}
         return s.get("citacoes", [])
+
+    def piso_de(self, vid: str) -> list[dict]:
+        """O que a varredura determinística achou nesta variável. Nunca esquece."""
+        return self.piso.get(vid, [])
 
     def revelar(self, vid: str) -> dict:
         """Mostra a sugestão do modelo e registra que ela foi vista.
@@ -467,8 +535,13 @@ class Painel:
         passo = self.fluxo.atual()
         vid = vid or passo.vid
         print(f"\n[{passo.vid}] {passo.titulo}\n    {re.sub('<[^>]+>', '', passo.regra)}")
+        chao = self.piso_de(vid)
+        print(f"    varredura do §3 ({len(chao)}) — o piso, não depende do modelo:")
+        for h in chao[:4]:
+            nota = f"  ⚠ {h['flag'][:70]}" if h["flag"] else ""
+            print(f"      [{h['termo']}] …{h['kwic'][:120]}… — {h['file']}{nota}")
         cits = self.evidencia_de(vid)
-        print(f"    evidência localizada: {len(cits)}")
+        print(f"    acrescentado pelo modelo ({len(cits)}):")
         for c in cits[:4]:
             print(f"      “{c['verbatim'][:150]}” — doc {c['doc']} · {c['onde']}")
         pend = self.fluxo.faltando()
@@ -538,7 +611,27 @@ class Painel:
             f"“{_esc(c['verbatim'][:400])}”<br>"
             f"<span style='color:#888;font-size:12px'>doc {c['doc']} · {_esc(c['onde'])} "
             f"· {_esc(c.get('por_que', ''))[:160]}</span></div>"
-            for c in cits) or "<i style='color:#888'>o modelo não localizou passagem para esta variável</i>"
+            for c in cits) or "<i style='color:#888'>o modelo não acrescentou nada nesta variável</i>"
+
+        # O piso vem primeiro na tela, em cinza: é o que a regex achou, com a
+        # nota de falso positivo quando o termo tem uma. Quem descarta é você.
+        chao = self.piso_de(vid)
+
+        def _bloco_piso(h):
+            quantos = (f" · {h['total_no_doc']} ocorrências neste documento"
+                       if h["total_no_doc"] > 1 else "")
+            aviso = (f"<br><span style='color:#a15c00;font-size:11.5px'>⚠ "
+                     f"{_esc(h['flag'])}</span>" if h["flag"] else "")
+            return (f"<div style='margin:5px 0;padding:5px 10px;border-left:3px solid #999;"
+                    f"background:#fafafa;font-size:12.5px'>"
+                    f"<b style='color:#555'>[{_esc(h['termo'])}]</b> "
+                    f"…{_esc(h['kwic'][:300])}…<br>"
+                    f"<span style='color:#888;font-size:11.5px'>"
+                    f"{_esc(Path(h['file']).name)}{quantos}</span>{aviso}</div>")
+
+        piso_html = "".join(_bloco_piso(h) for h in chao) or (
+            "<i style='color:#888'>a varredura do §3 não acha nenhum termo desta "
+            "variável no corpus deste serviço</i>")
 
         btn_sug = W.Button(description="ver sugestão do modelo", icon="eye")
         saida_sug = W.Output()
@@ -586,7 +679,11 @@ class Painel:
                 f"<div style='color:#555'>{passo.regra}</div>"
                 f"<details><summary style='cursor:pointer;color:#06c'>critério completo</summary>"
                 f"{passo.criterio}</details>"
-                f"<div style='margin-top:8px'><b>evidência localizada ({len(cits)})</b>{ev}</div>"))
+                f"<div style='margin-top:10px'><b>varredura do §3 ({len(chao)})</b> "
+                f"<span style='color:#888;font-size:12px'>— o piso: regex sobre o texto "
+                f"congelado, não depende do modelo. A triagem é sua.</span>{piso_html}</div>"
+                f"<div style='margin-top:10px'><b>acrescentado pelo modelo ({len(cits)})</b>"
+                f"{ev}</div>"))
             display(W.VBox([W.HBox([W.Label(c.rotulo, layout=W.Layout(width="260px")), w])
                             for c, w in zip(passo.campos, campos.values())]))
             display(W.HBox([btn_ok, btn_sug]))
@@ -643,6 +740,38 @@ def _self_test() -> int:
                        {x["file"]: c.texto(x) for x in c.docs("Google Play")})
     checar("âncora do próprio serviço fica fora do prompt",
            not ocultas or all(re.sub("<[^>]+>", "", a)[:40] not in p_google for a in ocultas))
+
+    print("piso determinístico")
+    # As três propriedades que o piso tem de garantir POR CONSTRUÇÃO — e que não
+    # precisam de chamada ao modelo para serem verificadas. Substituem, no
+    # desenho novo, os critérios de cobertura que a validação de 20/09 mediu
+    # contra o modelo: cobertura deixa de ser esperança e passa a ser invariante.
+    for servico in ("Zalando", "Google Search", "Instagram"):
+        dossie = varredura(servico, c)
+        chao = piso(servico, c, dossie)
+        endereçados = {(h["file"], h["termo"]) for hits in chao.values() for h in hits}
+        esperados = {(d["file"], t) for d in dossie for t, n in d["counts"].items()
+                     if n and t in TERMO_PARA_VARIAVEL}
+        checar(f"{servico}: todo par documento–termo chega a alguma variável",
+               esperados <= endereçados)
+        com_flag = [h for hits in chao.values() for h in hits
+                    if P.PATTERNS[h["termo"]]["flag"]]
+        checar(f"{servico}: hit de termo com falso positivo carrega a nota",
+               all(h["flag"] for h in com_flag))
+
+    # Regressão do defeito achado em 20/09: no Zalando o modelo filtrou `ethics`
+    # e `risk assessment`, e o avaliador nunca os viu. Agora eles chegam à V8.
+    chao_z = piso("Zalando", c)
+    termos_v8 = {h["termo"] for h in chao_z.get("V8", [])}
+    checar("Zalando: ethics e risk assessment chegam ao piso da V8",
+           {"ethics", "risk assessment"} <= termos_v8)
+    checar("Zalando: os dois vêm com nota de falso positivo",
+           all(h["flag"] for h in chao_z["V8"] if h["termo"] in {"ethics", "risk assessment"}))
+    teto = {}
+    for h in chao_z.get("V1", []):
+        teto[(h["termo"], h["file"])] = teto.get((h["termo"], h["file"]), 0) + 1
+    checar("teto por termo e documento é respeitado",
+           all(v <= TETO_POR_TERMO_DOC for v in teto.values()))
 
     print("painel (modo texto, sem rede)")
     CFG.offline = True
