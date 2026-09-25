@@ -86,6 +86,9 @@ def _carregar_builder():
 B = _carregar_builder()
 
 MODELO_PADRAO = "claude-opus-5"
+# Teto de saída: cobre pensamento adaptativo + o JSON das citações. Vai junto no
+# arquivo congelado, como parâmetro de geração — 16 mil truncou o Bing.
+MAX_TOKENS = 64000
 CORPUS_PADRAO = "corpus-md"
 TIMEOUT = 60
 
@@ -431,7 +434,12 @@ def sugerir(servico: str, corpus: "Corpus | None" = None, modelo: str | None = N
     cliente = cliente or _cliente()
     with cliente.messages.stream(
         model=modelo,
-        max_tokens=16000,
+        # O teto cobre pensamento + JSON. Com 16 mil, o Bing (405 mil caracteres,
+        # muitas citações) truncou o JSON no meio de uma string: o pensamento
+        # adaptativo come parte do teto, e o que sobrou não bastou. Streaming
+        # permite teto alto sem risco de timeout, e teto alto não gasta mais —
+        # o modelo para quando acaba.
+        max_tokens=MAX_TOKENS,
         system=SISTEMA,
         thinking={"type": "adaptive"},
         output_config={"format": {"type": "json_schema", "schema": ESQUEMA}},
@@ -439,8 +447,17 @@ def sugerir(servico: str, corpus: "Corpus | None" = None, modelo: str | None = N
     ) as fluxo:
         resposta = fluxo.get_final_message()
 
-    if getattr(resposta, "stop_reason", None) == "refusal":
+    parada = getattr(resposta, "stop_reason", None)
+    if parada == "refusal":
         raise RuntimeError(f"o modelo recusou ({resposta.stop_details}) — recorte o pedido")
+    # Truncamento tem de ser erro explícito. Sem esta porta, a resposta cortada
+    # chega ao `json.loads` e estoura com "Unterminated string" — mensagem que não
+    # diz o que aconteceu —, e no caso pior o JSON fecha por acidente e entrega
+    # evidência pela metade como se fosse completa.
+    if parada == "max_tokens":
+        raise RuntimeError(
+            f"resposta truncada em {MAX_TOKENS} tokens de saída ({servico}): a evidência "
+            f"viria pela metade. Aumente MAX_TOKENS ou divida o serviço por documento.")
 
     bruto = json.loads(next(b.text for b in resposta.content if b.type == "text"))
     sug = Sugestao(servico=servico, modelo=modelo,

@@ -60,6 +60,9 @@ def congelar_um(servico: str, corpus, modelo: str, cliente=None) -> dict:
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "corpus_frozen_at": corpus.index.get("frozen_at"),
         "corpus_built_at": corpus.index.get("built_at"),
+        # Parâmetros de geração, porque teto de saída e modo de pensamento fazem
+        # parte das condições sob as quais a evidência foi produzida.
+        "geracao": {"max_tokens": R.MAX_TOKENS, "thinking": "adaptive"},
         "citacoes": {vid: v["citacoes"] for vid, v in sug.por_variavel.items()},
         "descartadas": len(sug.descartadas),
         "uso": sug.uso,
