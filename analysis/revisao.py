@@ -17,10 +17,27 @@ não mede concordância entre codificadores: mede o modelo consigo mesmo. O
 número que o paper reporta deixaria de significar o que ele diz significar.
 
 Daí a divisão: o painel entrega as citações verbatim já localizadas, e o
-código é do avaliador. A sugestão do modelo existe, mas fica atrás de um botão,
-e o registro guarda se ela foi revelada antes ou depois da resposta. Assim o
-κ pode ser reportado com a ressalva certa, e dá para medir quantas vezes o
-avaliador simplesmente carimbou.
+código é do avaliador.
+
+A TELA TEM DOIS ANDARES, e a ordem importa. O piso é a varredura determinística
+dos 12 termos do §3, endereçada por variável (`piso`): uma regex sobre o texto
+congelado não esquece nada, roda sem rede e sem chave, e chega com a nota de
+falso positivo quando o termo tem uma — a triagem é do avaliador. Em cima dele
+vem o que o modelo acrescentou. Nessa ordem, o modelo só pode somar.
+
+Foi a validação de 20/09/2026 que impôs esse desenho. Ela mediu o modelo
+filtrando em silêncio os hits de `ethics` e `risk assessment` do Zalando —
+acertando o conteúdo, porque eram menu e antifraude, mas tirando do avaliador uma
+triagem que era dele. E mediu duas rodadas do mesmo serviço devolvendo seleções
+diferentes, com Jaccard de 0,00 numa variável.
+
+POR ISSO A EVIDÊNCIA DO MODELO É CONGELADA. `congelar-sugestoes.py` roda uma vez
+e publica as citações ao lado do corpus; `congelada()` as lê. Todo avaliador vê a
+mesma tela, ninguém precisa de chave de API, e o arquivo é citável no método. O
+arquivo publicado NÃO traz a sugestão de código: ela existe apenas no caminho ao
+vivo, atrás de um botão cujo clique fica registrado, para separar conferência de
+influência. Num arquivo público ela seria legível direto, e o botão viraria
+enfeite.
 
 CITAÇÃO QUE NÃO EXISTE NO CORPUS É DESCARTADA. Toda `verbatim` devolvida pelo
 modelo é procurada no texto congelado (com espaço em branco normalizado) e
@@ -39,6 +56,7 @@ imprime em texto — é assim que o self-test roda.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -133,6 +151,19 @@ class Corpus:
             with urllib.request.urlopen(f"{self.origem}/{relativo}", timeout=TIMEOUT) as r:
                 return r.read().decode("utf-8")
         return (self.origem / relativo).read_text(encoding="utf-8")
+
+    def ler_irmao(self, relativo: str) -> str:
+        """Lê algo ao lado do corpus, não dentro dele — `sugestoes/` é irmão de `md/`.
+
+        A evidência congelada não é corpus: é derivada dele. Misturar as duas
+        dentro da mesma pasta faria o `--check` do corpus ter de conhecer arquivo
+        que não é documento, e faria quem navega a pasta achar que é.
+        """
+        if self.remoto:
+            base = self.origem.rsplit("/", 1)[0]
+            with urllib.request.urlopen(f"{base}/{relativo}", timeout=TIMEOUT) as r:
+                return r.read().decode("utf-8")
+        return (self.origem.parent / relativo).read_text(encoding="utf-8")
 
     # ------------------------------------------------------------- consultas
     def docs(self, servico: str) -> list[dict]:
@@ -300,6 +331,9 @@ class Sugestao:
     por_variavel: dict = field(default_factory=dict)
     descartadas: list = field(default_factory=list)
     uso: dict = field(default_factory=dict)
+    # De onde a evidência veio: congelada (o caminho do avaliador) ou chamada ao
+    # vivo (desenvolvimento). Vai para o registro, porque muda o que o dado é.
+    origem: dict = field(default_factory=lambda: {"fonte": "ao vivo"})
 
 
 def _cliente():
@@ -333,6 +367,17 @@ def _cliente():
             "No Colab: cadeado da barra lateral → novo secret ANTHROPIC_API_KEY "
             "→ ligar 'Notebook access'.")
     return anthropic.Anthropic(api_key=chave, timeout=600.0)
+
+
+def impressao_do_prompt() -> str:
+    """Identidade do que o modelo recebeu: prompt de sistema + esquema de saída.
+
+    Vai no relatório da validação e em cada arquivo de evidência congelada. Se o
+    prompt mudar, a validação caduca e a evidência foi gerada sob outras regras —
+    e isso tem de ser legível sem comparar arquivos à mão.
+    """
+    corpo = SISTEMA + json.dumps(ESQUEMA, sort_keys=True)
+    return hashlib.sha256(corpo.encode("utf-8")).hexdigest()[:12]
 
 
 def _normalizar(t: str) -> str:
@@ -420,6 +465,30 @@ def sugerir(servico: str, corpus: "Corpus | None" = None, modelo: str | None = N
     return sug
 
 
+def congelada(servico: str, corpus: "Corpus | None" = None) -> "Sugestao | None":
+    """Lê a evidência congelada deste serviço, se estiver publicada ao lado do corpus.
+
+    É o caminho normal do avaliador: sem chave de API, sem chamada, e a mesma
+    tela para todo mundo — a validação de 20/09 mostrou que duas rodadas ao vivo
+    não devolvem a mesma seleção. O arquivo não traz sugestão de código, então
+    aqui ela vem vazia, e é assim que tem de ser.
+    """
+    corpus = corpus or corpus_carregado()
+    try:
+        bruto = corpus.ler_irmao(f"sugestoes/{B.slug(servico)}.json")
+    except Exception:
+        return None
+    d = json.loads(bruto)
+    if d.get("servico") != servico:
+        return None
+    sug = Sugestao(servico=servico, modelo=d.get("modelo") or "?", uso=d.get("uso") or {})
+    sug.por_variavel = {vid: {"citacoes": cits, "sugestao": "", "confianca": ""}
+                        for vid, cits in d.get("citacoes", {}).items()}
+    sug.origem = {"fonte": "congelada", "gerado_em": d.get("gerado_em"),
+                  "prompt": d.get("prompt"), "corpus_frozen_at": d.get("corpus_frozen_at")}
+    return sug
+
+
 def estimar(servico: str, corpus: "Corpus | None" = None, modelo: str | None = None) -> int:
     """Tokens de entrada da chamada deste serviço, antes de gastar."""
     corpus = corpus or corpus_carregado()
@@ -465,6 +534,14 @@ class Painel:
 
     # ------------------------------------------------------------ assistência
     def carregar_sugestao(self):
+        """Evidência congelada primeiro; chamada ao vivo só se não houver.
+
+        O avaliador nunca deve cair no caminho ao vivo: ele custa chave de API e
+        devolve seleção diferente a cada rodada. O caminho ao vivo fica para
+        desenvolvimento e para gerar o congelamento.
+        """
+        if self.sugestao is None:
+            self.sugestao = congelada(self.servico, self.corpus)
         if self.sugestao is None and self.assistir and not CFG.offline:
             self.sugestao = sugerir(self.servico, self.corpus)
         return self.sugestao
@@ -490,11 +567,20 @@ class Painel:
                 "antes_de_responder": vid not in self._respondeu}
 
     def _assist_meta(self, vid: str) -> dict:
-        return {"modelo": self.sugestao.modelo if self.sugestao else None,
+        s = self.sugestao
+        meta = {"modelo": s.modelo if s else None,
+                "fonte": (s.origem.get("fonte") if s else "sem assistência"),
+                "evidencia_gerada_em": (s.origem.get("gerado_em") if s else None),
+                "prompt": (s.origem.get("prompt") if s else None),
+                "piso_hits": len(self.piso_de(vid)),
                 "revelada": bool(self.revelou.get(vid)),
-                "antes_de_responder": bool(self.revelou.get(vid)) and vid not in self._respondeu,
-                "sugestao": (self.sugestao.por_variavel.get(vid, {}).get("sugestao")
-                             if self.sugestao else None)}
+                "antes_de_responder": bool(self.revelou.get(vid)) and vid not in self._respondeu}
+        # Só existe sugestão de código no caminho ao vivo; o arquivo congelado
+        # não a publica, e registrar campo vazio faria parecer que houve uma.
+        proposta = (s.por_variavel.get(vid, {}).get("sugestao") if s else None)
+        if proposta:
+            meta["sugestao"] = proposta
+        return meta
 
     def responder(self, vid: str, respostas: dict, rede: bool = True):
         """Grava a resposta do avaliador e a proveniência da assistência."""
@@ -772,6 +858,38 @@ def _self_test() -> int:
         teto[(h["termo"], h["file"])] = teto.get((h["termo"], h["file"]), 0) + 1
     checar("teto por termo e documento é respeitado",
            all(v <= TETO_POR_TERMO_DOC for v in teto.values()))
+
+    print("evidência congelada")
+    import shutil
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="cong-") as tmp:
+        # Monta um site de mentira: md/ ao lado de sugestoes/, como no publicado.
+        raiz = Path(tmp)
+        shutil.copytree(Path(corpus_dir), raiz / "md")
+        (raiz / "sugestoes").mkdir()
+        doc = json.loads((raiz / "md" / "index.json").read_text())["services"][0]["docs"][0]
+        (raiz / "sugestoes" / f"{B.slug('Pinterest')}.json").write_text(json.dumps({
+            "formato": 1, "servico": "Pinterest", "modelo": "modelo-congelado",
+            "gerado_em": "2026-09-24T00:00:00+00:00", "prompt": "abc123",
+            "corpus_frozen_at": "2026-08-03",
+            "citacoes": {"V1": [{"doc": 1, "verbatim": "x", "onde": "y", "por_que": "z",
+                                 "file": doc["file"], "role": doc["role"]}]},
+        }, ensure_ascii=False), encoding="utf-8")
+        c2 = Corpus(raiz / "md")
+        sug = congelada("Pinterest", c2)
+        checar("congelada é lida de sugestoes/, irmã de md/", sug is not None)
+        checar("vem com a marca de congelada", sug.origem["fonte"] == "congelada")
+        checar("não traz sugestão de código", not sug.por_variavel["V1"]["sugestao"])
+        checar("serviço sem arquivo devolve None", congelada("Temu", c2) is None)
+        pa2 = Painel("Pinterest", corpus=c2,
+                     estado=F.Estado(offline=True, cache=raiz / "cache.json"))
+        pa2.carregar_sugestao()
+        checar("painel prefere a congelada à chamada ao vivo",
+               pa2.sugestao is not None and pa2.sugestao.modelo == "modelo-congelado")
+        meta = pa2._assist_meta("V1")
+        checar("proveniência registra a fonte e a data da evidência",
+               meta["fonte"] == "congelada" and meta["evidencia_gerada_em"].startswith("2026-09"))
+        checar("proveniência não inventa sugestão de código", "sugestao" not in meta)
 
     print("painel (modo texto, sem rede)")
     CFG.offline = True

@@ -101,10 +101,8 @@ def normalizar(t: str) -> str:
     return re.sub(r"\s+", " ", t or "").strip().lower()
 
 
-def impressao_do_prompt() -> str:
-    """Identidade do que foi validado: se o prompt mudar, a validação caduca."""
-    corpo = R.SISTEMA + json.dumps(R.ESQUEMA, sort_keys=True)
-    return hashlib.sha256(corpo.encode("utf-8")).hexdigest()[:12]
+# A impressão do prompt vive no `revisao.py`, junto do prompt que ela identifica.
+impressao_do_prompt = R.impressao_do_prompt
 
 
 # ------------------------------------------------------------------ referência
