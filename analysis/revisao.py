@@ -61,6 +61,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -548,6 +549,7 @@ class Painel:
         self.assistir = assistir
         self.revelou: dict[str, bool] = {}
         self._respondeu: set[str] = set()
+        self.recibo = None  # widget do recibo; só existe no modo ipywidgets
 
     # ------------------------------------------------------------ assistência
     def carregar_sugestao(self):
@@ -677,10 +679,44 @@ class Painel:
         topo = W.HTML(f"<h3 style='margin:0'>{_esc(self.cabecalho())}</h3>"
                       f"<div style='font:12px/1.5 ui-monospace,monospace'>{docs_html}</div>")
         area = W.Output()
-        caixa = W.VBox([topo, area])
+        # O recibo fica FORA da `area`: `_render_variavel` limpa a área a cada
+        # avanço, e recibo que desaparece junto não é recibo. Ele existe porque
+        # no Colab o cache local mora em /content, que a sessão apaga ao
+        # reciclar — se a gravação não chegar ao servidor e ninguém disser nada,
+        # o avaliador codifica uma tarde inteira e perde tudo em silêncio.
+        self.recibo = W.HTML(self._recibo_inicial())
+        caixa = W.VBox([topo, area, self.recibo])
         display(caixa)
         self._render_variavel(area)
         return caixa
+
+    # ----------------------------------------------------------------- recibo
+    _RECIBO = "margin-top:8px;font:12px/1.5 ui-monospace,monospace"
+
+    def _recibo_inicial(self) -> str:
+        if self.estado.offline:
+            return (f"<div style='{self._RECIBO};color:#888'>modo offline — as "
+                    f"respostas ficam só em {_esc(str(self.estado.cache))}</div>")
+        if not self.estado.online:
+            return (f"<div style='{self._RECIBO};color:#b00'><b>sem contato com o "
+                    "servidor</b> — não comece a codificar. No Colab o arquivo local "
+                    "é apagado quando a sessão recicla, então o que você responder "
+                    "agora pode não existir amanhã. Rode a célula de novo; se "
+                    "continuar assim, avise antes de responder qualquer variável.</div>")
+        return (f"<div style='{self._RECIBO};color:#0a7'>servidor respondeu — cada "
+                "variável que fechar é gravada lá, versionada</div>")
+
+    def _recibo_gravacao(self, vid: str, ok: bool) -> str:
+        if self.estado.offline:
+            return (f"<div style='{self._RECIBO};color:#888'>{_esc(vid)} gravado em "
+                    f"{_esc(str(self.estado.cache))} — offline, sem servidor</div>")
+        if ok:
+            return (f"<div style='{self._RECIBO};color:#0a7'>{_esc(vid)} salvo no "
+                    f"servidor · {time.strftime('%H:%M:%S')}</div>")
+        return (f"<div style='{self._RECIBO};color:#b00'><b>{_esc(vid)} NÃO chegou ao "
+                "servidor</b> — está só nesta sessão do Colab, que apaga o arquivo ao "
+                "reciclar. Pare aqui, confira a rede e salve de novo antes de "
+                "seguir.</div>")
 
     def _render_variavel(self, area):
         import ipywidgets as W
@@ -758,7 +794,9 @@ class Painel:
             for chave, w in campos.items():
                 valor = w.value
                 respostas[chave] = list(valor) if isinstance(valor, tuple) else valor
-            self.responder(vid, respostas)
+            ok = self.responder(vid, respostas)
+            if self.recibo is not None:
+                self.recibo.value = self._recibo_gravacao(vid, ok)
             with saida_ok:
                 clear_output()
                 pend = self.fluxo.faltando()
@@ -924,6 +962,28 @@ def _self_test() -> int:
     meta = pa._assist_meta("V1")
     checar("proveniência guarda modelo e sugestão",
            meta["modelo"] == "modelo-de-teste" and meta["sugestao"] == "2")
+
+    print("recibo de gravação")
+    est = F.Estado(offline=True, cache=Path(os.devnull + "x"))
+    pa3 = Painel("Pinterest", corpus=c, estado=est, assistir=False)
+    checar("offline: o recibo diz onde o arquivo ficou",
+           "offline" in pa3._recibo_inicial())
+    est.offline, est.online = False, False
+    checar("sem servidor: o recibo manda não começar",
+           "não comece a codificar" in pa3._recibo_inicial())
+    checar("gravação que não chegou ao servidor é alarme vermelho",
+           "NÃO chegou ao servidor" in pa3._recibo_gravacao("V1", False))
+    est.online = True
+    checar("servidor respondeu: o recibo confirma",
+           "versionada" in pa3._recibo_inicial())
+    checar("gravação que chegou vem com hora",
+           "salvo no servidor" in pa3._recibo_gravacao("V1", True))
+    # O defeito de origem não era a mensagem, era o retorno descartado: o
+    # `_salvar` chamava `responder` e jogava fora o booleano que diz se a
+    # resposta saiu da máquina. Este teste prende o cano, não o texto.
+    pa3.fluxo.responder = lambda respostas, rede=True: "SENTINELA"
+    checar("responder devolve ao chamador o resultado da gravação",
+           pa3.responder("V1", {}) == "SENTINELA")
 
     print(f"\n{'FALHOU: ' + str(len(falhas)) if falhas else 'tudo ok'}")
     return 1 if falhas else 0

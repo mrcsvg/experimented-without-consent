@@ -56,6 +56,13 @@ de API para nada**.
 **Leia sempre do corpus congelado, nunca da página ao vivo.** Os documentos
 mudam sem aviso; se os dois codificadores lerem versões diferentes, a
 discordância vira deriva do documento e não há como separar as duas depois.
+
+**Onde suas respostas ficam.** Cada variável que você fecha é gravada num
+servidor e versionada, então dá para parar no meio, fechar o Colab e voltar
+depois — inclusive de outra máquina. Embaixo do painel há uma linha de recibo:
+**verde** quando a resposta chegou ao servidor, **vermelha** quando não chegou.
+Vermelha significa parar e avisar: o arquivo local do Colab é apagado quando a
+sessão recicla, e o que estiver só nele se perde.
 """
 
 SETUP = '''#@title Instalação e configuração { display-mode: "form" }
