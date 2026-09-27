@@ -772,6 +772,13 @@ class Painel:
             "<i style='color:#888'>a varredura do §3 não acha nenhum termo desta "
             "variável no corpus deste serviço</i>")
 
+        # O botão só existe se houver sugestão para revelar. Com a evidência
+        # congelada não há: o congelamento publica citação e omite a sugestão de
+        # propósito, porque num JSON público ela seria legível direto e o botão
+        # viraria enfeite. Enfeite é pior que ausência — o avaliador clica, vê
+        # branco e conclui que a ferramenta está quebrada.
+        tem_sugestao = bool((self.sugestao.por_variavel.get(vid) or {}).get("sugestao")
+                            if self.sugestao else False)
         btn_sug = W.Button(description="ver sugestão do modelo", icon="eye")
         saida_sug = W.Output()
 
@@ -827,7 +834,12 @@ class Painel:
                 f"{ev}</div>"))
             display(W.VBox([W.HBox([W.Label(c.rotulo, layout=W.Layout(width="260px")), w])
                             for c, w in zip(passo.campos, campos.values())]))
-            display(W.HBox([btn_ok, btn_sug]))
+            display(W.HBox([btn_ok, btn_sug]) if tem_sugestao else btn_ok)
+            if not tem_sugestao:
+                display(HTML("<div style='color:#888;font:12px/1.5 ui-monospace,"
+                             "monospace;margin-top:4px'>a evidência congelada traz "
+                             "citação, não sugestão de código — quem atribui o código "
+                             "é você</div>"))
             display(saida_ok, saida_sug)
 
 
@@ -984,6 +996,21 @@ def _self_test() -> int:
     pa3.fluxo.responder = lambda respostas, rede=True: "SENTINELA"
     checar("responder devolve ao chamador o resultado da gravação",
            pa3.responder("V1", {}) == "SENTINELA")
+
+    print("botão de sugestão")
+    # Com a congelada (o caso real do avaliador) não há sugestão nenhuma, então o
+    # botão não deve ser oferecido. Com sugestão — desenvolvimento, ou uma
+    # chamada ao vivo — deve.
+    pa4 = Painel("Pinterest", corpus=c, estado=F.Estado(offline=True,
+                                                        cache=Path(os.devnull + "x")),
+                 assistir=False)
+    pa4.sugestao = Sugestao("Pinterest", "congelado", por_variavel={
+        "V1": {"citacoes": [{"doc": 1, "verbatim": "x", "onde": "y", "por_que": "z"}]}})
+    checar("congelada não oferece sugestão de código para revelar",
+           not pa4.revelar("V1")["sugestao"])
+    pa4.sugestao.por_variavel["V1"]["sugestao"] = "2"
+    checar("com sugestão presente, revelar devolve o valor",
+           pa4.revelar("V1")["sugestao"] == "2")
 
     print(f"\n{'FALHOU: ' + str(len(falhas)) if falhas else 'tudo ok'}")
     return 1 if falhas else 0

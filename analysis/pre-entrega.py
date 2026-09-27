@@ -282,6 +282,22 @@ def notebook(p: Placar) -> None:
     p.checar("nenhuma célula importa o SDK da Anthropic",
              not re.search(r"^\s*(?:import|from)\s+anthropic\b", codigo, re.M))
 
+    ensaio = RAIZ / "notebooks" / "05-ensaio.ipynb"
+    if not p.checar("notebook de ensaio existe", ensaio.exists()):
+        return
+    ne = json.loads(ensaio.read_text(encoding="utf-8"))
+    # A célula de instalação tem de ser a MESMA nos dois, senão o ensaio deixa de
+    # ensaiar o que o avaliador executa. Elas saem da mesma constante do gerador;
+    # esta conferência é o que impede alguém de editar uma das duas à mão.
+    p.checar("ensaio e codificação compartilham a célula de instalação",
+             "".join(ne["cells"][1]["source"]) == "".join(nb["cells"][1]["source"]))
+    corpo_ensaio = "\n".join("".join(c["source"]) for c in ne["cells"]
+                             if c["cell_type"] == "code")
+    p.checar("o ensaio nasce offline, sem servidor e sem modelo",
+             "offline=True" in corpo_ensaio and "configurar(offline=True)" in corpo_ensaio)
+    p.checar("o ensaio manda o cache para arquivo temporário",
+             "mkdtemp" in corpo_ensaio)
+
 
 def main() -> int:
     completo = "--completo" in sys.argv

@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Gera `notebooks/04-revisao-assistida.ipynb` — uma célula por serviço.
+"""Gera os dois notebooks do 2º passe — o de codificar e o de ensaiar.
 
     python3 analysis/gerar-notebook-revisao.py
     python3 analysis/gerar-notebook-revisao.py --check   # não escreve, só compara
+
+São dois arquivos com uma diferença só: `04-revisao-assistida.ipynb` grava no
+servidor e vale; `05-ensaio.ipynb` monta o mesmo painel com estado descartável,
+para o autor ver a tela do avaliador (ou mostrá-la a alguém) sem sujar a segunda
+passada. A célula de instalação é **a mesma constante** nos dois, e é por isso
+que os dois saem daqui: duplicada à mão, ela divergiria na primeira mudança de
+host, e o ensaio deixaria de ensaiar o que o avaliador executa.
 
 POR QUE GERAR EM VEZ DE EDITAR À MÃO. São 26 células idênticas a menos do nome
 do serviço, e o nome tem que sair do roster do instrumento — que é a mesma
@@ -27,7 +34,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codebook as C  # noqa: E402
 
-DESTINO = Path(__file__).resolve().parent.parent / "notebooks" / "04-revisao-assistida.ipynb"
+NOTEBOOKS = Path(__file__).resolve().parent.parent / "notebooks"
+DESTINO = NOTEBOOKS / "04-revisao-assistida.ipynb"
+DESTINO_ENSAIO = NOTEBOOKS / "05-ensaio.ipynb"
 
 ABERTURA = """# Revisão assistida — 2º passe
 
@@ -139,6 +148,65 @@ for s, n in sorted(feitos.items(), key=lambda x: -x[1]):
 '''
 
 
+ABERTURA_ENSAIO = """# Ensaio — a tela do 2º codificador, sem gravar nada
+
+Este notebook existe para **você** ver e experimentar o painel antes de entregá-lo
+(ou para mostrá-lo a alguém). Ele carrega o mesmo runtime, o mesmo corpus e a mesma
+evidência congelada do `04-revisao-assistida`, e monta o painel igual.
+
+**A única diferença é o estado, e ele é descartável.** Duas travas: `offline=True`
+faz o painel nascer sem servidor, e o cache vai para um arquivo temporário.
+Responda, salve, avance, erre de propósito — nada entra no `coder2-data`, nada
+conta como codificação e nada polui a segunda passada.
+
+**Não codifique aqui.** O que você responder morre com a sessão do Colab. A
+codificação que vale é a do `04-revisao-assistida`.
+
+Uma consequência visível: o recibo embaixo do painel aparece **cinza**, dizendo
+em que arquivo temporário a resposta caiu. No notebook real ele fica **verde** com
+a hora quando a resposta chega ao servidor, e **vermelho** quando não chega — e
+vermelho ali significa parar.
+"""
+
+CONFERIR = """## O que vale olhar enquanto você mexe
+
+- **O cabeçalho**: quantos documentos o serviço tem, quantos são vinculantes, a
+  data do congelamento e a vantagem (`IT`). É o que garante que os dois
+  codificadores leram o mesmo texto.
+- **As duas listas, separadas e rotuladas.** Primeiro o piso da varredura do §3
+  — regex sobre o texto congelado, com aviso onde o termo costuma dar falso
+  positivo. Depois o que o modelo acrescentou. Nessa ordem ele só pode somar.
+- **O portão.** Tente avançar sem preencher a evidência ou o log do §3: a
+  variável não fecha e a tela diz o que falta.
+- **A ausência do botão de sugestão.** A evidência congelada traz citação e não
+  sugestão de código, de propósito — quem atribui o código é o avaliador.
+- **O recibo**, embaixo de tudo.
+"""
+
+
+def celula_ensaio() -> str:
+    """A célula do ensaio. O dropdown sai do roster, que é a razão de gerar."""
+    return f'''#@title Ensaio — escolha o serviço e rode {{ display-mode: "form" }}
+SERVICO = "Pinterest" #@param {json.dumps(C.SERVICOS, ensure_ascii=False)}
+
+import tempfile
+from pathlib import Path
+import coding_flow as F
+
+# Duas travas, não uma. `configurar(offline=True)` faz o Estado padrão nascer
+# sem servidor E corta qualquer chamada de modelo ao vivo — a evidência
+# congelada continua sendo lida, que é justamente o que se quer ver. O Estado
+# explícito manda o cache para um arquivo temporário, para não haver como
+# confundir com o `coder2-local.json` de uma sessão de verdade.
+R.configurar(offline=True)
+ensaio = F.Estado(offline=True,
+                  cache=Path(tempfile.mkdtemp(prefix="ensaio-")) / "estado.json")
+print(f"ENSAIO · {{SERVICO}} · nada sai desta sessão ({{ensaio.cache}})")
+
+R.painel(SERVICO, estado=ensaio)
+'''
+
+
 def celula(tipo: str, texto: str, n: int) -> dict:
     # `source` como lista de linhas terminadas em \n é o que o nbformat espera;
     # gravado como string única, o Colab colapsa a célula inteira numa linha.
@@ -180,20 +248,43 @@ def montar() -> dict:
     }
 
 
+def montar_ensaio() -> dict:
+    celulas = [celula("markdown", ABERTURA_ENSAIO, 0),
+               celula("code", SETUP, 1),
+               celula("code", celula_ensaio(), 2),
+               celula("markdown", CONFERIR, 3)]
+    return {
+        "cells": celulas,
+        "metadata": {
+            "colab": {"provenance": [], "toc_visible": True},
+            "kernelspec": {"display_name": "Python 3", "name": "python3"},
+            "language_info": {"name": "python"},
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5,
+    }
+
+
 def main() -> int:
-    nb = montar()
-    texto = json.dumps(nb, ensure_ascii=False, indent=1) + "\n"
+    saidas = [(DESTINO, montar()), (DESTINO_ENSAIO, montar_ensaio())]
     if "--check" in sys.argv:
-        if not DESTINO.exists():
-            print(f"FALHOU — {DESTINO.name} não existe; rode sem --check")
+        problemas = []
+        for destino, nb in saidas:
+            texto = json.dumps(nb, ensure_ascii=False, indent=1) + "\n"
+            if not destino.exists():
+                problemas.append(f"{destino.name} não existe; rode sem --check")
+            elif destino.read_text(encoding="utf-8") != texto:
+                problemas.append(f"{destino.name} divergiu do roster; regenere")
+        if problemas:
+            print("FALHOU — " + "; ".join(problemas))
             return 1
-        igual = DESTINO.read_text(encoding="utf-8") == texto
-        print("OK — notebook em dia com o roster" if igual else
-              "FALHOU — notebook divergiu do roster; regenere")
-        return 0 if igual else 1
-    DESTINO.parent.mkdir(exist_ok=True)
-    DESTINO.write_text(texto, encoding="utf-8")
-    print(f"{len(nb['cells'])} células ({len(C.SERVICOS)} serviços) → {DESTINO}")
+        print(f"OK — {len(saidas)} notebooks em dia com o roster")
+        return 0
+    NOTEBOOKS.mkdir(exist_ok=True)
+    for destino, nb in saidas:
+        destino.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n",
+                           encoding="utf-8")
+        print(f"{len(nb['cells']):>2} células → {destino.name}")
     return 0
 
 
