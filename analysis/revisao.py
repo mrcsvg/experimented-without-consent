@@ -688,7 +688,11 @@ class Painel:
         caixa = W.VBox([topo, area, self.recibo])
         display(caixa)
         self._render_variavel(area)
-        return caixa
+        # NÃO devolva a caixa. A célula do notebook é `R.painel("X")`, e o Colab
+        # exibe o valor da última expressão da célula — devolver o widget que já
+        # foi exibido faz o painel inteiro aparecer duas vezes, como duas visões
+        # do mesmo modelo. Quem exibe aqui é o `display` acima, uma vez.
+        return None
 
     # ----------------------------------------------------------------- recibo
     _RECIBO = "margin-top:8px;font:12px/1.5 ui-monospace,monospace"
@@ -1011,6 +1015,62 @@ def _self_test() -> int:
     pa4.sugestao.por_variavel["V1"]["sugestao"] = "2"
     checar("com sugestão presente, revelar devolve o valor",
            pa4.revelar("V1")["sugestao"] == "2")
+
+    print("caminho de widgets (com um ipywidgets falso)")
+    # O painel de widgets não tinha teste nenhum: o ipywidgets não está instalado
+    # aqui, e `mostrar()` caía no modo texto. Foi assim que dois defeitos de tela
+    # passaram — o botão que abria em branco e a exibição em dobro. Um stub
+    # genérico basta para exercitar o caminho inteiro.
+    import types
+
+    class _FalsoW:
+        """Widget de mentira: aceita qualquer construtor e serve de contexto."""
+
+        def __init__(self, *a, **kw):
+            self.value = kw.get("value", "")
+            self.filhos = a[0] if a and isinstance(a[0], (list, tuple)) else ()
+
+        def on_click(self, f):
+            self._click = f
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *e):
+            return False
+
+    class _FalsoModulo(types.ModuleType):
+        def __getattr__(self, nome):
+            return _FalsoW
+
+    exibidos = []
+    ipd = types.ModuleType("IPython.display")
+    ipd.display = lambda *a, **k: exibidos.extend(a)
+    ipd.HTML = lambda h="": h
+    ipd.clear_output = lambda *a, **k: None
+    guarda = {k: sys.modules.get(k) for k in ("ipywidgets", "IPython", "IPython.display")}
+    sys.modules["ipywidgets"] = _FalsoModulo("ipywidgets")
+    sys.modules["IPython"] = types.ModuleType("IPython")
+    sys.modules["IPython.display"] = ipd
+    try:
+        pa5 = Painel("Pinterest", corpus=c,
+                     estado=F.Estado(offline=True, cache=Path(os.devnull + "x")),
+                     assistir=False)
+        devolvido = pa5.mostrar()
+        checar("o caminho de widgets monta sem estourar", exibidos != [])
+        # O defeito de 27/set: `mostrar` exibia a caixa E a devolvia, e a célula do
+        # Colab exibe o valor da última expressão — então o painel inteiro aparecia
+        # duas vezes. Este é o teste que faltava.
+        checar("mostrar() não devolve o widget que acabou de exibir", devolvido is None)
+        checar("a caixa do painel é exibida uma vez só",
+               sum(1 for x in exibidos if x is exibidos[0]) == 1)
+        checar("o recibo entra na caixa exibida", pa5.recibo is not None)
+    finally:
+        for k, v in guarda.items():
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
 
     print(f"\n{'FALHOU: ' + str(len(falhas)) if falhas else 'tudo ok'}")
     return 1 if falhas else 0
