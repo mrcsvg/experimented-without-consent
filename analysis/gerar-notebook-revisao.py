@@ -35,17 +35,23 @@ Uma célula por serviço. Rode a célula, leia a evidência que já vem localiza
 responda as nove variáveis e o log do §3, salve. O progresso vai para o mesmo lugar do
 instrumento em HTML (`coder2-data`), então dá para alternar entre os dois.
 
-**O que o modelo faz aqui:** ele procura, nos documentos congelados, as
-passagens que sustentam cada variável, e devolve citação verbatim com o
-documento e o lugar. Toda citação é conferida contra o texto congelado antes de
-aparecer na tela; o que não for localizável ali é descartado.
+**A tela tem dois andares, e a ordem importa.**
 
-**O que o modelo não faz:** atribuir o código. A passada 1 já foi automatizada.
-Se o modelo decidisse aqui também, o κ entre as duas passadas mediria o modelo
-contra ele mesmo, e não concordância entre codificadores — o número perderia o
-sentido que o paper dá a ele. A sugestão do modelo existe, fica atrás do botão
-*ver sugestão*, e o registro guarda se ela foi aberta antes ou depois da sua
-resposta.
+O **piso** é a busca por palavra-chave do §3: os 12 termos, endereçados por
+variável, com o trecho em volta. É uma expressão regular sobre o texto
+congelado, então não esquece nada — e chega com aviso quando o termo costuma dar
+falso positivo ("Code of Ethics" no menu não é revisão ética de experimento).
+Quem descarta é você.
+
+Em cima dele vem o que **o modelo** localizou. Ele acrescenta o que a palavra-
+chave não acha: passagem que descreve experimentação sem usar nenhum dos 12
+termos. Nessa ordem ele só pode somar.
+
+**Nenhum dos dois atribui código.** A passada 1 já foi automatizada; se um modelo
+decidisse aqui também, o κ mediria o modelo contra ele mesmo em vez de
+concordância entre codificadores. A evidência do modelo foi congelada numa rodada
+única e publicada — todo avaliador vê a mesma tela, e **você não precisa de chave
+de API para nada**.
 
 **Leia sempre do corpus congelado, nunca da página ao vivo.** Os documentos
 mudam sem aviso; se os dois codificadores lerem versões diferentes, a
@@ -53,8 +59,9 @@ discordância vira deriva do documento e não há como separar as duas depois.
 """
 
 SETUP = '''#@title Instalação e configuração { display-mode: "form" }
-# Roda uma vez por sessão. ~20 s.
-!pip -q install anthropic ipywidgets
+# Roda uma vez por sessão. ~15 s. O SDK da Anthropic não entra: a evidência do
+# modelo já vem congelada, e este notebook não chama modelo nenhum.
+!pip -q install ipywidgets
 
 import hashlib, json, sys, urllib.request
 from pathlib import Path
@@ -89,24 +96,24 @@ print(f"{sum(len(s['docs']) for s in corpus.index['services'])} documentos · "
       f"{corpus.index['frozen_at'][:10]} · vantagem {corpus.index['vantage']}")
 '''
 
-CHAVE = """## A chave da API
+CHAVE = """## Sem chave de API
 
-A chave fica nos **Secrets do Colab**, não no notebook: cadeado na barra
-lateral esquerda → *Add new secret* → nome `ANTHROPIC_API_KEY` → cole o valor →
-ligue **Notebook access**.
+A evidência do modelo já está congelada e publicada ao lado do corpus, então o
+notebook não chama modelo nenhum e não precisa de credencial.
 
-Ela nunca aparece numa célula. Este repositório é público, e output de notebook
-já viajou dentro de clone antes.
-
-A célula abaixo estima o custo de um serviço antes de gastar. Multiplique por
-26 para ter a ordem de grandeza da rodada inteira.
+A célula abaixo confirma que a evidência congelada chegou, e mostra a data em que
+foi gerada. Se ela disser que não achou, me avise antes de começar a codificar:
+sem ela o piso da busca por palavra-chave continua funcionando, mas você perde a
+camada que o modelo acrescenta.
 """
 
-CUSTO = '''# Estimativa antes de gastar — não chama o modelo, só conta tokens.
-tokens = R.estimar("Pinterest")
-print(f"Pinterest: {tokens:,} tokens de entrada")
-print(f"~US$ {tokens / 1e6 * 5:.2f} nesta chamada  ·  ~US$ {tokens / 1e6 * 5 * 26:.2f} "
-      f"se os 26 fossem desse tamanho")
+CUSTO = '''# Confere a evidência congelada. Não chama modelo, não gasta nada.
+import json, urllib.request
+idx = json.load(urllib.request.urlopen(f"{SITE}/sugestoes/index.json", timeout=60))
+total = sum(a["citacoes"] for a in idx["arquivos"])
+print(f"evidência congelada: {len(idx['arquivos'])} serviços · {total} citações · "
+      f"gerada em {idx['gerado_em'][:10]}")
+print(f"modelo: {sorted({a['modelo'] for a in idx['arquivos']})}")
 '''
 
 SERVICOS_MD = """## Os 26 serviços

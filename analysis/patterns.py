@@ -69,7 +69,12 @@ PATTERNS: dict[str, dict] = {
     },
     "ethics": {
         "regex": r"\bethic\w*",
-        "flag": None,
+        # Medido no Zalando (20/09/2026): os dois únicos hits eram "Our Code of
+        # Ethics" e "Report violations of ethical and compliance policies", ambos
+        # no menu do site. Conduta empresarial não é revisão ética de
+        # experimento, e a V8 pergunta pela segunda.
+        "flag": "falso positivo comum: 'code of ethics' / conduta empresarial no menu ou "
+                "rodapé NÃO é revisão ética de experimento (§2, V8)",
     },
     "review board": {
         "regex": r"\breview\s+board\w*",
@@ -83,7 +88,13 @@ PATTERNS: dict[str, dict] = {
     },
     "risk assessment": {
         "regex": r"\brisk\s+assessment\w*",
-        "flag": None,
+        # Dois falsos positivos previsíveis, ambos vistos no corpus: escore
+        # antifraude no checkout ("risk assessment for the user's end device …
+        # likelihood of attempted fraud", Zalando) e a avaliação de risco
+        # sistêmico dos Arts. 34-35 do DSA, que é da plataforma inteira e não
+        # revisão prévia por experimento — a distinção que o §4 do paper faz.
+        "flag": "falso positivo comum: escore antifraude e avaliação de risco sistêmico do "
+                "DSA (Arts. 34-35) não são revisão ética por experimento (§2, V8)",
     },
 }
 
