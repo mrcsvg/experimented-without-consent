@@ -282,6 +282,12 @@ def notebook(p: Placar) -> None:
     p.checar("nenhuma célula importa o SDK da Anthropic",
              not re.search(r"^\s*(?:import|from)\s+anthropic\b", codigo, re.M))
 
+    # A procedência do congelamento é a instrução que não pode ser pulada, e ela
+    # saiu das 26 células para aparecer uma vez no alto. Se sumir da célula de
+    # instalação, sai da tela inteira sem nada acusar.
+    p.checar("a célula de instalação mostra a procedência do congelamento",
+             "mostrar_procedencia" in codigo)
+
     ensaio = RAIZ / "notebooks" / "05-ensaio.ipynb"
     if not p.checar("notebook de ensaio existe", ensaio.exists()):
         return

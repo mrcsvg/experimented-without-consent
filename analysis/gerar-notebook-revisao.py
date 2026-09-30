@@ -109,8 +109,12 @@ import revisao as R
 # CORPUS para a pasta local — o resto do notebook não muda.
 corpus = R.configurar(corpus=f"{SITE}/md", modelo="claude-opus-5")
 print(f"{sum(len(s['docs']) for s in corpus.index['services'])} documentos · "
-      f"{len(corpus.index['services'])} serviços · congelado "
-      f"{corpus.index['frozen_at'][:10]} · vantagem {corpus.index['vantage']}")
+      f"{len(corpus.index['services'])} serviços")
+
+# A procedência aparece UMA vez, aqui, e vale para as 26 células abaixo: a data do
+# congelamento e o país da captura são do corpus inteiro, não de cada serviço.
+# Cada painel leva só o carimbo de uma linha.
+R.mostrar_procedencia(corpus)
 '''
 
 CHAVE = """## Sem chave de API

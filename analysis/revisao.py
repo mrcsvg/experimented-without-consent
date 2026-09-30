@@ -118,6 +118,51 @@ def configurar(corpus=None, modelo=None, offline=None):
     return corpus_carregado()
 
 
+def _de_onde(idx) -> tuple:
+    cod = idx.get("vantage") or "?"
+    pais = VANTAGENS.get(cod, cod)
+    onde = (f"capturado na União Europeia (VPN com saída na {pais})" if cod in UE
+            else f"capturado em {pais}")
+    return _data_br(idx.get("frozen_at")), onde
+
+
+def procedencia(corpus=None) -> str:
+    """De onde vem o texto e por que é este. Igual para os 26 serviços.
+
+    Vive fora do `Painel` porque não é propriedade de serviço nenhum: a data do
+    congelamento e o país da captura são do corpus inteiro. Repetido em cada uma
+    das 26 células, o parágrafo virava coisa que se aprende a pular — e é
+    justamente a instrução que não pode ser pulada. Então o texto longo aparece
+    uma vez, na célula de instalação, e cada painel leva a linha curta.
+    """
+    quando, onde = _de_onde((corpus or corpus_carregado()).index)
+    return (f"O texto foi congelado em {quando}, {onde}. É esta versão que vale, e é dela "
+            "que você codifica — nunca da página ao vivo. Duas razões: as plataformas "
+            "mostram texto diferente conforme o país de quem acessa, e por isso a captura "
+            "foi feita da UE; e elas reescrevem as políticas sem avisar, então se cada "
+            "codificador ler uma versão diferente, a discordância entre vocês fica "
+            "indistinguível de mudança no documento, e depois não há como separar as duas.")
+
+
+def procedencia_curta(corpus=None) -> str:
+    """A mesma coisa em uma linha, para o carimbo de cada painel."""
+    quando, onde = _de_onde((corpus or corpus_carregado()).index)
+    return (f"texto congelado em {quando} · {onde} · leia daqui, nunca da página ao vivo")
+
+
+def mostrar_procedencia(corpus=None):
+    """Exibe o parágrafo uma vez, no alto do notebook. Fora dele, imprime."""
+    texto = procedencia(corpus)
+    try:
+        from IPython.display import display, HTML
+    except ImportError:
+        print(texto)
+        return
+    display(HTML("<div style='border-left:3px solid #0a7;background:#f6fbf9;padding:10px "
+                 "14px;max-width:820px;font-size:13px;line-height:1.55;margin-top:8px'>"
+                 f"<b>De onde vem o texto que você vai ler</b><br>{_esc(texto)}</div>"))
+
+
 def corpus_carregado() -> "Corpus":
     if CFG._corpus_obj is None:
         CFG._corpus_obj = Corpus(CFG.corpus)
@@ -654,24 +699,10 @@ class Painel:
         return "\n".join(linhas)
 
     def procedencia(self) -> str:
-        """De onde vem o texto e por que é este. Sem sigla e sem jargão.
+        return procedencia(self.corpus)
 
-        O cabeçalho dizia "congelado 2026-08-03 vantagem IT". Nenhuma das duas
-        metades é legível para quem não montou o congelamento: a data não diz por
-        que importa, e "vantagem IT" é o código do país de saída da VPN.
-        """
-        idx = self.corpus.index
-        cod = idx.get("vantage") or "?"
-        pais = VANTAGENS.get(cod, cod)
-        de_onde = (f"de dentro da União Europeia, por VPN com saída na {pais}"
-                   if cod in UE else f"de {pais}")
-        return (f"O texto foi congelado em {_data_br(idx.get('frozen_at'))}, capturado "
-                f"{de_onde}. É esta versão que vale, e é dela que você codifica — nunca da "
-                "página ao vivo. Duas razões: as plataformas mostram texto diferente "
-                "conforme o país de quem acessa, e por isso a captura foi feita da UE; e "
-                "elas reescrevem as políticas sem avisar, então se cada codificador ler uma "
-                "versão diferente, a discordância entre vocês fica indistinguível de mudança "
-                "no documento, e depois não há como separar as duas.")
+    def procedencia_curta(self) -> str:
+        return procedencia_curta(self.corpus)
 
     def texto_dos_documentos(self) -> str:
         linhas = []
@@ -685,7 +716,7 @@ class Painel:
     def imprimir(self, vid: str | None = None):
         """Modo texto — é o que roda fora do Colab (e no self-test)."""
         print(self.cabecalho())
-        print(self.procedencia())
+        print(self.procedencia_curta())
         print(self.texto_dos_documentos())
         passo = self.fluxo.atual()
         vid = vid or passo.vid
@@ -740,8 +771,8 @@ class Painel:
 
         topo = W.HTML(
             f"<h3 style='margin:0 0 4px'>{_esc(linhas_cab[0])}</h3>{avisos}"
-            f"<div style='color:#555;font-size:12.5px;max-width:780px;margin:6px 0 10px'>"
-            f"{_esc(self.procedencia())}</div>"
+            f"<div style='color:#666;font:12px/1.5 ui-monospace,monospace;margin:4px 0 10px'>"
+            f"{_esc(self.procedencia_curta())}</div>"
             f"<div style='font:12px/1.7 ui-monospace,monospace'>{docs_html}</div>"
             f"<div style='color:#888;font-size:11.5px;margin-top:6px;max-width:780px'>"
             f"O nome do arquivo abre o <b>texto congelado</b>, que é o que você codifica; "
@@ -1170,8 +1201,16 @@ def _self_test() -> int:
         variavel_html = "".join(x for x in exibidos if isinstance(x, str))
         checar("o cabeçalho não fala em sigla de vantagem",
                "vantagem" not in topo_html.lower())
-        checar("o cabeçalho explica a VPN e nomeia o país",
-               "VPN" in topo_html and "Itália" in topo_html)
+        checar("o carimbo do painel diz a data, a VPN e o país",
+               "VPN" in topo_html and "Itália" in topo_html
+               and "03/08/2026" in topo_html)
+        # O parágrafo longo é o mesmo nos 26 serviços, então ele aparece uma vez
+        # na célula de instalação. Repetido em cada painel, viraria texto que se
+        # aprende a pular — e é a instrução que não pode ser pulada.
+        checar("o parágrafo longo não se repete em cada painel",
+               "indistinguível" not in topo_html)
+        checar("mas a regra de onde ler continua no painel",
+               "nunca da página ao vivo" in topo_html)
         checar("os papéis dos documentos vêm em português",
                "vinculante" in topo_html and "[binding]" not in topo_html)
         checar("o critério fica visível, não escondido num details",
@@ -1185,6 +1224,17 @@ def _self_test() -> int:
                "§3" not in topo_html and "§3" not in variavel_html)
     finally:
         pass
+
+    print("procedência: uma vez longa, sempre curta")
+    checar("o parágrafo longo existe e explica as duas razões",
+           "indistinguível de mudança no documento" in procedencia(c))
+    # 130 não é número escolhido a dedo: é o que cabe na caixa de 780px do
+    # cabeçalho em monoespaçada de 12px. O que interessa é ser UMA linha.
+    checar("a linha curta é uma linha e cabe na caixa do painel",
+           "\n" not in procedencia_curta(c) and len(procedencia_curta(c)) <= 130)
+    checar("as duas dizem a mesma data e o mesmo país",
+           "03/08/2026" in procedencia(c) and "03/08/2026" in procedencia_curta(c)
+           and "Itália" in procedencia_curta(c))
 
     print("link do documento (corpus remoto, via file://)")
     # `file://` faz o Corpus tomar o caminho remoto sem depender do site no ar —
