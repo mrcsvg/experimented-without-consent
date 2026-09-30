@@ -41,16 +41,17 @@ DESTINO_ENSAIO = NOTEBOOKS / "05-ensaio.ipynb"
 ABERTURA = """# Revisão assistida — 2º passe
 
 Uma célula por serviço. Rode a célula, leia a evidência que já vem localizada,
-responda as nove variáveis e o log do §3, salve. O progresso vai para o mesmo lugar do
+responda as nove variáveis e o log de palavras-chave, salve. O progresso vai para o mesmo lugar do
 instrumento em HTML (`coder2-data`), então dá para alternar entre os dois.
 
 **A tela tem dois andares, e a ordem importa.**
 
-O **piso** é a busca por palavra-chave do §3: os 12 termos, endereçados por
-variável, com o trecho em volta. É uma expressão regular sobre o texto
-congelado, então não esquece nada — e chega com aviso quando o termo costuma dar
-falso positivo ("Code of Ethics" no menu não é revisão ética de experimento).
-Quem descarta é você.
+Embaixo vem a **busca por palavra-chave**: os 12 termos do protocolo
+procurados literalmente no texto congelado, endereçados por variável e com o
+trecho em volta. Como é busca de texto e não modelo, ela dá sempre o mesmo
+resultado e não deixa nada de fora — e chega com aviso quando o termo costuma
+dar falso positivo ("Code of Ethics" no menu não é revisão ética de
+experimento). Quem descarta é você.
 
 Em cima dele vem o que **o modelo** localizou. Ele acrescenta o que a palavra-
 chave não acha: passagem que descreve experimentação sem usar nenhum dos 12
@@ -173,10 +174,10 @@ CONFERIR = """## O que vale olhar enquanto você mexe
 - **O cabeçalho**: quantos documentos o serviço tem, quantos são vinculantes, a
   data do congelamento e a vantagem (`IT`). É o que garante que os dois
   codificadores leram o mesmo texto.
-- **As duas listas, separadas e rotuladas.** Primeiro o piso da varredura do §3
-  — regex sobre o texto congelado, com aviso onde o termo costuma dar falso
-  positivo. Depois o que o modelo acrescentou. Nessa ordem ele só pode somar.
-- **O portão.** Tente avançar sem preencher a evidência ou o log do §3: a
+- **As duas listas, separadas e com explicação.** Primeiro a busca por
+  palavra-chave, com aviso onde o termo costuma dar falso positivo. Depois o que
+  o modelo acrescentou. Nessa ordem ele só pode somar.
+- **O portão.** Tente avançar sem a evidência ou sem o log de palavras-chave: a
   variável não fecha e a tela diz o que falta.
 - **A ausência do botão de sugestão.** A evidência congelada traz citação e não
   sugestão de código, de propósito — quem atribui o código é o avaliador.

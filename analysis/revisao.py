@@ -126,6 +126,25 @@ def corpus_carregado() -> "Corpus":
 
 # --------------------------------------------------------------------- corpus
 
+# A tela falava em "vantagem IT" e "[binding]" — código interno de quem montou o
+# congelamento, não vocabulário de quem codifica. Estes três mapas existem para a
+# tela dizer o que a coisa é.
+VANTAGENS = {"IT": "Itália", "DE": "Alemanha", "FR": "França", "IE": "Irlanda",
+             "NL": "Países Baixos", "ES": "Espanha", "BR": "Brasil",
+             "US": "Estados Unidos"}
+UE = {"IT", "DE", "FR", "IE", "NL", "ES"}
+PAPEIS = {"binding": "vinculante", "non-binding": "não vinculante",
+          "unknown": "sem classificação"}
+
+
+def _data_br(iso) -> str:
+    """'2026-08-03T01:38:14+00:00' → '03/08/2026'."""
+    if not iso or len(str(iso)) < 10:
+        return "data desconhecida"
+    ano, mes, dia = str(iso)[:10].split("-")
+    return f"{dia}/{mes}/{ano}"
+
+
 class Corpus:
     """Os 26 serviços em Markdown, lidos de uma pasta ou de uma URL.
 
@@ -168,6 +187,16 @@ class Corpus:
             with urllib.request.urlopen(f"{base}/{relativo}", timeout=TIMEOUT) as r:
                 return r.read().decode("utf-8")
         return (self.origem.parent / relativo).read_text(encoding="utf-8")
+
+    def url_do_congelado(self, doc) -> str | None:
+        """Endereço do documento congelado, para o link da tela abrir ESTE texto.
+
+        O link da tela apontava para a página original, que é o oposto do que a
+        tela pede: a página ao vivo já mudou, e codificar a partir dela desfaz o
+        congelamento. A original continua na tela, num link separado e rotulado,
+        porque conferir procedência é legítimo — codificar dali não é.
+        """
+        return f"{self.origem}/{doc['file']}" if self.remoto else None
 
     # ------------------------------------------------------------- consultas
     def docs(self, servico: str) -> list[dict]:
@@ -616,8 +645,7 @@ class Painel:
         perdidos = self.corpus.excluidos(self.servico)
         feitas, total = self.fluxo.progresso()
         linhas = [f"{self.servico} · {len(self.docs)} documentos ({vinc} vinculantes) · "
-                  f"congelado {self.corpus.index.get('frozen_at', '?')[:10]} "
-                  f"vantagem {self.corpus.index.get('vantage')} · {feitas}/{total} variáveis"]
+                  f"{feitas} de {total} variáveis respondidas"]
         if perdidos:
             linhas.append(f"⚠ {len(perdidos)} documento(s) que o congelamento não pegou — "
                           "isso é lacuna de corpus, não ausência de divulgação")
@@ -625,28 +653,52 @@ class Painel:
             linhas.append(f"⚠ {len(self.corpus.quarentena)} em quarentena (hash)")
         return "\n".join(linhas)
 
+    def procedencia(self) -> str:
+        """De onde vem o texto e por que é este. Sem sigla e sem jargão.
+
+        O cabeçalho dizia "congelado 2026-08-03 vantagem IT". Nenhuma das duas
+        metades é legível para quem não montou o congelamento: a data não diz por
+        que importa, e "vantagem IT" é o código do país de saída da VPN.
+        """
+        idx = self.corpus.index
+        cod = idx.get("vantage") or "?"
+        pais = VANTAGENS.get(cod, cod)
+        de_onde = (f"de dentro da União Europeia, por VPN com saída na {pais}"
+                   if cod in UE else f"de {pais}")
+        return (f"O texto foi congelado em {_data_br(idx.get('frozen_at'))}, capturado "
+                f"{de_onde}. É esta versão que vale, e é dela que você codifica — nunca da "
+                "página ao vivo. Duas razões: as plataformas mostram texto diferente "
+                "conforme o país de quem acessa, e por isso a captura foi feita da UE; e "
+                "elas reescrevem as políticas sem avisar, então se cada codificador ler uma "
+                "versão diferente, a discordância entre vocês fica indistinguível de mudança "
+                "no documento, e depois não há como separar as duas.")
+
     def texto_dos_documentos(self) -> str:
         linhas = []
         for doc, d in zip(self.docs, self.dossie_local):
             acesos = [f"{t}:{n}" for t, n in d["counts"].items() if n]
-            linhas.append(f"  {doc['n']:02d} [{doc['role']:<11}] {Path(doc['file']).name} "
+            papel = PAPEIS.get(doc["role"], doc["role"])
+            linhas.append(f"  {doc['n']:02d} [{papel:<17}] {Path(doc['file']).name} "
                           f"· {doc['chars']//1000}k · " + (", ".join(acesos) or "nenhum termo"))
         return "\n".join(linhas)
 
     def imprimir(self, vid: str | None = None):
         """Modo texto — é o que roda fora do Colab (e no self-test)."""
         print(self.cabecalho())
+        print(self.procedencia())
         print(self.texto_dos_documentos())
         passo = self.fluxo.atual()
         vid = vid or passo.vid
         print(f"\n[{passo.vid}] {passo.titulo}\n    {re.sub('<[^>]+>', '', passo.regra)}")
         chao = self.piso_de(vid)
-        print(f"    varredura do §3 ({len(chao)}) — o piso, não depende do modelo:")
+        print(f"    busca por palavra-chave ({len(chao)} trechos) — os 12 termos do "
+              "protocolo, sem modelo nenhum; a triagem é sua:")
         for h in chao[:4]:
             nota = f"  ⚠ {h['flag'][:70]}" if h["flag"] else ""
             print(f"      [{h['termo']}] …{h['kwic'][:120]}… — {h['file']}{nota}")
         cits = self.evidencia_de(vid)
-        print(f"    acrescentado pelo modelo ({len(cits)}):")
+        print(f"    acrescentado pelo modelo ({len(cits)} citações) — o que a busca "
+              "não acha porque não usa os termos:")
         for c in cits[:4]:
             print(f"      “{c['verbatim'][:150]}” — doc {c['doc']} · {c['onde']}")
         pend = self.fluxo.faltando()
@@ -666,18 +718,37 @@ class Painel:
             return self.imprimir()
         self.carregar_sugestao()
 
-        docs_html = "".join(
-            f"<div style='padding:2px 0'><b>{d['n']:02d}</b> "
-            f"<span style='color:{'#0a7' if d['role'] == 'binding' else '#888'}'>"
-            f"[{d['role']}]</span> "
-            f"<a href='{_esc(d['url'])}' target='_blank'>{_esc(Path(d['file']).name)}</a> "
-            f"<span style='color:#888'>{d['chars'] // 1000}k · "
-            f"{_esc(', '.join(f'{t}:{n}' for t, n in v['counts'].items() if n) or 'nenhum termo')}"
-            f"</span></div>"
-            for d, v in zip(self.docs, self.dossie_local))
+        def _linha_doc(d, v):
+            termos = ", ".join(f"{t}:{n}" for t, n in v["counts"].items() if n) or "nenhum termo"
+            nome = Path(d["file"]).name
+            congelado = self.corpus.url_do_congelado(d)
+            alvo = (f"<a href='{_esc(congelado)}' target='_blank' title='abre o texto "
+                    f"congelado — é este que vale'>{_esc(nome)}</a>" if congelado
+                    else _esc(nome))
+            return (f"<div style='padding:2px 0'><b>{d['n']:02d}</b> "
+                    f"<span style='color:{'#0a7' if d['role'] == 'binding' else '#888'}'>"
+                    f"[{_esc(PAPEIS.get(d['role'], d['role']))}]</span> {alvo} "
+                    f"<span style='color:#888'>{d['chars'] // 1000}k · {_esc(termos)}</span> "
+                    f"<a href='{_esc(d['url'])}' target='_blank' style='color:#aaa;"
+                    f"font-size:11px' title='a página ao vivo, só para conferir procedência "
+                    f"— não codifique a partir dela'>original ↗</a></div>")
 
-        topo = W.HTML(f"<h3 style='margin:0'>{_esc(self.cabecalho())}</h3>"
-                      f"<div style='font:12px/1.5 ui-monospace,monospace'>{docs_html}</div>")
+        docs_html = "".join(_linha_doc(d, v) for d, v in zip(self.docs, self.dossie_local))
+        linhas_cab = self.cabecalho().split("\n")
+        avisos = "".join(f"<div style='color:#a15c00;font-size:12px'>{_esc(l)}</div>"
+                         for l in linhas_cab[1:])
+
+        topo = W.HTML(
+            f"<h3 style='margin:0 0 4px'>{_esc(linhas_cab[0])}</h3>{avisos}"
+            f"<div style='color:#555;font-size:12.5px;max-width:780px;margin:6px 0 10px'>"
+            f"{_esc(self.procedencia())}</div>"
+            f"<div style='font:12px/1.7 ui-monospace,monospace'>{docs_html}</div>"
+            f"<div style='color:#888;font-size:11.5px;margin-top:6px;max-width:780px'>"
+            f"O nome do arquivo abre o <b>texto congelado</b>, que é o que você codifica; "
+            f"<b>original ↗</b> abre a página ao vivo, só para conferir procedência. "
+            f"<b>vinculante</b> = política ou termos que a plataforma se obriga a cumprir · "
+            f"<b>não vinculante</b> = blog, central de ajuda, wiki técnica · "
+            f"<b>sem classificação</b> = o congelamento não registrou o papel.</div>")
         area = W.Output()
         # O recibo fica FORA da `area`: `_render_variavel` limpa a área a cada
         # avanço, e recibo que desaparece junto não é recibo. Ele existe porque
@@ -722,6 +793,20 @@ class Painel:
                 "reciclar. Pare aqui, confira a rede e salve de novo antes de "
                 "seguir.</div>")
 
+    # Os dois andares da tela precisavam de nome e de explicação. "varredura do §3"
+    # é referência ao protocolo, não descrição: quem lê a tela não sabe o que é a
+    # §3 nem por que ela vem antes do modelo.
+    SUB_PISO = ("Os 12 termos do protocolo, procurados <b>literalmente</b> no texto "
+                "congelado. Não passa por modelo nenhum: é busca de texto, dá sempre o "
+                "mesmo resultado e não deixa nada de fora — por isso vem primeiro. Boa "
+                "parte vai ser falso positivo, e os marcados com ⚠ costumam ser: o aviso "
+                "diz por quê. Descartar é seu trabalho; o que a tela garante é que nada "
+                "foi escondido de você.")
+    SUB_MODELO = ("Passagens que a busca acima não acha, porque descrevem experimentação "
+                  "sem usar nenhum dos 12 termos. Foram geradas uma única vez e "
+                  "congeladas, então todo codificador vê exatamente estas. O modelo "
+                  "localiza; ele não atribui código nenhum.")
+
     def _render_variavel(self, area):
         import ipywidgets as W
         from IPython.display import display, HTML, clear_output
@@ -765,16 +850,21 @@ class Painel:
                        if h["total_no_doc"] > 1 else "")
             aviso = (f"<br><span style='color:#a15c00;font-size:11.5px'>⚠ "
                      f"{_esc(h['flag'])}</span>" if h["flag"] else "")
+            congelado = self.corpus.url_do_congelado(h)
+            onde = (f"<a href='{_esc(congelado)}' target='_blank' style='color:#888'>"
+                    f"{_esc(Path(h['file']).name)}</a>" if congelado
+                    else _esc(Path(h["file"]).name))
             return (f"<div style='margin:5px 0;padding:5px 10px;border-left:3px solid #999;"
                     f"background:#fafafa;font-size:12.5px'>"
                     f"<b style='color:#555'>[{_esc(h['termo'])}]</b> "
                     f"…{_esc(h['kwic'][:300])}…<br>"
                     f"<span style='color:#888;font-size:11.5px'>"
-                    f"{_esc(Path(h['file']).name)}{quantos}</span>{aviso}</div>")
+                    f"{onde}{quantos}</span>{aviso}</div>")
 
         piso_html = "".join(_bloco_piso(h) for h in chao) or (
-            "<i style='color:#888'>a varredura do §3 não acha nenhum termo desta "
-            "variável no corpus deste serviço</i>")
+            "<div style='color:#888;font-size:12.5px;margin:6px 0'><i>Nenhum dos termos "
+            "desta variável aparece nos documentos deste serviço. Isso é informação, não "
+            "falha da ferramenta: é o que sustenta codificar ausência.</i></div>")
 
         # O botão só existe se houver sugestão para revelar. Com a evidência
         # congelada não há: o congelamento publica citação e omite a sugestão de
@@ -826,15 +916,21 @@ class Painel:
 
         with area:
             clear_output()
+            criterio = (f"<div style='margin-top:12px'>"
+                        f"<b>Critério de codificação</b>"
+                        f"<div style='font-size:13px;max-width:780px'>{passo.criterio}</div>"
+                        f"</div>") if passo.criterio else ""
             display(HTML(
-                f"<h4 style='margin:12px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
-                f"<div style='color:#555'>{passo.regra}</div>"
-                f"<details><summary style='cursor:pointer;color:#06c'>critério completo</summary>"
-                f"{passo.criterio}</details>"
-                f"<div style='margin-top:10px'><b>varredura do §3 ({len(chao)})</b> "
-                f"<span style='color:#888;font-size:12px'>— o piso: regex sobre o texto "
-                f"congelado, não depende do modelo. A triagem é sua.</span>{piso_html}</div>"
-                f"<div style='margin-top:10px'><b>acrescentado pelo modelo ({len(cits)})</b>"
+                f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
+                f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
+                f"{criterio}"
+                f"<div style='margin-top:16px'><b>Busca por palavra-chave — {len(chao)} "
+                f"{'trecho' if len(chao) == 1 else 'trechos'}</b>"
+                f"<div style='color:#666;font-size:12px;max-width:780px'>{self.SUB_PISO}</div>"
+                f"{piso_html}</div>"
+                f"<div style='margin-top:16px'><b>Acrescentado pelo modelo — {len(cits)} "
+                f"{'citação' if len(cits) == 1 else 'citações'}</b>"
+                f"<div style='color:#666;font-size:12px;max-width:780px'>{self.SUB_MODELO}</div>"
                 f"{ev}</div>"))
             display(W.VBox([W.HBox([W.Label(c.rotulo, layout=W.Layout(width="260px")), w])
                             for c, w in zip(passo.campos, campos.values())]))
@@ -1027,7 +1123,9 @@ def _self_test() -> int:
         """Widget de mentira: aceita qualquer construtor e serve de contexto."""
 
         def __init__(self, *a, **kw):
-            self.value = kw.get("value", "")
+            # Guarda o HTML passado por posição também: é o que deixa conferir o
+            # que a tela realmente diz, em vez de só conferir que não estourou.
+            self.value = kw.get("value", a[0] if a and isinstance(a[0], str) else "")
             self.filhos = a[0] if a and isinstance(a[0], (list, tuple)) else ()
 
         def on_click(self, f):
@@ -1065,6 +1163,53 @@ def _self_test() -> int:
         checar("a caixa do painel é exibida uma vez só",
                sum(1 for x in exibidos if x is exibidos[0]) == 1)
         checar("o recibo entra na caixa exibida", pa5.recibo is not None)
+
+        # O que a tela diz, não só que ela monta. Os quatro defeitos de
+        # legibilidade relatados em 30/09 estão presos aqui.
+        topo_html = exibidos[0].filhos[0].value
+        variavel_html = "".join(x for x in exibidos if isinstance(x, str))
+        checar("o cabeçalho não fala em sigla de vantagem",
+               "vantagem" not in topo_html.lower())
+        checar("o cabeçalho explica a VPN e nomeia o país",
+               "VPN" in topo_html and "Itália" in topo_html)
+        checar("os papéis dos documentos vêm em português",
+               "vinculante" in topo_html and "[binding]" not in topo_html)
+        checar("o critério fica visível, não escondido num details",
+               "Critério de codificação" in variavel_html
+               and "<details>" not in variavel_html)
+        checar("os dois andares têm título e explicação",
+               "Busca por palavra-chave —" in variavel_html
+               and "Acrescentado pelo modelo —" in variavel_html
+               and "12 termos do protocolo" in variavel_html)
+        checar("a tela não manda o codificador procurar o que é a §3",
+               "§3" not in topo_html and "§3" not in variavel_html)
+    finally:
+        pass
+
+    print("link do documento (corpus remoto, via file://)")
+    # `file://` faz o Corpus tomar o caminho remoto sem depender do site no ar —
+    # é a única forma de testar o link, que é o defeito relatado: ele levava à
+    # página original em vez do documento congelado.
+    c_remoto = Corpus(Path(corpus_dir).resolve().as_uri())
+    doc = c_remoto.docs("Wikipedia")[0]
+    alvo = c_remoto.url_do_congelado(doc)
+    checar("corpus remoto devolve endereço do documento congelado",
+           bool(alvo) and alvo.endswith(doc["file"]))
+    checar("o endereço é do congelado, não da página original",
+           alvo != doc["url"] and doc["url"] not in alvo)
+    checar("corpus em disco não inventa link", c.url_do_congelado(doc) is None)
+    sys.modules["ipywidgets"] = _FalsoModulo("ipywidgets")
+    sys.modules["IPython"] = types.ModuleType("IPython")
+    sys.modules["IPython.display"] = ipd
+    try:
+        exibidos.clear()
+        Painel("Wikipedia", corpus=c_remoto,
+               estado=F.Estado(offline=True, cache=Path(os.devnull + "x")),
+               assistir=False).mostrar()
+        html = exibidos[0].filhos[0].value
+        checar("o nome do arquivo na tela aponta para o congelado", alvo in html)
+        checar("a página original continua na tela, rotulada",
+               doc["url"] in html and "original ↗" in html)
     finally:
         for k, v in guarda.items():
             if v is None:

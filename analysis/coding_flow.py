@@ -219,7 +219,8 @@ class Fluxo:
                 # único campo de texto que não se chama *_evidence/*_note, e a
                 # regra por sufixo o deixava passar vazio — logo o log que o
                 # codebook marca como obrigatório e que torna cada "No" auditável.
-                pend.append((c.chave, "log §3" if c.chave == "keyword_log" else "evidência"))
+                pend.append((c.chave, "log de palavras-chave" if c.chave == "keyword_log"
+                             else "evidência"))
             elif c.chave in LINE_EXIGIDA and vazio:
                 gatilho, valor_gatilho = LINE_EXIGIDA[c.chave]
                 if self.rec.get(gatilho) == valor_gatilho:
@@ -351,7 +352,8 @@ def _self_test():
     fk = Fluxo("Pinterest", Estado(cache=tmp, offline=True))
     fk.i = [v.vid for v in fk.passos].index("KW")
     checar("KW vazio NÃO passa", not fk.pode_avancar())
-    checar("o que falta é o log", fk.faltando() == [("keyword_log", "log §3")])
+    checar("o que falta é o log",
+           fk.faltando() == [("keyword_log", "log de palavras-chave")])
     fk.responder({"keyword_log": "001-en-privacy-policy.txt: experiment:0 / test:4"})
     checar("com o log preenchido, fecha", fk.pode_avancar())
 

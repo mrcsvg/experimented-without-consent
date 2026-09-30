@@ -47,12 +47,12 @@ PATTERNS: dict[str, dict] = {
         # mas pega "testimonial" e "testing" genérico de software.
         "regex": r"\btest\w*",
         "flag": "verificar sentido: 'testimonial', 'testing' de QA e 'test account' "
-                "não são experimentação comportamental (§3)",
+                "não são experimentação comportamental",
     },
     "trial": {
         "regex": r"\btrial\w*",
         "flag": "falso positivo comum: 'free trial' / período de teste de assinatura "
-                "NÃO é experimentação (§2, V1)",
+                "NÃO é experimentação (ver V1)",
     },
     "beta": {
         "regex": r"\bbeta\b",
@@ -74,7 +74,7 @@ PATTERNS: dict[str, dict] = {
         # no menu do site. Conduta empresarial não é revisão ética de
         # experimento, e a V8 pergunta pela segunda.
         "flag": "falso positivo comum: 'code of ethics' / conduta empresarial no menu ou "
-                "rodapé NÃO é revisão ética de experimento (§2, V8)",
+                "rodapé NÃO é revisão ética de experimento (ver V8)",
     },
     "review board": {
         "regex": r"\breview\s+board\w*",
@@ -94,7 +94,7 @@ PATTERNS: dict[str, dict] = {
         # sistêmico dos Arts. 34-35 do DSA, que é da plataforma inteira e não
         # revisão prévia por experimento — a distinção que o §4 do paper faz.
         "flag": "falso positivo comum: escore antifraude e avaliação de risco sistêmico do "
-                "DSA (Arts. 34-35) não são revisão ética por experimento (§2, V8)",
+                "DSA (Arts. 34-35) não são revisão ética por experimento (ver V8)",
     },
 }
 
