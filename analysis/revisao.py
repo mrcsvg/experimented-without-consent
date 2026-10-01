@@ -961,10 +961,23 @@ class Painel:
 
         with area:
             clear_output()
-            criterio = (f"<div style='margin-top:12px'>"
-                        f"<b>Critério de codificação</b>"
-                        f"<div style='font-size:13px;max-width:780px'>{passo.criterio}</div>"
-                        f"</div>") if passo.criterio else ""
+            # A glosa vem primeiro porque é ela que se lê; o texto do codebook vem
+            # depois porque é ele que vale. Os dois juntos, e rotulados, porque o
+            # critério congelado é o instrumento da passada 1 e não pode ser
+            # reescrito — ver `codebook.criterio`.
+            glosa = C.glosa_criterio(vid)
+            partes = []
+            if glosa:
+                partes.append(f"<div style='font-size:13px;max-width:780px'>{glosa}</div>")
+            if passo.criterio:
+                partes.append(
+                    f"<div style='margin-top:10px;padding-left:10px;border-left:2px solid "
+                    f"#ddd'><div style='color:#888;font-size:11.5px'>texto exato do "
+                    f"codebook v2, congelado em 04/07/2026</div>"
+                    f"<div style='color:#555;font-size:12.5px;max-width:780px'>"
+                    f"{passo.criterio}</div></div>")
+            criterio = (f"<div style='margin-top:12px'><b>Critério de codificação</b>"
+                        + "".join(partes) + "</div>") if partes else ""
             display(HTML(
                 f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
                 f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
@@ -1236,6 +1249,13 @@ def _self_test() -> int:
         checar("o critério fica visível, não escondido num details",
                "Critério de codificação" in variavel_html
                and "<details>" not in variavel_html)
+        checar("o critério vem explicado antes do texto congelado",
+               "é isso que o codebook chama de" in variavel_html
+               and "texto exato do codebook v2" in variavel_html
+               and variavel_html.index("é isso que o codebook chama de")
+               < variavel_html.index("texto exato do codebook v2"))
+        checar("o texto congelado do codebook continua na tela",
+               "Escada." in variavel_html)
         checar("os dois andares têm título e explicação",
                "Busca por palavra-chave —" in variavel_html
                and "Acrescentado pelo modelo —" in variavel_html

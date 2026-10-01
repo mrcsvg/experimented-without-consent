@@ -40,7 +40,8 @@ HTML = Path(__file__).resolve().parent.parent / "index.html"
 
 # Constantes lidas do instrumento, na ordem em que uma pode referenciar a anterior.
 CONSTANTES = ["DATA", "KWTERMS", "FRAMING", "BASIS", "WHERE", "REG", "YN", "V5",
-              "VALHELP", "FIELDHELP", "META_SVC", "GOOGLE_SVC", "ANCHORS", "CRIT"]
+              "VALHELP", "FIELDHELP", "META_SVC", "GOOGLE_SVC", "ANCHORS", "CRIT",
+              "GLOSA"]
 
 
 class ErroDeExtracao(RuntimeError):
@@ -232,15 +233,38 @@ VALHELP = _simb["VALHELP"]
 FIELDHELP = _simb["FIELDHELP"]
 ANCHORS = _simb["ANCHORS"]
 CRIT = _simb["CRIT"]
+GLOSA = _simb["GLOSA"]
 OPCOES = {n: _simb[n] for n in ("FRAMING", "BASIS", "WHERE", "REG", "YN", "V5")}
 SERVICOS = DATA["order"]
 VARIAVEIS = _ler_variaveis(_fonte, _simb)
 
 
 def criterio(v):
-    """O critério completo da variável (§2 do codebook), em HTML."""
+    """O critério completo da variável (§2 do codebook), em HTML.
+
+    É transcrição fiel do `protocol/codebook-v2.md`, congelado em 04/jul/2026 e
+    usado para codificar a passada 1. Não reescrever: duas passadas contra
+    instrumentos diferentes produzem desacordo que não é desacordo. Para explicar
+    melhor, use a `glosa_criterio` — ela fica ao lado, marcada como explicação.
+    """
     c = CRIT.get(v.lower())
     return c["html"] if c else ""
+
+
+# sha256 (12 hex) do HTML de cada critério, como está no codebook congelado em
+# 04/jul/2026. Não é integridade contra adversário: é trava contra a tentação de
+# "melhorar a redação" do instrumento depois que a passada 1 já foi codificada com
+# ele. Se um destes mudar, o `--check` reprova e diz o que fazer.
+CRIT_CONGELADO = {
+    "v1": "49dc0105e1de", "v2": "bac8d56c51f6", "v3": "c8818742ca4b",
+    "v4": "990413ff6366", "v5": "b7b90f255219", "v6": "8b0b6ac097ca",
+    "v7": "27eaf0796fa9", "v8": "a65d7654af6a", "v9": "147540427538",
+}
+
+
+def glosa_criterio(v):
+    """O mesmo critério em linguagem de quem codifica. Explica, não substitui."""
+    return GLOSA.get(v.lower(), "")
 
 
 def glosa(chave, valor):
@@ -286,6 +310,15 @@ def _check():
     exigir(all(v.campos for v in VARIAVEIS), "variável sem nenhum campo")
     for n in range(1, 10):
         exigir(criterio(f"v{n}"), f"critério completo ausente para v{n}")
+        exigir(glosa_criterio(f"v{n}"), f"glosa em linguagem simples ausente para v{n}")
+        import hashlib
+        agora = hashlib.sha256(criterio(f"v{n}").encode("utf-8")).hexdigest()[:12]
+        exigir(agora == CRIT_CONGELADO[f"v{n}"],
+               f"v{n}: o texto do critério mudou ({agora}). Ele é transcrição do "
+               "codebook congelado em 04/jul, usado na passada 1 — reescrevê-lo faz "
+               "as duas passadas usarem instrumentos diferentes. Para explicar "
+               "melhor, mexa na GLOSA. Se a mudança é deliberada e o codebook "
+               "também mudou, atualize CRIT_CONGELADO no mesmo commit.")
 
     # Todo campo select/checks tem que ter chegado com opções resolvidas.
     for v in VARIAVEIS:

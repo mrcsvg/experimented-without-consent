@@ -164,6 +164,9 @@ details.crit>summary::before{content:"▸ "}
 details.crit[open]>summary::before{content:"▾ "}
 details.crit .critbody{font-size:13.5px;padding:9px 0 2px;max-width:80ch}
 details.crit .critbody p{margin:.55em 0}
+details.crit .glosa p:first-child{margin-top:0}
+details.crit .critfonte{color:var(--muted);font-size:11px;margin:11px 0 2px;border-top:1px solid var(--line);padding-top:8px}
+details.crit .critfonte + p, details.crit .critfonte ~ p{font-size:12.5px;color:var(--muted)}
 details.crit .critbody ul{margin:.5em 0;padding-left:1.15em}
 details.crit .critbody li{margin:.3em 0}
 .anchors{margin:.7em 0 0;padding-top:.6em;border-top:1px dashed var(--line)}
@@ -447,6 +450,101 @@ const CRIT = {
     <p>Multi-seleção de locais + registro agregado.</p>
     <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o “How Search Works” do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>`}
 };
+/* GLOSA — o critério dito em linguagem de quem codifica.
+   NÃO substitui o CRIT: aquele é transcrição fiel do codebook v2 congelado em
+   04/jul, e a passada 1 foi codificada contra ele. Mudar a redação do CRIT faria
+   as duas passadas usarem instrumentos diferentes, e a divergência apareceria
+   como desacordo entre codificadores. Então o texto do codebook fica intacto e a
+   explicação vem ao lado, marcada como explicação. Nenhuma glosa aqui move um
+   limiar: se uma delas disser coisa diferente do CRIT, é a glosa que está errada. */
+const GLOSA = {
+  v1: `
+    <p>São quatro níveis, do menos ao mais explícito, e você escolhe <b>um só</b>: o mais
+    alto que achar em qualquer documento do serviço — é isso que o codebook chama de
+    <b>teto</b>. Depois diga <b>onde</b> esse nível mais alto aparece: em documento
+    vinculante, fora dele, ou nos dois.</p>
+    <p>A fronteira que mais decide é <b>2 contra 3</b>. Se o texto diz que testa coisas com
+    usuários mas não diz como — &ldquo;test new features&rdquo; e nada além —, é <b>2</b>.
+    Basta aparecer A/B, versões diferentes servidas a pessoas diferentes, grupo de controle,
+    ou &ldquo;experiment&rdquo; no sentido de experimento, e é <b>3</b>.</p>
+    <p>Cuidado com &ldquo;trial&rdquo;: período grátis de assinatura não é experimentação, e
+    é o falso positivo mais comum nesta variável.</p>
+    <p><b>Por que a combinação importa.</b> Nível 3 que só existe fora do contrato significa
+    que a plataforma admite experimentar, mas não onde ela se obriga a cumprir. É o achado
+    central do estudo. Se o documento vinculante, sozinho, ficar num nível abaixo do teto,
+    escreva isso no campo Notas.</p>`,
+  v2: `
+    <p>Aqui pode marcar <b>mais de um</b>, e normalmente é mais de um — cada marcação pede
+    uma citação. &ldquo;Research that improves our services&rdquo; é melhoria do serviço
+    <i>e</i> pesquisa ao mesmo tempo.</p>
+    <p>&ldquo;Bem-estar da comunidade&rdquo; é a terceira opção, e vale saber por que ela
+    está aí: é o mesmo tipo de justificativa que o Facebook usou no estudo de contágio
+    emocional de 2014.</p>`,
+  v3: `
+    <p>São quatro perguntas separadas, e dá para responder sim a umas e não a outras.</p>
+    <p><b>Primeira:</b> o texto nomeia <i>o que</i> é testado — features, layout, ranking?
+    <b>Segunda:</b> nomeia o <i>alvo</i> do teste — ranking, preço, mensagem, emoção,
+    fricção, opções padrão? Aqui a distinção que importa é entre alvo de experimento e
+    personalização: &ldquo;recomendamos conteúdo para você&rdquo; é funcionalidade
+    descrita, não experimento. <b>Terceira:</b> descreve algum experimento específico, que
+    esteja acontecendo?</p>
+    <p><b>Quarta</b>, em campo próprio: preço aparece como alvo? Cláusula de erro de preço
+    (<i>mispricing</i>) não conta. Se preço aparecer só fora do contrato, marque Yes e diga
+    onde no campo Notas — esta pergunta não tem campo de registro próprio, que é uma
+    limitação conhecida do codebook.</p>`,
+  v4: `
+    <p>Pode marcar mais de uma base. <b>&ldquo;Not stated&rdquo;</b> quer dizer que nenhuma
+    base foi declarada <i>para experimentação</i> — em geral ela vem embutida na cláusula de
+    melhoria do serviço. Escreva também qual finalidade declarada você entendeu como
+    cobrindo experimentação (por exemplo &ldquo;improve services&rdquo;).</p>
+    <p><b>Se a tabela de bases por finalidade não aparecer nos documentos, marque
+    não-verificável, não &ldquo;No&rdquo;.</b> As duas coisas são diferentes: cinco serviços
+    do censo escondem essa tabela de quem acessa de fora da UE.</p>
+    <p>Se um documento estiver visivelmente diferente do que o manifesto registra, anote e
+    pule o campo. Não troque por outra versão — isso criaria divergência que não é
+    desacordo entre codificadores.</p>`,
+  v5: `
+    <p>Cinco níveis, do nada até o opt-in, e você escolhe um. O escopo é <b>estrito</b>: tem
+    de ser controle sobre <i>experimentação</i>, não sobre cookies.</p>
+    <p>Só o direito genérico de objeção do GDPR (Art. 21) é o segundo nível. Banner de
+    consentimento que governa publicidade e medição é o terceiro — e é o falso positivo
+    clássico, porque parece um opt-out e não é. &ldquo;Dedicated&rdquo; exige um controle
+    que desligue experimentação.</p>`,
+  v6: `
+    <p>TestFlight, Search Labs, canais beta. É um eixo <b>separado</b> do V5 e não compensa
+    a falta de opt-out: quem se inscreve ganha acesso antecipado a novidades, e todos os
+    outros continuam nos experimentos de rotina. Nunca some este com o V5.</p>`,
+  v7: `
+    <p><i>Debriefing</i> é avisar a pessoa, <b>depois</b>, que ela participou de um
+    experimento. Não conte como debriefing: aviso de que dados são processados, aviso de
+    decisão automatizada, aviso de que o serviço mudou. Os três apareceram como falso
+    positivo no piloto.</p>
+    <p><b>E há dois tipos de ausência.</b> O documento pode tratar do assunto e não oferecer
+    o mecanismo, ou o assunto pode simplesmente nunca aparecer. Nos dois casos marque
+    &ldquo;No&rdquo;, e diga no campo Notas qual é o caso — pelo texto não se distingue
+    &ldquo;consideraram e descartaram&rdquo; de &ldquo;nunca pensaram&rdquo;.</p>`,
+  v8: `
+    <p>Conta menção, <b>nos documentos voltados ao usuário</b>, a revisão ética, comitê ou
+    avaliação de risco de experimentos. Linguagem vaga de &ldquo;impacto&rdquo; é
+    &ldquo;No&rdquo; com nota.</p>
+    <p><b>O caso mais comum:</b> a avaliação de risco sistêmico que o DSA exige existe por
+    obrigação regulatória, mas se não estiver nos documentos ao usuário é &ldquo;No&rdquo;
+    — anote como diferença entre o que o regulador exige e o que o documento diz. A regra
+    dos dois tipos de ausência do V7 vale aqui também.</p>`,
+  v9: `
+    <p>Marque todos os lugares onde a divulgação aparece e diga, no agregado, se ela está em
+    documento vinculante, não vinculante, ou nos dois.</p>
+    <p><b>O que torna um documento vinculante é a função legal dele, não o endereço.</b> O
+    Privacy Notice da Amazon fica numa URL de <code>/help/</code> e é vinculante; o
+    &ldquo;How Search Works&rdquo; do Google é microsite institucional e não é. Na dúvida, a
+    pergunta é uma só: o documento se declara parte do acordo com o usuário?</p>`,
+  kw: `
+    <p>Para cada documento, quantas vezes cada um dos 12 termos aparece — já triado por
+    você, contando só o que tem sentido experimental.</p>
+    <p><b>É este log que torna cada &ldquo;No&rdquo; auditável.</b> Sem ele, &ldquo;procurei
+    e não achei&rdquo; e &ldquo;não procurei&rdquo; ficam iguais no dado, e os achados de
+    ausência são metade do estudo.</p>`,
+};
 
 let current = DATA.order[0];
 
@@ -643,8 +741,12 @@ function anchorsHTML(v){
 
 function crit(v){
   const c = CRIT[v]; if(!c) return "";
+  /* Glosa antes do critério: é ela que se lê. O texto do codebook vem depois,
+     rotulado, porque é ele que vale — e é transcrição congelada, não editável. */
+  const g = GLOSA[v] ? `<div class="glosa">${GLOSA[v]}</div>` +
+    `<div class="critfonte">texto exato do codebook v2, congelado em 04/07/2026</div>` : "";
   return `<details class="crit" data-crit="${v}"${uiGet()["crit_"+v]?" open":""}>` +
-    `<summary>${esc(c.sum)}</summary><div class="critbody">${c.html}${anchorsHTML(v)}</div></details>`;
+    `<summary>${esc(c.sum)}</summary><div class="critbody">${g}${c.html}${anchorsHTML(v)}</div></details>`;
 }
 
 /* popover nativo: light-dismiss, camada superior (não é cortado pelo overflow
