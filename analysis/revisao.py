@@ -183,6 +183,47 @@ def mostrar_procedencia(corpus=None):
                  f"{LEGENDA_DOCUMENTOS}</div>"))
 
 
+FONTE_CRIT = "texto exato do codebook v2, congelado em 04/07/2026"
+
+
+def codebook_html() -> str:
+    """As dez variáveis com critério completo, em um bloco. Sem as âncoras.
+
+    As âncoras do piloto nomeiam serviços, e o instrumento as suprime para não pôr
+    a resposta no campo de visão de quem decide. Num bloco único não há serviço em
+    tela para suprimir contra, então nenhuma entra — quem quiser consultá-las
+    deliberadamente tem `protocol/codebook-v2.md`.
+    """
+    blocos = []
+    for v in C.VARIAVEIS:
+        crit = C.criterio(v.crit_key)
+        blocos.append(
+            f"<h4 style='margin:18px 0 2px'>[{v.vid}] {_esc(v.titulo)}</h4>"
+            f"<div style='color:#555;font-size:12.5px'>{v.regra}</div>"
+            f"<div style='font-size:13px'>{C.glosa_criterio(v.vid)}</div>"
+            + (f"<div style='margin-top:8px;padding-left:10px;border-left:2px solid #ddd'>"
+               f"<div style='color:#888;font-size:11.5px'>{FONTE_CRIT}</div>"
+               f"<div style='color:#555;font-size:12.5px'>{crit}</div></div>" if crit else ""))
+    return "".join(blocos)
+
+
+def mostrar_codebook():
+    """Exibe o codebook uma vez, no alto do notebook.
+
+    O critério é igual nos 26 serviços, como a procedência e a legenda — e é longo.
+    Dez blocos desses repetidos 26 vezes transformariam a célula de trabalho num
+    documento, e o que ela precisa ser é uma tela de decisão. Aqui aparece uma vez;
+    na célula de trabalho fica o lembrete de uma linha e o ponteiro para cá.
+    """
+    try:
+        from IPython.display import display, HTML
+    except ImportError:
+        print(re.sub(r"\n\s*\n+", "\n\n",
+                     re.sub("<[^>]+>", "", codebook_html().replace("<h4", "\n<h4"))))
+        return
+    display(HTML(f"<div style='max-width:820px'>{codebook_html()}</div>"))
+
+
 def corpus_carregado() -> "Corpus":
     if CFG._corpus_obj is None:
         CFG._corpus_obj = Corpus(CFG.corpus)
@@ -961,23 +1002,12 @@ class Painel:
 
         with area:
             clear_output()
-            # A glosa vem primeiro porque é ela que se lê; o texto do codebook vem
-            # depois porque é ele que vale. Os dois juntos, e rotulados, porque o
-            # critério congelado é o instrumento da passada 1 e não pode ser
-            # reescrito — ver `codebook.criterio`.
-            glosa = C.glosa_criterio(vid)
-            partes = []
-            if glosa:
-                partes.append(f"<div style='font-size:13px;max-width:780px'>{glosa}</div>")
-            if passo.criterio:
-                partes.append(
-                    f"<div style='margin-top:10px;padding-left:10px;border-left:2px solid "
-                    f"#ddd'><div style='color:#888;font-size:11.5px'>texto exato do "
-                    f"codebook v2, congelado em 04/07/2026</div>"
-                    f"<div style='color:#555;font-size:12.5px;max-width:780px'>"
-                    f"{passo.criterio}</div></div>")
-            criterio = (f"<div style='margin-top:12px'><b>Critério de codificação</b>"
-                        + "".join(partes) + "</div>") if partes else ""
+            # O critério inteiro mora no alto do notebook, uma vez. Aqui fica a
+            # regra de uma linha (logo abaixo do título) e o ponteiro — a célula de
+            # trabalho é tela de decisão, não documento.
+            criterio = (f"<div style='color:#888;font-size:11.5px;margin-top:8px'>"
+                        f"Critério completo da {_esc(vid)} no alto do notebook, em "
+                        f"<b>O codebook, variável por variável</b>.</div>")
             display(HTML(
                 f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
                 f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
@@ -1246,16 +1276,17 @@ def _self_test() -> int:
                "[vinculante]" in topo_html and "original ↗" in topo_html)
         checar("os papéis dos documentos vêm em português",
                "vinculante" in topo_html and "[binding]" not in topo_html)
-        checar("o critério fica visível, não escondido num details",
-               "Critério de codificação" in variavel_html
+        # O critério inteiro saiu da célula de trabalho e foi para o alto, como a
+        # procedência e a legenda. O que fica aqui é a regra de uma linha e o
+        # ponteiro — e nenhum `<details>`, que foi o defeito original.
+        checar("a célula de trabalho não carrega o critério inteiro",
+               "é isso que o codebook chama de" not in variavel_html
+               and "Escada." not in variavel_html
                and "<details>" not in variavel_html)
-        checar("o critério vem explicado antes do texto congelado",
-               "é isso que o codebook chama de" in variavel_html
-               and "texto exato do codebook v2" in variavel_html
-               and variavel_html.index("é isso que o codebook chama de")
-               < variavel_html.index("texto exato do codebook v2"))
-        checar("o texto congelado do codebook continua na tela",
-               "Escada." in variavel_html)
+        checar("a regra de uma linha continua logo abaixo do título",
+               "Codifique o teto e onde ele vive" in variavel_html)
+        checar("e há ponteiro para onde o critério inteiro está",
+               "Critério completo da V1 no alto do notebook" in variavel_html)
         checar("os dois andares têm título e explicação",
                "Busca por palavra-chave —" in variavel_html
                and "Acrescentado pelo modelo —" in variavel_html
@@ -1279,6 +1310,20 @@ def _self_test() -> int:
     checar("as duas dizem a mesma data e o mesmo país",
            "03/08/2026" in procedencia(c) and "03/08/2026" in procedencia_curta(c)
            and "Itália" in procedencia_curta(c))
+
+    print("codebook em um bloco")
+    cb = codebook_html()
+    checar("as dez variáveis entram", all(f"[{v.vid}]" in cb for v in C.VARIAVEIS))
+    checar("cada uma com glosa e com o texto congelado",
+           cb.count(FONTE_CRIT) == 9 and "é isso que o codebook chama de" in cb
+           and "Escada." in cb)
+    # As âncoras nomeiam serviços; num bloco único não há serviço em tela contra o
+    # qual suprimir, então nenhuma pode entrar — senão a resposta de um serviço
+    # fica no campo de visão de quem codifica outro.
+    todas = [h for v in C.VARIAVEIS if v.crit_key
+             for h in C.ancoras(v.crit_key, "serviço-que-não-existe")[0]]
+    checar(f"nenhuma das {len(todas)} âncoras do piloto entra no bloco",
+           not any(a in cb for a in todas))
 
     print("link do documento (corpus remoto, via file://)")
     # `file://` faz o Corpus tomar o caminho remoto sem depender do site no ar —

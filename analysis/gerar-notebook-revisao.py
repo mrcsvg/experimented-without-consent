@@ -137,6 +137,25 @@ print(f"evidência congelada: {len(idx['arquivos'])} serviços · {total} citaç
 print(f"modelo: {sorted({a['modelo'] for a in idx['arquivos']})}")
 '''
 
+CODEBOOK_MD = """## O codebook, variável por variável
+
+As dez variáveis com o critério completo: primeiro em linguagem direta, depois o
+**texto exato do codebook congelado em 04/07/2026**, que é o que vale. Leia uma vez
+antes de começar e volte aqui sempre que precisar.
+
+Nas células de trabalho fica só o lembrete de uma linha, abaixo do título da
+variável, e um ponteiro para cá. O critério inteiro repetido 26 vezes viraria
+moldura — e o que a célula de trabalho precisa ser é uma tela de decisão.
+
+As âncoras do piloto **não** entram aqui. Elas nomeiam serviços, e num bloco único
+não há serviço em tela contra o qual suprimi-las: mostrá-las poria a resposta de um
+serviço no seu campo de visão enquanto você codifica outro.
+"""
+
+CODEBOOK = """# Mostra as dez variáveis com o critério completo. Nada de rede, nada de modelo.
+R.mostrar_codebook()
+"""
+
 SERVICOS_MD = """## Os 26 serviços
 
 Cada célula abaixo é independente: rode na ordem que quiser, pare no meio,
@@ -234,6 +253,8 @@ def montar() -> dict:
     add("code", SETUP)
     add("markdown", CHAVE)
     add("code", CUSTO)
+    add("markdown", CODEBOOK_MD)
+    add("code", CODEBOOK)
     add("markdown", SERVICOS_MD)
     for servico in C.SERVICOS:
         add("markdown", f"### {servico}\n")
@@ -254,10 +275,14 @@ def montar() -> dict:
 
 
 def montar_ensaio() -> dict:
+    # O codebook entra aqui também: com o critério fora da célula de trabalho, ver
+    # "a mesma experiência do avaliador" inclui ver onde o critério foi morar.
     celulas = [celula("markdown", ABERTURA_ENSAIO, 0),
                celula("code", SETUP, 1),
-               celula("code", celula_ensaio(), 2),
-               celula("markdown", CONFERIR, 3)]
+               celula("markdown", CODEBOOK_MD, 2),
+               celula("code", CODEBOOK, 3),
+               celula("code", celula_ensaio(), 4),
+               celula("markdown", CONFERIR, 5)]
     return {
         "cells": celulas,
         "metadata": {

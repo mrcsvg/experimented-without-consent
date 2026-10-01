@@ -288,6 +288,13 @@ def notebook(p: Placar) -> None:
     p.checar("a célula de instalação mostra a procedência do congelamento",
              "mostrar_procedencia" in codigo)
 
+    # O critério saiu das 26 células de trabalho e foi para uma célula no alto. Se
+    # essa célula sumir, o codificador fica só com o lembrete de uma linha e um
+    # ponteiro para uma seção que não existe.
+    p.checar("o notebook tem a célula do codebook, antes dos serviços",
+             "mostrar_codebook" in codigo
+             and codigo.index("mostrar_codebook") < codigo.index('R.painel("'))
+
     ensaio = RAIZ / "notebooks" / "05-ensaio.ipynb"
     if not p.checar("notebook de ensaio existe", ensaio.exists()):
         return
