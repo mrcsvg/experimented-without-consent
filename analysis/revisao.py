@@ -126,6 +126,16 @@ def _de_onde(idx) -> tuple:
     return _data_br(idx.get("frozen_at")), onde
 
 
+# Legenda da lista de documentos. Igual nos 26 serviços, como a procedência — e
+# pelo mesmo motivo vai para o alto do notebook em vez de repetir em cada painel.
+LEGENDA_DOCUMENTOS = (
+    "O nome do arquivo abre o <b>texto congelado</b>, que é o que você codifica; "
+    "<b>original ↗</b> abre a página ao vivo, só para conferir procedência.<br>"
+    "<b>vinculante</b> = política ou termos que a plataforma se obriga a cumprir · "
+    "<b>não vinculante</b> = blog, central de ajuda, wiki técnica · "
+    "<b>sem classificação</b> = o congelamento não registrou o papel.")
+
+
 def procedencia(corpus=None) -> str:
     """De onde vem o texto e por que é este. Igual para os 26 serviços.
 
@@ -151,16 +161,26 @@ def procedencia_curta(corpus=None) -> str:
 
 
 def mostrar_procedencia(corpus=None):
-    """Exibe o parágrafo uma vez, no alto do notebook. Fora dele, imprime."""
+    """O que vale para os 26 serviços, dito uma vez no alto do notebook.
+
+    Duas coisas moram aqui: de onde o texto vem e como ler a lista de documentos
+    de cada painel. Nenhuma das duas depende do serviço, e as duas eram repetidas
+    26 vezes — o que transforma instrução em moldura, que se aprende a pular.
+    """
     texto = procedencia(corpus)
     try:
         from IPython.display import display, HTML
     except ImportError:
         print(texto)
+        print(re.sub("<[^>]+>", "", LEGENDA_DOCUMENTOS.replace("<br>", "\n")))
         return
-    display(HTML("<div style='border-left:3px solid #0a7;background:#f6fbf9;padding:10px "
-                 "14px;max-width:820px;font-size:13px;line-height:1.55;margin-top:8px'>"
-                 f"<b>De onde vem o texto que você vai ler</b><br>{_esc(texto)}</div>"))
+    caixa = ("border-left:3px solid #0a7;background:#f6fbf9;padding:10px 14px;"
+             "max-width:820px;font-size:13px;line-height:1.55;margin-top:8px")
+    display(HTML(f"<div style='{caixa}'>"
+                 f"<b>De onde vem o texto que você vai ler</b><br>{_esc(texto)}</div>"
+                 f"<div style='{caixa}'>"
+                 f"<b>Como ler a lista de documentos de cada serviço</b><br>"
+                 f"{LEGENDA_DOCUMENTOS}</div>"))
 
 
 def corpus_carregado() -> "Corpus":
@@ -773,13 +793,7 @@ class Painel:
             f"<h3 style='margin:0 0 4px'>{_esc(linhas_cab[0])}</h3>{avisos}"
             f"<div style='color:#666;font:12px/1.5 ui-monospace,monospace;margin:4px 0 10px'>"
             f"{_esc(self.procedencia_curta())}</div>"
-            f"<div style='font:12px/1.7 ui-monospace,monospace'>{docs_html}</div>"
-            f"<div style='color:#888;font-size:11.5px;margin-top:6px;max-width:780px'>"
-            f"O nome do arquivo abre o <b>texto congelado</b>, que é o que você codifica; "
-            f"<b>original ↗</b> abre a página ao vivo, só para conferir procedência. "
-            f"<b>vinculante</b> = política ou termos que a plataforma se obriga a cumprir · "
-            f"<b>não vinculante</b> = blog, central de ajuda, wiki técnica · "
-            f"<b>sem classificação</b> = o congelamento não registrou o papel.</div>")
+            f"<div style='font:12px/1.7 ui-monospace,monospace'>{docs_html}</div>")
         area = W.Output()
         # O recibo fica FORA da `area`: `_render_variavel` limpa a área a cada
         # avanço, e recibo que desaparece junto não é recibo. Ele existe porque
@@ -1209,8 +1223,14 @@ def _self_test() -> int:
         # aprende a pular — e é a instrução que não pode ser pulada.
         checar("o parágrafo longo não se repete em cada painel",
                "indistinguível" not in topo_html)
+        checar("a legenda dos documentos também não se repete",
+               "central de ajuda" not in topo_html)
         checar("mas a regra de onde ler continua no painel",
                "nunca da página ao vivo" in topo_html)
+        # O que sai do painel é a EXPLICAÇÃO, não a coisa explicada: os rótulos e
+        # os dois links continuam em cada linha de documento.
+        checar("os rótulos e os dois links continuam em cada documento",
+               "[vinculante]" in topo_html and "original ↗" in topo_html)
         checar("os papéis dos documentos vêm em português",
                "vinculante" in topo_html and "[binding]" not in topo_html)
         checar("o critério fica visível, não escondido num details",
@@ -1232,6 +1252,10 @@ def _self_test() -> int:
     # cabeçalho em monoespaçada de 12px. O que interessa é ser UMA linha.
     checar("a linha curta é uma linha e cabe na caixa do painel",
            "\n" not in procedencia_curta(c) and len(procedencia_curta(c)) <= 130)
+    checar("a legenda explica os dois links e os três papéis",
+           all(t in LEGENDA_DOCUMENTOS for t in
+               ("texto congelado", "original ↗", "vinculante", "não vinculante",
+                "sem classificação")))
     checar("as duas dizem a mesma data e o mesmo país",
            "03/08/2026" in procedencia(c) and "03/08/2026" in procedencia_curta(c)
            and "Itália" in procedencia_curta(c))
