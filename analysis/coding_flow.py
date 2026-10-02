@@ -183,7 +183,13 @@ class Fluxo:
         # Resolve na construção, não na hora de usar: se o nome não casa, o erro
         # tem que aparecer antes de o codificador começar a ler o serviço.
         self.chave_dossie = resolver_servico(servico, self.dossie) if self.dossie else None
-        self.i = 0
+        # Abre na primeira variável ainda incompleta, não na V1. Quem parou na V7
+        # e voltou tinha de clicar "salvar e avançar" seis vezes por cima das
+        # próprias respostas para chegar onde estava, e cada clique é uma chance de
+        # alterar sem querer o que já estava decidido. Isto não é pular adiante: o
+        # que vem antes já fechou o portão. Tudo respondido abre na última.
+        incompletas = [n for n in range(len(self.passos)) if self.faltando(n)]
+        self.i = incompletas[0] if incompletas else len(self.passos) - 1
 
     # ------------------------------------------------------------ navegação
     @property
@@ -347,6 +353,22 @@ def _self_test():
     e2 = Estado(cache=tmp, offline=True)
     checar("registro sobrevive à releitura do disco",
            e2.registro("Pinterest").get("v1_code") == "2")
+
+    print("\nRetomada: abre onde parou")
+    # Cache próprio: o `tmp` acima já carrega respostas de outros testes, e aí
+    # "sem nada respondido" não seria sem nada respondido.
+    e_ret = Estado(cache=Path(tempfile.mkdtemp()) / "retomada.json", offline=True)
+    f_ret = Fluxo("Pinterest", e_ret)
+    checar("sem nada respondido, abre na primeira", f_ret.atual().vid == C.VARIAVEIS[0].vid)
+    # Fecha V1 e V2; a retomada tem de cair na V3, não na V1.
+    for passo in C.VARIAVEIS[:2]:
+        f_ret.rec.update({c.chave: ("x" if c.tipo in ("text", "line") else
+                                    (c.opcoes[1] if c.tipo == "select" else [c.opcoes[0]]))
+                          for c in passo.campos})
+        e_ret.gravar("Pinterest", f_ret.rec, rede=False)
+        f_ret.i += 1
+    checar("com duas fechadas, a retomada cai na terceira",
+           Fluxo("Pinterest", e_ret).atual().vid == C.VARIAVEIS[2].vid)
 
     print("\nO log §3 é obrigatório (era o furo do portão):")
     fk = Fluxo("Pinterest", Estado(cache=tmp, offline=True))

@@ -781,7 +781,9 @@ class Painel:
         print(self.texto_dos_documentos())
         passo = self.fluxo.atual()
         vid = vid or passo.vid
-        print(f"\n[{passo.vid}] {passo.titulo}\n    {re.sub('<[^>]+>', '', passo.regra)}")
+        feitas, total = self.fluxo.progresso()
+        print(f"\n[{passo.vid}] {passo.titulo}  (variável {feitas + 1} de {total} "
+              f"nesta célula)\n    {re.sub('<[^>]+>', '', passo.regra)}")
         chao = self.piso_de(vid)
         print(f"    busca por palavra-chave ({len(chao)} trechos): os 12 termos do "
               "protocolo, sem modelo nenhum; a triagem é sua:")
@@ -892,6 +894,30 @@ class Painel:
                   "sem usar nenhum dos 12 termos. Foram geradas uma única vez e "
                   "congeladas, então todo codificador vê exatamente estas. O modelo "
                   "localiza; ele não atribui código nenhum.")
+
+    def _trilha_html(self, vid_atual: str) -> str:
+        """Onde você está nas dez variáveis, e quais já fecharam.
+
+        A célula mostra uma variável por vez e troca de variável quando você salva.
+        Sem esta linha a tela parece pedir só a V1, e não existe nada em volta que
+        diga que faltam nove: o contador do cabeçalho some assim que a área é
+        redesenhada, e o botão "salvar V1 e avançar" é a única pista.
+        """
+        pecas = []
+        for i, passo in enumerate(self.fluxo.passos):
+            if passo.vid == vid_atual:
+                pecas.append(f"<b style='background:#eef6ff;border:1px solid #9cf;"
+                             f"border-radius:3px;padding:1px 5px'>{_esc(passo.vid)}</b>")
+            elif not self.fluxo.faltando(i):
+                pecas.append(f"<span style='color:#0a7'>{_esc(passo.vid)}✓</span>")
+            else:
+                pecas.append(f"<span style='color:#bbb'>{_esc(passo.vid)}</span>")
+        feitas, total = self.fluxo.progresso()
+        return (f"<div style='font:12px/1.9 ui-monospace,monospace;margin-top:6px'>"
+                + " · ".join(pecas) +
+                f"<div style='color:#888;font-size:11.5px'>variável {feitas + 1} de "
+                f"{total} nesta célula. Ela troca para a próxima quando você salva, "
+                f"e você responde as dez antes de passar ao próximo serviço.</div></div>")
 
     def _render_variavel(self, area):
         import ipywidgets as W
@@ -1009,6 +1035,7 @@ class Painel:
                         f"Critério completo da {_esc(vid)} no alto do notebook, em "
                         f"<b>O codebook, variável por variável</b>.</div>")
             display(HTML(
+                self._trilha_html(vid) +
                 f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
                 f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
                 f"{criterio}"
@@ -1285,6 +1312,12 @@ def _self_test() -> int:
                and "<details>" not in variavel_html)
         checar("a regra de uma linha continua logo abaixo do título",
                "Codifique o teto e onde ele vive" in variavel_html)
+        checar("a trilha mostra as dez variáveis e onde você está",
+               all(f">{v.vid}" in variavel_html or f">{v.vid}✓" in variavel_html
+                   for v in C.VARIAVEIS)
+               and "variável 1 de 10 nesta célula" in variavel_html)
+        checar("a trilha diz que a célula avança sozinha",
+               "troca para a próxima quando você salva" in variavel_html)
         checar("e há ponteiro para onde o critério inteiro está",
                "Critério completo da V1 no alto do notebook" in variavel_html)
         checar("as duas listas têm título e explicação",

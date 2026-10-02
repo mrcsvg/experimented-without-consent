@@ -87,10 +87,19 @@ ser uma segunda medição e passaria a confirmar a primeira.
 
 ## O que você faz
 
-Há uma célula por serviço, e elas são independentes entre si. Rode a célula, leia a
-evidência que já vem localizada nos documentos, responda as nove variáveis e o log
-de palavras-chave, salve. Pode parar no meio e voltar depois. O progresso é o mesmo
-do instrumento em HTML, então dá para alternar entre os dois.
+Há uma célula por serviço, e as células são independentes entre si. Dentro de uma
+célula o trabalho é sequencial: a tela mostra **uma variável por vez**. Você
+preenche os campos dela, clica em salvar, e a mesma célula passa para a variável
+seguinte. São dez ao todo, as nove variáveis mais o log de palavras-chave, e uma
+linha no alto do painel mostra quais já fecharam e em qual você está.
+
+A ordem é fixa de propósito: você responde a V1 antes de a V2 aparecer, e nenhuma
+variável fecha sem evidência preenchida. Rever o que já respondeu é permitido,
+pular adiante não.
+
+Pode parar no meio e fechar o Colab. Quando voltar ao mesmo serviço, o painel abre
+na primeira variável que ainda falta, com as anteriores já preenchidas. O progresso
+é o mesmo do instrumento em HTML, então dá para alternar entre os dois.
 
 O critério completo de cada variável está na célula **O codebook, variável por
 variável**, logo antes dos serviços. Vale ler uma vez antes de começar.
