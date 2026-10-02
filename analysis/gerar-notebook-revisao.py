@@ -38,41 +38,94 @@ NOTEBOOKS = Path(__file__).resolve().parent.parent / "notebooks"
 DESTINO = NOTEBOOKS / "04-revisao-assistida.ipynb"
 DESTINO_ENSAIO = NOTEBOOKS / "05-ensaio.ipynb"
 
-ABERTURA = """# Revisão assistida — 2º passe
+ABERTURA = """# Segunda codificação
 
-Uma célula por serviço. Rode a célula, leia a evidência que já vem localizada,
-responda as nove variáveis e o log de palavras-chave, salve. O progresso vai para o mesmo lugar do
-instrumento em HTML (`coder2-data`), então dá para alternar entre os dois.
+## O que o estudo mede
 
-**A tela tem dois andares, e a ordem importa.**
+Plataformas online testam coisas nos seus usuários todos os dias. Elas mudam o que
+aparece no topo da lista, o texto de uma notificação, a posição de um botão, e medem
+o efeito comparando grupos de pessoas. Isso se chama experimentação comportamental e
+é rotina da indústria.
 
-Embaixo vem a **busca por palavra-chave**: os 12 termos do protocolo
-procurados literalmente no texto congelado, endereçados por variável e com o
-trecho em volta. Como é busca de texto e não modelo, ela dá sempre o mesmo
-resultado e não deixa nada de fora — e chega com aviso quando o termo costuma
-dar falso positivo ("Code of Ethics" no menu não é revisão ética de
+A pergunta do estudo é estreita e documental: **o que cada plataforma conta ao
+usuário sobre isso, e em que tipo de documento ela conta?** Ninguém aqui vai
+descobrir quais experimentos existem. O trabalho é ler o que a plataforma declara e
+classificar a declaração.
+
+O tipo de documento é o centro do estudo. Uma política de privacidade obriga a
+plataforma perante o usuário. Um post de blog de engenharia não obriga nada. Quando
+os dois falam do mesmo assunto em termos diferentes, essa diferença é o dado.
+
+## Os 26 serviços
+
+Não é uma amostra, é um censo. São os 26 serviços que a Comissão Europeia designou
+sob o Digital Services Act: 24 como VLOP (*very large online platform*) e 2 como
+VLOSE (*very large online search engine*). A designação depende de escala, acima de
+45 milhões de usuários por mês na União Europeia, e traz obrigações próprias.
+
+A unidade de análise é o serviço, não a empresa. O Google Ireland responde por
+cinco deles (Search, Maps, Play, Shopping, YouTube) e a Meta por dois (Facebook,
+Instagram). Quatro são plataformas de conteúdo adulto, e estão no censo porque são
+VLOPs de pleno direito.
+
+Cada serviço tem de 3 a 10 documentos, 157 no total: política de privacidade, termos
+de uso, aviso de cookies, tabela de bases legais, e o que a plataforma publicou em
+blog ou central de ajuda sobre o assunto.
+
+## Por que existe uma segunda codificação
+
+A primeira passada já foi feita, de forma automatizada. Uma classificação com fonte
+única não separa duas coisas: quanto do resultado vem do texto e quanto vem de quem
+leu o texto. Duas leituras independentes do mesmo material permitem medir a
+concordância entre elas, e é essa medida que torna o resultado defensável diante de
+um revisor.
+
+A palavra independente tem uma consequência prática. **Este notebook não mostra o
+que a primeira passada codificou, nem os resultados do estudo.** A razão não é
+desconfiança. Se você soubesse o que se espera encontrar, sua leitura deixaria de
+ser uma segunda medição e passaria a confirmar a primeira.
+
+## O que você faz
+
+Há uma célula por serviço, e elas são independentes entre si. Rode a célula, leia a
+evidência que já vem localizada nos documentos, responda as nove variáveis e o log
+de palavras-chave, salve. Pode parar no meio e voltar depois. O progresso é o mesmo
+do instrumento em HTML, então dá para alternar entre os dois.
+
+O critério completo de cada variável está na célula **O codebook, variável por
+variável**, logo antes dos serviços. Vale ler uma vez antes de começar.
+
+## As duas listas de evidência, nessa ordem
+
+Primeiro vem a **busca por palavra-chave**: os 12 termos do protocolo procurados
+literalmente no texto congelado, endereçados por variável e com o trecho em volta.
+Não passa por modelo nenhum. Por ser busca de texto, ela dá sempre o mesmo resultado
+e não deixa nada de fora. Alguns trechos chegam com aviso, porque o termo costuma
+aparecer em outro sentido ("Code of Ethics" no rodapé não é revisão ética de
 experimento). Quem descarta é você.
 
-Em cima dele vem o que **o modelo** localizou. Ele acrescenta o que a palavra-
-chave não acha: passagem que descreve experimentação sem usar nenhum dos 12
-termos. Nessa ordem ele só pode somar.
+Depois vem o que **o modelo** localizou. Ele acrescenta o que a palavra-chave não
+alcança: passagem que descreve experimentação sem usar nenhum dos 12 termos. Nessa
+ordem ele só pode somar.
 
-**Nenhum dos dois atribui código.** A passada 1 já foi automatizada; se um modelo
-decidisse aqui também, o κ mediria o modelo contra ele mesmo em vez de
-concordância entre codificadores. A evidência do modelo foi congelada numa rodada
-única e publicada — todo avaliador vê a mesma tela, e **você não precisa de chave
-de API para nada**.
+**Nenhuma das duas atribui código.** A primeira passada já foi automatizada; se um
+modelo decidisse aqui também, a concordância mediria o modelo contra ele mesmo. A
+evidência do modelo foi gerada numa rodada única e congelada, então todo codificador
+vê a mesma tela, e **você não precisa de chave de API para nada**.
 
-**Leia sempre do corpus congelado, nunca da página ao vivo.** Os documentos
-mudam sem aviso; se os dois codificadores lerem versões diferentes, a
-discordância vira deriva do documento e não há como separar as duas depois.
+## Duas regras que afetam o resultado
 
-**Onde suas respostas ficam.** Cada variável que você fecha é gravada num
-servidor e versionada, então dá para parar no meio, fechar o Colab e voltar
-depois — inclusive de outra máquina. Embaixo do painel há uma linha de recibo:
-**verde** quando a resposta chegou ao servidor, **vermelha** quando não chegou.
-Vermelha significa parar e avisar: o arquivo local do Colab é apagado quando a
-sessão recicla, e o que estiver só nele se perde.
+**Leia sempre do corpus congelado, nunca da página ao vivo.** As plataformas
+reescrevem as políticas sem avisar. Se os dois codificadores lerem versões
+diferentes do mesmo documento, a discordância entre vocês fica indistinguível de
+mudança no documento, e depois não há como separar as duas.
+
+**Confira o recibo embaixo do painel.** Cada variável que você fecha é gravada num
+servidor e versionada, o que permite parar no meio, fechar o Colab e voltar depois,
+inclusive de outra máquina. O recibo fica **verde** quando a resposta chegou ao
+servidor e **vermelho** quando não chegou. Vermelho significa parar e avisar: o
+arquivo local do Colab é apagado quando a sessão recicla, e o que estiver só nele se
+perde.
 """
 
 SETUP = '''#@title Instalação e configuração { display-mode: "form" }
@@ -145,7 +198,7 @@ antes de começar e volte aqui sempre que precisar.
 
 Nas células de trabalho fica só o lembrete de uma linha, abaixo do título da
 variável, e um ponteiro para cá. O critério inteiro repetido 26 vezes viraria
-moldura — e o que a célula de trabalho precisa ser é uma tela de decisão.
+moldura. O que a célula de trabalho precisa ser é uma tela de decisão.
 
 As âncoras do piloto **não** entram aqui. Elas nomeiam serviços, e num bloco único
 não há serviço em tela contra o qual suprimi-las: mostrá-las poria a resposta de um
@@ -172,7 +225,7 @@ for s, n in sorted(feitos.items(), key=lambda x: -x[1]):
 '''
 
 
-ABERTURA_ENSAIO = """# Ensaio — a tela do 2º codificador, sem gravar nada
+ABERTURA_ENSAIO = """# Ensaio: a tela do 2º codificador, sem gravar nada
 
 Este notebook existe para **você** ver e experimentar o painel antes de entregá-lo
 (ou para mostrá-lo a alguém). Ele carrega o mesmo runtime, o mesmo corpus e a mesma
@@ -180,7 +233,7 @@ evidência congelada do `04-revisao-assistida`, e monta o painel igual.
 
 **A única diferença é o estado, e ele é descartável.** Duas travas: `offline=True`
 faz o painel nascer sem servidor, e o cache vai para um arquivo temporário.
-Responda, salve, avance, erre de propósito — nada entra no `coder2-data`, nada
+Responda, salve, avance, erre de propósito: nada entra no `coder2-data`, nada
 conta como codificação e nada polui a segunda passada.
 
 **Não codifique aqui.** O que você responder morre com a sessão do Colab. A
@@ -188,7 +241,7 @@ codificação que vale é a do `04-revisao-assistida`.
 
 Uma consequência visível: o recibo embaixo do painel aparece **cinza**, dizendo
 em que arquivo temporário a resposta caiu. No notebook real ele fica **verde** com
-a hora quando a resposta chega ao servidor, e **vermelho** quando não chega — e
+a hora quando a resposta chega ao servidor, e **vermelho** quando não chega; e
 vermelho ali significa parar.
 """
 
@@ -203,7 +256,7 @@ CONFERIR = """## O que vale olhar enquanto você mexe
 - **O portão.** Tente avançar sem a evidência ou sem o log de palavras-chave: a
   variável não fecha e a tela diz o que falta.
 - **A ausência do botão de sugestão.** A evidência congelada traz citação e não
-  sugestão de código, de propósito — quem atribui o código é o avaliador.
+  sugestão de código, de propósito: quem atribui o código é o avaliador.
 - **O recibo**, embaixo de tudo.
 """
 
