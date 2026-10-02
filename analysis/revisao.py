@@ -19,11 +19,11 @@ número que o paper reporta deixaria de significar o que ele diz significar.
 Daí a divisão: o painel entrega as citações verbatim já localizadas, e o
 código é do avaliador.
 
-A TELA TEM DOIS ANDARES, e a ordem importa. O piso é a varredura determinística
-dos 12 termos do §3, endereçada por variável (`piso`): uma regex sobre o texto
-congelado não esquece nada, roda sem rede e sem chave, e chega com a nota de
-falso positivo quando o termo tem uma — a triagem é do avaliador. Em cima dele
-vem o que o modelo acrescentou. Nessa ordem, o modelo só pode somar.
+A TELA MOSTRA DUAS LISTAS, e a ordem importa. A primeira é a varredura
+determinística dos 12 termos do protocolo, endereçada por variável (`piso`): uma
+regex sobre o texto congelado não esquece nada, roda sem rede e sem chave, e
+chega com a nota de falso positivo quando o termo tem uma. A triagem é do
+avaliador. A segunda é o que o modelo acrescentou. Nessa ordem ele só pode somar.
 
 Foi a validação de 20/09/2026 que impôs esse desenho. Ela mediu o modelo
 filtrando em silêncio os hits de `ethics` e `risk assessment` do Zalando —
@@ -879,7 +879,7 @@ class Painel:
                 "reciclar. Pare aqui, confira a rede e salve de novo antes de "
                 "seguir.</div>")
 
-    # Os dois andares da tela precisavam de nome e de explicação. "varredura do §3"
+    # As duas listas da tela precisavam de nome e de explicação. "varredura do §3"
     # é referência ao protocolo, não descrição: quem lê a tela não sabe o que é a
     # §3 nem por que ela vem antes do modelo.
     SUB_PISO = ("Os 12 termos do protocolo, procurados <b>literalmente</b> no texto "
@@ -1287,7 +1287,7 @@ def _self_test() -> int:
                "Codifique o teto e onde ele vive" in variavel_html)
         checar("e há ponteiro para onde o critério inteiro está",
                "Critério completo da V1 no alto do notebook" in variavel_html)
-        checar("os dois andares têm título e explicação",
+        checar("as duas listas têm título e explicação",
                "Busca por palavra-chave:" in variavel_html
                and "Acrescentado pelo modelo:" in variavel_html
                and "12 termos do protocolo" in variavel_html)
