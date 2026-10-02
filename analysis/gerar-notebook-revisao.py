@@ -97,6 +97,10 @@ A ordem é fixa de propósito: você responde a V1 antes de a V2 aparecer, e nen
 variável fecha sem evidência preenchida. Rever o que já respondeu é permitido,
 pular adiante não.
 
+Embaixo de cada painel há um campo de **Notas**, para dúvidas de regra, casos de
+fronteira e diferenças entre documentos do mesmo serviço. Ele vale para o serviço
+inteiro e tem botão próprio de salvar.
+
 Pode parar no meio e fechar o Colab. Quando voltar ao mesmo serviço, o painel abre
 na primeira variável que ainda falta, com as anteriores já preenchidas. O progresso
 é o mesmo do instrumento em HTML, então dá para alternar entre os dois.
@@ -201,17 +205,20 @@ print(f"modelo: {sorted({a['modelo'] for a in idx['arquivos']})}")
 
 CODEBOOK_MD = """## O codebook, variável por variável
 
-As dez variáveis com o critério completo: primeiro em linguagem direta, depois o
-**texto exato do codebook congelado em 04/07/2026**, que é o que vale. Leia uma vez
-antes de começar e volte aqui sempre que precisar.
+A célula abaixo é o guia de codificação. Ela começa por cinco regras que valem para
+todas as variáveis. Depois vem cada variável: a pergunta que ela responde, o que
+procurar nos documentos, o que cada opção do formulário significa e os erros mais
+comuns. Vale ler a célula inteira uma vez antes de começar, e voltar a ela sempre que
+precisar.
 
-Nas células de trabalho fica só o lembrete de uma linha, abaixo do título da
-variável, e um ponteiro para cá. O critério inteiro repetido 26 vezes viraria
-moldura. O que a célula de trabalho precisa ser é uma tela de decisão.
+No fim da célula está o **texto oficial do codebook**, congelado em 04/07/2026. O guia
+diz as mesmas regras em linguagem direta. Em caso de dúvida, vale o texto oficial.
 
-As âncoras do piloto **não** entram aqui. Elas nomeiam serviços, e num bloco único
-não há serviço em tela contra o qual suprimi-las: mostrá-las poria a resposta de um
-serviço no seu campo de visão enquanto você codifica outro.
+Nas células de trabalho fica só um lembrete de uma linha por variável.
+
+Os exemplos reais do estudo piloto não entram aqui. Cada um vem de um serviço do
+censo e mostra como ele foi codificado no piloto. Num bloco único, eles poriam a
+resposta de um serviço na sua frente enquanto você codifica outro.
 """
 
 CODEBOOK = """# Mostra as dez variáveis com o critério completo. Nada de rede, nada de modelo.
@@ -224,13 +231,16 @@ Cada célula abaixo é independente: rode na ordem que quiser, pare no meio,
 volte depois. O que já foi respondido reaparece preenchido.
 """
 
-FECHAMENTO = '''# Onde a segunda passada está — metadados, sem revelar codificação.
-e = R.F.Estado()
-feitos = {s: sum(1 for k in r if not k.startswith("_") and r[k])
-          for s, r in e.records.items()}
-print(f"{sum(1 for n in feitos.values() if n >= 13)}/26 serviços com os 13 campos centrais")
-for s, n in sorted(feitos.items(), key=lambda x: -x[1]):
-    print(f"  {n:2d} campos · {s}")
+FECHAMENTO = '''# Onde a segunda codificação está. Só contagens: nenhuma resposta aparece aqui.
+# "Completo" é a mesma definição do painel: as dez variáveis com o portão fechado.
+import coding_flow as F
+e = F.Estado()
+andamento = {s: F.Fluxo(s, e).progresso() for s in R.C.SERVICOS}
+completos = sum(1 for feitas, total in andamento.values() if feitas == total)
+print(f"{completos}/26 serviços com as dez variáveis fechadas")
+for s, (feitas, total) in sorted(andamento.items(), key=lambda x: -x[1][0]):
+    if feitas:
+        print(f"  {feitas:2d} de {total} · {s}")
 '''
 
 

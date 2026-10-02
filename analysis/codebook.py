@@ -263,8 +263,18 @@ CRIT_CONGELADO = {
 
 
 def glosa_criterio(v):
-    """O mesmo critério em linguagem de quem codifica. Explica, não substitui."""
-    return GLOSA.get(v.lower(), "")
+    """O guia da variável em linguagem direta, em HTML. Explica, não substitui."""
+    return (GLOSA.get(v.lower()) or {}).get("html", "")
+
+
+def pergunta(v):
+    """A pergunta que a variável responde, numa frase."""
+    return (GLOSA.get(v.lower()) or {}).get("pergunta", "")
+
+
+def lembrete(v):
+    """A linha que vai em cada célula de trabalho."""
+    return (GLOSA.get(v.lower()) or {}).get("lembrete", "")
 
 
 def glosa(chave, valor):
@@ -310,7 +320,9 @@ def _check():
     exigir(all(v.campos for v in VARIAVEIS), "variável sem nenhum campo")
     for n in range(1, 10):
         exigir(criterio(f"v{n}"), f"critério completo ausente para v{n}")
-        exigir(glosa_criterio(f"v{n}"), f"glosa em linguagem simples ausente para v{n}")
+        for parte, fn in (("guia", glosa_criterio), ("pergunta", pergunta),
+                          ("lembrete", lembrete)):
+            exigir(fn(f"v{n}"), f"v{n}: {parte} em linguagem direta ausente na GLOSA")
         import hashlib
         agora = hashlib.sha256(criterio(f"v{n}").encode("utf-8")).hexdigest()[:12]
         exigir(agora == CRIT_CONGELADO[f"v{n}"],

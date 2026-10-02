@@ -133,7 +133,9 @@ LEGENDA_DOCUMENTOS = (
     "<b>original ↗</b> abre a página ao vivo, só para conferir procedência.<br>"
     "<b>vinculante</b> = política ou termos que a plataforma se obriga a cumprir · "
     "<b>não vinculante</b> = blog, central de ajuda, wiki técnica · "
-    "<b>sem classificação</b> = o congelamento não registrou o papel.")
+    "<b>sem classificação</b> = o congelamento não registrou o papel. A etiqueta é "
+    "uma dica e muitas vezes falta: quem decide se um documento é vinculante é você, "
+    "pela função dele (ver as regras gerais no codebook).")
 
 
 def procedencia(corpus=None) -> str:
@@ -186,28 +188,80 @@ def mostrar_procedencia(corpus=None):
 FONTE_CRIT = "texto exato do codebook v2, congelado em 04/07/2026"
 
 
-def codebook_html() -> str:
-    """As dez variáveis com critério completo, em um bloco. Sem as âncoras.
+def _regras_gerais(corpus=None) -> str:
+    """As regras que valem para as dez variáveis, ditas uma vez antes delas."""
+    sem_papel = ""
+    try:
+        idx = (corpus or corpus_carregado()).index
+        docs = [d for sv in idx["services"] for d in sv["docs"]]
+        n = sum(1 for d in docs if d.get("role") == "unknown")
+        if n:
+            sem_papel = (f" Neste corpus, {n} dos {len(docs)} documentos estão como "
+                         f"<i>sem classificação</i>, incluindo políticas de privacidade.")
+    except Exception:  # sem corpus carregado o guia ainda serve; só sem o número
+        pass
+    itens = [
+        ("Codifique só pelo que está escrito",
+         "nos documentos congelados deste notebook. O que você sabe da plataforma por "
+         "outras fontes não entra."),
+        ("Evidência é a frase exata",
+         "copiada do documento, com o nome do documento de onde ela veio."),
+        ("Vinculante ou não vinculante se decide pela função do documento",
+         "e não pela etiqueta que aparece ao lado dele. A etiqueta vem do congelamento e "
+         "muitas vezes falta." + sem_papel + " Política de privacidade, termos de uso, "
+         "aviso de cookies e tabela de bases legais são vinculantes. Blog, central de "
+         "ajuda e páginas de pesquisa não são. Na dúvida, pergunte se o documento se "
+         "declara parte do acordo com o usuário."),
+        ("No tem dois casos.",
+         "O documento pode tratar do assunto e não oferecer o mecanismo, ou o assunto pode "
+         "nunca aparecer. Nos dois casos a resposta é No; diga qual dos dois é."),
+        ("Dúvida sobre a regra não trava o trabalho.",
+         "Codifique a sua melhor leitura e anote a dúvida no campo Notas, embaixo do painel "
+         "de cada serviço. A discussão acontece depois, quando as duas codificações forem "
+         "comparadas."),
+    ]
+    lis = "".join(f"<li><b>{t}</b> {d}</li>" for t, d in itens)
+    return (f"<h4 style='margin:4px 0 4px'>Cinco regras que valem para todas as variáveis</h4>"
+            f"<ol style='font-size:13px;line-height:1.55'>{lis}</ol>")
+
+
+def codebook_html(corpus=None) -> str:
+    """O guia das dez variáveis, e no fim o texto oficial. Sem as âncoras do piloto.
+
+    O codificador lê o guia: para cada variável, a pergunta que ela responde, o que
+    procurar, o que cada opção do formulário significa e os cuidados. O texto
+    oficial do codebook vem depois, todo junto, porque é ele que vale e não pode
+    ser reescrito (`codebook.criterio`); repeti-lo variável por variável, ao lado
+    do guia, punha três versões da mesma regra na tela.
 
     As âncoras do piloto nomeiam serviços, e o instrumento as suprime para não pôr
     a resposta no campo de visão de quem decide. Num bloco único não há serviço em
-    tela para suprimir contra, então nenhuma entra — quem quiser consultá-las
+    tela para suprimir contra, então nenhuma entra. Quem quiser consultá-las
     deliberadamente tem `protocol/codebook-v2.md`.
     """
-    blocos = []
+    partes = [_regras_gerais(corpus)]
     for v in C.VARIAVEIS:
-        crit = C.criterio(v.crit_key)
-        blocos.append(
-            f"<h4 style='margin:18px 0 2px'>[{v.vid}] {_esc(v.titulo)}</h4>"
-            f"<div style='color:#555;font-size:12.5px'>{v.regra}</div>"
-            f"<div style='font-size:13px'>{C.glosa_criterio(v.vid)}</div>"
-            + (f"<div style='margin-top:8px;padding-left:10px;border-left:2px solid #ddd'>"
-               f"<div style='color:#888;font-size:11.5px'>{FONTE_CRIT}</div>"
-               f"<div style='color:#555;font-size:12.5px'>{crit}</div></div>" if crit else ""))
-    return "".join(blocos)
+        partes.append(
+            f"<div style='margin-top:22px;padding-top:10px;border-top:1px solid #e5e5e5'>"
+            f"<h4 style='margin:0'>[{_esc(v.vid)}] {_esc(C.pergunta(v.vid))}</h4>"
+            f"<div style='color:#888;font-size:11.5px;margin-bottom:4px'>"
+            f"{_esc(v.titulo)}</div>"
+            f"<div style='font-size:13px;line-height:1.55'>{C.glosa_criterio(v.vid)}</div>"
+            f"</div>")
+    oficiais = "".join(
+        f"<div style='margin-top:10px'><b>[{_esc(v.vid)}] {_esc(v.titulo)}</b>"
+        f"<div style='color:#555;font-size:12.5px'>{C.criterio(v.crit_key)}</div></div>"
+        for v in C.VARIAVEIS if C.criterio(v.crit_key))
+    partes.append(
+        f"<div style='margin-top:30px;padding-top:12px;border-top:2px solid #ccc'>"
+        f"<h4 style='margin:0'>Texto oficial do codebook</h4>"
+        f"<div style='color:#666;font-size:12px;max-width:780px'>{FONTE_CRIT}. O guia "
+        f"acima diz as mesmas regras em linguagem direta. Em caso de dúvida, vale este "
+        f"texto, que é o que a primeira codificação usou.</div>{oficiais}</div>")
+    return "".join(partes)
 
 
-def mostrar_codebook():
+def mostrar_codebook(corpus=None):
     """Exibe o codebook uma vez, no alto do notebook.
 
     O critério é igual nos 26 serviços, como a procedência e a legenda — e é longo.
@@ -219,9 +273,9 @@ def mostrar_codebook():
         from IPython.display import display, HTML
     except ImportError:
         print(re.sub(r"\n\s*\n+", "\n\n",
-                     re.sub("<[^>]+>", "", codebook_html().replace("<h4", "\n<h4"))))
+                     re.sub("<[^>]+>", "", codebook_html(corpus).replace("<h4", "\n<h4"))))
         return
-    display(HTML(f"<div style='max-width:820px'>{codebook_html()}</div>"))
+    display(HTML(f"<div style='max-width:820px'>{codebook_html(corpus)}</div>"))
 
 
 def corpus_carregado() -> "Corpus":
@@ -783,7 +837,7 @@ class Painel:
         vid = vid or passo.vid
         feitas, total = self.fluxo.progresso()
         print(f"\n[{passo.vid}] {passo.titulo}  (variável {feitas + 1} de {total} "
-              f"nesta célula)\n    {re.sub('<[^>]+>', '', passo.regra)}")
+              f"nesta célula)\n    {C.lembrete(passo.vid)}")
         chao = self.piso_de(vid)
         print(f"    busca por palavra-chave ({len(chao)} trechos): os 12 termos do "
               "protocolo, sem modelo nenhum; a triagem é sua:")
@@ -844,7 +898,7 @@ class Painel:
         # reciclar — se a gravação não chegar ao servidor e ninguém disser nada,
         # o avaliador codifica uma tarde inteira e perde tudo em silêncio.
         self.recibo = W.HTML(self._recibo_inicial())
-        caixa = W.VBox([topo, area, self.recibo])
+        caixa = W.VBox([topo, area, self._bloco_notas(W), self.recibo])
         display(caixa)
         self._render_variavel(area)
         # NÃO devolva a caixa. A célula do notebook é `R.painel("X")`, e o Colab
@@ -852,6 +906,46 @@ class Painel:
         # foi exibido faz o painel inteiro aparecer duas vezes, como duas visões
         # do mesmo modelo. Quem exibe aqui é o `display` acima, uma vez.
         return None
+
+    # ------------------------------------------------------------------ notas
+    def _bloco_notas(self, W):
+        """O campo Notas do serviço, fora do fluxo das variáveis.
+
+        O codebook manda "anotar em Notes" em quatro lugares (V1, V2, V3, V7) e na
+        regra de dúvida, e o notebook não tinha onde. A chave é `notes`, a mesma do
+        instrumento em HTML, então as duas superfícies leem e gravam o mesmo campo.
+        Fica fora do `Fluxo` porque não é variável: não tem portão e vale para o
+        serviço inteiro.
+        """
+        caixa = W.Textarea(
+            value=self.fluxo.rec.get("notes") or "",
+            placeholder="Dúvidas de regra, casos de fronteira, diferenças entre "
+                        "documentos do mesmo serviço",
+            layout=W.Layout(width="100%", height="70px"))
+        botao = W.Button(description="salvar notas")
+
+        def _salvar(_):
+            self.fluxo.rec["notes"] = caixa.value
+            ok = self.estado.gravar(self.servico, self.fluxo.rec)
+            if self.recibo is not None:
+                self.recibo.value = self._recibo_notas(ok)
+        botao.on_click(_salvar)
+        return W.VBox([
+            W.HTML("<div style='margin-top:14px'><b>Notas</b> <span style='color:#888;"
+                   "font-size:12px'>valem para o serviço inteiro. Salve depois de "
+                   "escrever: elas não são gravadas junto com as variáveis.</span></div>"),
+            caixa, botao])
+
+    def _recibo_notas(self, ok: bool) -> str:
+        if self.estado.offline:
+            return (f"<div style='{self._RECIBO};color:#888'>notas gravadas em "
+                    f"{_esc(str(self.estado.cache))} (offline, sem servidor)</div>")
+        if ok:
+            return (f"<div style='{self._RECIBO};color:#0a7'>notas salvas no servidor · "
+                    f"{time.strftime('%H:%M:%S')}</div>")
+        return (f"<div style='{self._RECIBO};color:#b00'><b>as notas NÃO chegaram ao "
+                "servidor</b>. Estão só nesta sessão do Colab, que apaga o arquivo ao "
+                "reciclar. Confira a rede e salve de novo.</div>")
 
     # ----------------------------------------------------------------- recibo
     _RECIBO = "margin-top:8px;font:12px/1.5 ui-monospace,monospace"
@@ -1037,7 +1131,7 @@ class Painel:
             display(HTML(
                 self._trilha_html(vid) +
                 f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
-                f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
+                f"<div style='color:#555;max-width:780px'>{_esc(C.lembrete(vid))}</div>"
                 f"{criterio}"
                 f"<div style='margin-top:16px'><b>Busca por palavra-chave: {len(chao)} "
                 f"{'trecho' if len(chao) == 1 else 'trechos'}</b>"
@@ -1310,8 +1404,10 @@ def _self_test() -> int:
                "é isso que o codebook chama de" not in variavel_html
                and "Escada." not in variavel_html
                and "<details>" not in variavel_html)
-        checar("a regra de uma linha continua logo abaixo do título",
-               "Codifique o teto e onde ele vive" in variavel_html)
+        checar("o lembrete em linguagem direta fica logo abaixo do título",
+               "Escolha o nível mais alto, de 0 a 3" in variavel_html)
+        checar("a regra telegráfica antiga saiu da célula de trabalho",
+               "Codifique o teto e onde ele vive" not in variavel_html)
         checar("a trilha mostra as dez variáveis e onde você está",
                all(f">{v.vid}" in variavel_html or f">{v.vid}✓" in variavel_html
                    for v in C.VARIAVEIS)
@@ -1328,6 +1424,43 @@ def _self_test() -> int:
                "§3" not in topo_html and "§3" not in variavel_html)
     finally:
         pass
+
+    print("notas do serviço")
+    # O stub de widgets guarda o callback do botão; clicar é chamar o callback.
+    import types as _t
+    exibidos_n = []
+    ipd_n = _t.ModuleType("IPython.display")
+    ipd_n.display = lambda *a, **k: exibidos_n.extend(a)
+    ipd_n.HTML = lambda h="": h
+    ipd_n.clear_output = lambda *a, **k: None
+    sys.modules["ipywidgets"] = _FalsoModulo("ipywidgets")
+    sys.modules["IPython"] = _t.ModuleType("IPython")
+    sys.modules["IPython.display"] = ipd_n
+    try:
+        cache_n = Path(tempfile.mkdtemp()) / "notas.json"
+        est_n = F.Estado(offline=True, cache=cache_n)
+        pn = Painel("Pinterest", corpus=c, estado=est_n, assistir=False)
+        pn.mostrar()
+        filhos = exibidos_n[0].filhos
+        bloco = filhos[2]
+        caixa_txt, botao = bloco.filhos[1], bloco.filhos[2]
+        checar("o painel tem o campo Notas, entre as variáveis e o recibo",
+               len(filhos) == 4 and "Notas" in bloco.filhos[0].value)
+        caixa_txt.value = "dúvida de regra na V3"
+        botao._click(None)
+        gravado = json.loads(cache_n.read_text())["records"]["Pinterest"]
+        checar("salvar notas grava a chave `notes`, a mesma do instrumento em HTML",
+               gravado.get("notes") == "dúvida de regra na V3")
+        checar("e o recibo confirma a gravação das notas",
+               "notas gravadas" in pn.recibo.value)
+        checar("notas não abrem nem fecham nenhuma variável",
+               pn.fluxo.progresso()[0] == 0)
+    finally:
+        for k, v in guarda.items():
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
 
     print("procedência: uma vez longa, sempre curta")
     checar("o parágrafo longo existe e explica as duas razões",
@@ -1347,9 +1480,23 @@ def _self_test() -> int:
     print("codebook em um bloco")
     cb = codebook_html()
     checar("as dez variáveis entram", all(f"[{v.vid}]" in cb for v in C.VARIAVEIS))
-    checar("cada uma com glosa e com o texto congelado",
-           cb.count(FONTE_CRIT) == 9 and "é isso que o codebook chama de" in cb
-           and "Escada." in cb)
+    checar("cada variável abre pela pergunta que ela responde",
+           all(C.pergunta(v.vid) in cb for v in C.VARIAVEIS))
+    checar("as cinco regras gerais vêm antes das variáveis",
+           cb.index("Cinco regras") < cb.index("[V1]"))
+    # O texto oficial aparece uma vez, no fim, inteiro. Variável por variável, ao
+    # lado do guia, punha três versões da mesma regra na tela.
+    checar("o texto oficial aparece uma vez, depois de todo o guia",
+           cb.count("Texto oficial do codebook") == 1
+           and cb.index("Texto oficial do codebook") > cb.index(C.pergunta("KW")))
+    checar("os nove critérios congelados estão no texto oficial, intactos",
+           all(C.criterio(v.crit_key) in cb for v in C.VARIAVEIS if v.crit_key != "kw"))
+    guia = cb[:cb.index("Texto oficial do codebook")]
+    checar("o guia não tem travessão (o texto oficial pode ter: é congelado)",
+           "—" not in guia)
+    checar("o guia não nomeia nenhum dos 26 serviços",
+           not [sv for sv in C.SERVICOS if f">{sv}<" in guia or f" {sv} " in guia
+                or f" {sv}." in guia or f" {sv}," in guia])
     # As âncoras nomeiam serviços; num bloco único não há serviço em tela contra o
     # qual suprimir, então nenhuma pode entrar — senão a resposta de um serviço
     # fica no campo de visão de quem codifica outro.

@@ -450,100 +450,273 @@ const CRIT = {
     <p>Multi-seleção de locais + registro agregado.</p>
     <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o “How Search Works” do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>`}
 };
-/* GLOSA — o critério dito em linguagem de quem codifica.
-   NÃO substitui o CRIT: aquele é transcrição fiel do codebook v2 congelado em
-   04/jul, e a passada 1 foi codificada contra ele. Mudar a redação do CRIT faria
-   as duas passadas usarem instrumentos diferentes, e a divergência apareceria
-   como desacordo entre codificadores. Então o texto do codebook fica intacto e a
-   explicação vem ao lado, marcada como explicação. Nenhuma glosa aqui move um
-   limiar: se uma delas disser coisa diferente do CRIT, é a glosa que está errada. */
+/* GLOSA: o guia do codificador, variável por variável, em linguagem direta.
+   Três partes por variável. `pergunta` é a pergunta que a variável responde;
+   `lembrete` é a linha que aparece em cada célula de trabalho; `html` é o guia
+   completo (o que procurar, como preencher cada campo, cuidados).
+   NÃO substitui o CRIT. O CRIT é transcrição fiel do codebook v2 congelado em
+   04/jul, e a passada 1 foi codificada contra ele; o `codebook --check` trava o
+   texto dele por hash. O guia explica as mesmas regras. Se uma frase daqui disser
+   coisa diferente do CRIT, quem está errado é o guia. */
 const GLOSA = {
-  v1: `
-    <p>São quatro níveis, do menos ao mais explícito, e você escolhe <b>um só</b>: o mais
-    alto que achar em qualquer documento do serviço — é isso que o codebook chama de
-    <b>teto</b>. Depois diga <b>onde</b> esse nível mais alto aparece: em documento
-    vinculante, fora dele, ou nos dois.</p>
-    <p>A fronteira que mais decide é <b>2 contra 3</b>. Se o texto diz que testa coisas com
-    usuários mas não diz como — &ldquo;test new features&rdquo; e nada além —, é <b>2</b>.
-    Basta aparecer A/B, versões diferentes servidas a pessoas diferentes, grupo de controle,
-    ou &ldquo;experiment&rdquo; no sentido de experimento, e é <b>3</b>.</p>
-    <p>Cuidado com &ldquo;trial&rdquo;: período grátis de assinatura não é experimentação, e
-    é o falso positivo mais comum nesta variável.</p>
-    <p><b>Por que a combinação importa.</b> Nível 3 que só existe fora do contrato significa
-    que a plataforma admite experimentar, mas não onde ela se obriga a cumprir. É o achado
-    central do estudo. Se o documento vinculante, sozinho, ficar num nível abaixo do teto,
-    escreva isso no campo Notas.</p>`,
-  v2: `
-    <p>Aqui pode marcar <b>mais de um</b>, e normalmente é mais de um — cada marcação pede
-    uma citação. &ldquo;Research that improves our services&rdquo; é melhoria do serviço
-    <i>e</i> pesquisa ao mesmo tempo.</p>
-    <p>&ldquo;Bem-estar da comunidade&rdquo; é a terceira opção, e vale saber por que ela
-    está aí: é o mesmo tipo de justificativa que o Facebook usou no estudo de contágio
-    emocional de 2014.</p>`,
-  v3: `
-    <p>São quatro perguntas separadas, e dá para responder sim a umas e não a outras.</p>
-    <p><b>Primeira:</b> o texto nomeia <i>o que</i> é testado — features, layout, ranking?
-    <b>Segunda:</b> nomeia o <i>alvo</i> do teste — ranking, preço, mensagem, emoção,
-    fricção, opções padrão? Aqui a distinção que importa é entre alvo de experimento e
-    personalização: &ldquo;recomendamos conteúdo para você&rdquo; é funcionalidade
-    descrita, não experimento. <b>Terceira:</b> descreve algum experimento específico, que
-    esteja acontecendo?</p>
-    <p><b>Quarta</b>, em campo próprio: preço aparece como alvo? Cláusula de erro de preço
-    (<i>mispricing</i>) não conta. Se preço aparecer só fora do contrato, marque Yes e diga
-    onde no campo Notas — esta pergunta não tem campo de registro próprio, que é uma
-    limitação conhecida do codebook.</p>`,
-  v4: `
-    <p>Pode marcar mais de uma base. <b>&ldquo;Not stated&rdquo;</b> quer dizer que nenhuma
-    base foi declarada <i>para experimentação</i> — em geral ela vem embutida na cláusula de
-    melhoria do serviço. Escreva também qual finalidade declarada você entendeu como
-    cobrindo experimentação (por exemplo &ldquo;improve services&rdquo;).</p>
-    <p><b>Se a tabela de bases por finalidade não aparecer nos documentos, marque
-    não-verificável, não &ldquo;No&rdquo;.</b> As duas coisas são diferentes: cinco serviços
-    do censo escondem essa tabela de quem acessa de fora da UE.</p>
-    <p>Se um documento estiver visivelmente diferente do que o manifesto registra, anote e
-    pule o campo. Não troque por outra versão — isso criaria divergência que não é
-    desacordo entre codificadores.</p>`,
-  v5: `
-    <p>Cinco níveis, do nada até o opt-in, e você escolhe um. O escopo é <b>estrito</b>: tem
-    de ser controle sobre <i>experimentação</i>, não sobre cookies.</p>
-    <p>Só o direito genérico de objeção do GDPR (Art. 21) é o segundo nível. Banner de
-    consentimento que governa publicidade e medição é o terceiro — e é o falso positivo
-    clássico, porque parece um opt-out e não é. &ldquo;Dedicated&rdquo; exige um controle
-    que desligue experimentação.</p>`,
-  v6: `
-    <p>TestFlight, Search Labs, canais beta. É um eixo <b>separado</b> do V5 e não compensa
-    a falta de opt-out: quem se inscreve ganha acesso antecipado a novidades, e todos os
-    outros continuam nos experimentos de rotina. Nunca some este com o V5.</p>`,
-  v7: `
-    <p><i>Debriefing</i> é avisar a pessoa, <b>depois</b>, que ela participou de um
-    experimento. Não conte como debriefing: aviso de que dados são processados, aviso de
-    decisão automatizada, aviso de que o serviço mudou. Os três apareceram como falso
-    positivo no piloto.</p>
-    <p><b>E há dois tipos de ausência.</b> O documento pode tratar do assunto e não oferecer
-    o mecanismo, ou o assunto pode simplesmente nunca aparecer. Nos dois casos marque
-    &ldquo;No&rdquo;, e diga no campo Notas qual é o caso — pelo texto não se distingue
-    &ldquo;consideraram e descartaram&rdquo; de &ldquo;nunca pensaram&rdquo;.</p>`,
-  v8: `
-    <p>Conta menção, <b>nos documentos voltados ao usuário</b>, a revisão ética, comitê ou
-    avaliação de risco de experimentos. Linguagem vaga de &ldquo;impacto&rdquo; é
-    &ldquo;No&rdquo; com nota.</p>
-    <p><b>O caso mais comum:</b> a avaliação de risco sistêmico que o DSA exige existe por
-    obrigação regulatória, mas se não estiver nos documentos ao usuário é &ldquo;No&rdquo;
-    — anote como diferença entre o que o regulador exige e o que o documento diz. A regra
-    dos dois tipos de ausência do V7 vale aqui também.</p>`,
-  v9: `
-    <p>Marque todos os lugares onde a divulgação aparece e diga, no agregado, se ela está em
-    documento vinculante, não vinculante, ou nos dois.</p>
-    <p><b>O que torna um documento vinculante é a função legal dele, não o endereço.</b> O
-    Privacy Notice da Amazon fica numa URL de <code>/help/</code> e é vinculante; o
-    &ldquo;How Search Works&rdquo; do Google é microsite institucional e não é. Na dúvida, a
-    pergunta é uma só: o documento se declara parte do acordo com o usuário?</p>`,
-  kw: `
-    <p>Para cada documento, quantas vezes cada um dos 12 termos aparece — já triado por
-    você, contando só o que tem sentido experimental.</p>
-    <p><b>É este log que torna cada &ldquo;No&rdquo; auditável.</b> Sem ele, &ldquo;procurei
-    e não achei&rdquo; e &ldquo;não procurei&rdquo; ficam iguais no dado, e os achados de
-    ausência são metade do estudo.</p>`,
+  v1: {
+    pergunta: "A plataforma admite que faz experimentos com os usuários? Com que clareza?",
+    lembrete: "Escolha o nível mais alto, de 0 a 3, que aparecer em qualquer documento, e diga em que tipo de documento ele está. Free trial não conta.",
+    html: `
+<p><b>O que procurar.</b> Frases em que a plataforma diz que testa coisas com as pessoas
+que usam o serviço. Elas vão de vagas ("usamos seus dados para melhorar nossos
+serviços") a explícitas ("fazemos testes A/B").</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Código (teto)</b>: o nível mais alto que você encontrar em qualquer documento do
+serviço. Se um documento chega ao 2 e outro ao 3, o código é 3.<ul>
+<li><code>0</code>: nenhum reconhecimento. Os documentos não falam nem em melhorar o serviço.</li>
+<li><code>1</code>: só fala em melhorar ou aprimorar o serviço, sem dizer que testa nada.</li>
+<li><code>2</code>: diz que testa coisas com os usuários, mas não diz como. Por exemplo,
+"para testar novos recursos" e nada além disso.</li>
+<li><code>3</code>: nomeia o método. Basta aparecer teste A/B, versões diferentes mostradas a
+pessoas diferentes, grupo de controle, randomização, ou a palavra experimento no sentido
+de teste com usuários.</li>
+</ul></li>
+<li><b>Registro do teto</b>: em que tipo de documento apareceu o nível que você escolheu.<ul>
+<li><code>binding</code>: documento vinculante (política de privacidade, termos de uso, aviso
+de cookies, tabela de bases legais).</li>
+<li><code>non-binding</code>: documento não vinculante (blog, central de ajuda, página de pesquisa).</li>
+<li><code>both</code>: o mesmo nível aparece nos dois tipos.</li>
+</ul></li>
+<li><b>Evidência</b>: a frase exata que justifica o nível, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>"Free trial" e período grátis de assinatura não são experimentação. É o falso positivo
+mais comum nesta variável.</li>
+<li>A dúvida mais frequente é entre 2 e 3. Se a frase diz que testa, mas não menciona
+grupos, versões ou aleatorização, é 2.</li>
+</ul>
+<p><b>Por que o registro importa.</b> O estudo quer saber se a plataforma admite
+experimentar no documento que a obriga. Nível 3 que só aparece no blog significa que ela
+admite em público, mas não no contrato. Se os documentos vinculantes, sozinhos, ficarem
+num nível abaixo do teto, escreva isso em Notas (por exemplo, "nos vinculantes, só
+nível 1").</p>`},
+  v2: {
+    pergunta: "Como a plataforma apresenta o que faz: como melhoria do serviço, como pesquisa, como bem-estar?",
+    lembrete: "Marque todos os enquadramentos que aparecerem, com uma citação para cada.",
+    html: `
+<p><b>O que procurar.</b> As palavras que a plataforma usa para apresentar o uso de dados
+para testar e desenvolver. A V1 pergunta se ela testa; esta pergunta como ela descreve
+isso.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Enquadramentos presentes</b>: marque todos que aparecem. É comum marcar mais de um.<ul>
+<li><code>service improvement</code>: melhoria do serviço ("para melhorar nossos produtos").</li>
+<li><code>research</code>: pesquisa em sentido genérico ("realizamos pesquisas").</li>
+<li><code>human-subjects research</code>: pesquisa com seres humanos, no sentido da ética em pesquisa.</li>
+<li><code>social-good/community</code>: bem-estar da comunidade ou bem social.</li>
+</ul></li>
+<li><b>Evidência</b>: uma citação para cada enquadramento que você marcar.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Uma frase pode ter dois enquadramentos. "Pesquisa que melhora nossos serviços" é
+<code>service improvement</code> e <code>research</code> ao mesmo tempo.</li>
+<li>Se aparecer um enquadramento que não está na lista, anote em Notas.</li>
+</ul>
+<p>A opção de bem-estar da comunidade existe por um motivo histórico: foi esse o tipo de
+justificativa usado no estudo de contágio emocional de 2014.</p>`},
+  v3: {
+    pergunta: "O quanto a plataforma detalha o que testa?",
+    lembrete: "Quatro perguntas separadas: o que é testado, quais alvos, se descreve um teste específico, e se o preço é alvo. Personalização não é alvo de teste.",
+    html: `
+<p><b>O que procurar.</b> O nível de detalhe com que a plataforma descreve os testes. São
+quatro perguntas separadas, e você pode responder sim a umas e não a outras.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>V3a, atividades ou superfícies nomeadas</b>: o texto diz <i>o que</i> é testado? Por
+exemplo, recursos, layout, ordem dos resultados. <code>Yes</code> ou <code>No</code>.</li>
+<li><b>V3b, alvos nomeados</b>: escreva os alvos de teste que o texto nomeia. A lista é
+aberta: ordem dos resultados, preço, mensagem, emoção, fricção, opções padrão.</li>
+<li><b>V3c, experimento específico ou ativo divulgado</b>: o texto descreve algum teste em
+particular, que está ou esteve acontecendo? <code>Yes</code> ou <code>No</code>.</li>
+<li><b>V3-pricing, preço nomeado como alvo</b>: o preço, ou a personalização do preço,
+aparece como alvo de teste? <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Evidência</b>: as frases que sustentam as respostas, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Alvo de teste não é personalização. "Recomendamos conteúdo com base no que você
+assiste" descreve uma funcionalidade, não um experimento.</li>
+<li>Cláusula sobre erro de preço (<i>mispricing</i>, quando um produto aparece com o preço
+errado) não conta como preço testado.</li>
+<li>Se o preço aparecer como alvo só em documento não vinculante, marque <code>Yes</code> e
+diga em Notas onde ele apareceu. Esta pergunta não tem campo próprio de registro.</li>
+</ul>`},
+  v4: {
+    pergunta: "Com que base legal a plataforma usa dados para testar?",
+    lembrete: "Ache a finalidade que cobre os testes (em geral, melhorar o serviço) e marque as bases declaradas para ela. Tabela ausente é not-verifiable, nunca No.",
+    html: `
+<p><b>O que procurar.</b> Pela lei europeia de proteção de dados (GDPR), a plataforma
+precisa declarar o fundamento legal de cada uso que faz dos dados. Essa declaração costuma
+vir numa tabela de bases legais, dentro da política de privacidade ou num anexo dela.</p>
+<p>Quase nenhuma plataforma lista experimentação como finalidade. Por isso o caminho é
+indireto: ache a finalidade declarada que cobre os testes (em geral algo como "melhorar
+nossos serviços") e veja que base a plataforma declara para ela.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Bases declaradas</b>: marque todas as bases declaradas para essa finalidade.<ul>
+<li><code>legitimate interest</code>: legítimo interesse. É a base que dispensa pedir
+permissão ao usuário; a plataforma só precisa fazer um teste interno de ponderação entre o
+interesse dela e o do usuário.</li>
+<li><code>consent</code>: consentimento. O usuário concordou de forma explícita.</li>
+<li><code>contract</code>: execução de contrato. O uso é necessário para prestar o serviço
+que o usuário contratou.</li>
+<li><code>not stated</code>: a plataforma não declara nenhuma base para experimentação, e a
+base só pode ser inferida da cláusula de melhoria do serviço.</li>
+</ul></li>
+<li><b>Finalidade mapeada como experimentação</b>: escreva qual finalidade declarada você
+entendeu como a que cobre os testes. Por exemplo, "melhorar nossos serviços".</li>
+<li><b>Tabela de bases geo-gated?</b><ul>
+<li><code>Yes</code>: a tabela de bases por finalidade só aparece para quem acessa da UE.</li>
+<li><code>No</code>: a tabela aparece normalmente nos documentos que você está lendo.</li>
+<li><code>not-verifiable (vantage)</code>: não foi possível verificar. É diferente de
+<code>No</code>, e essa resposta fica fora da comparação entre as duas codificações.</li>
+</ul></li>
+<li><b>Evidência</b>: a linha da tabela, ou a frase, que liga a finalidade à base legal.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Os documentos deste notebook foram capturados de dentro da UE. Com eles dá para ver se
+a tabela está presente, mas não se ela some para quem acessa de fora. Se a tabela está nos
+documentos, a resposta pela definição é <code>No</code>. Se ela não está, marque
+<code>not-verifiable (vantage)</code>, nunca <code>No</code>.</li>
+<li>Se o documento de que você precisa estiver ilegível ou faltando, escreva isso na
+evidência e em Notas. Não procure outra versão na internet: ler um texto diferente do
+congelado cria uma divergência que não é sua.</li>
+</ul>`},
+  v5: {
+    pergunta: "O usuário pode ficar fora dos experimentos?",
+    lembrete: "Um nível, e só sobre experimentação. Banner de cookies que rege publicidade é cookie/ads-only, não dedicated.",
+    html: `
+<p><b>O que procurar.</b> Se o usuário tem algum jeito de ficar fora dos experimentos, e de
+que tipo. A pergunta é só sobre experimentação: controle sobre publicidade ou sobre
+cookies de medição não conta como saída de experimento.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Nível</b>: escolha um. Os níveis estão em ordem, do nenhum controle até a
+participação só por adesão.<ul>
+<li><code>none</code>: nenhum controle.</li>
+<li><code>GDPR-objection-only</code>: só o direito genérico de se opor ao uso dos dados,
+previsto no Art. 21 do GDPR. Esse direito vale para qualquer uso baseado em legítimo
+interesse; não existe um controle específico para experimentos.</li>
+<li><code>cookie/ads-only</code>: existe um banner ou painel de consentimento, mas ele
+controla publicidade e medição, não experimentação.</li>
+<li><code>dedicated</code>: existe uma opção específica para sair dos experimentos.</li>
+<li><code>opt-in</code>: a pessoa só participa de experimentos se aderir.</li>
+</ul></li>
+<li><b>Evidência</b>: a frase que descreve o controle, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>O falso positivo clássico é o banner de cookies. Ele parece uma forma de sair, mas rege
+publicidade e medição. Isso é <code>cookie/ads-only</code>, não <code>dedicated</code>.</li>
+<li>Desligar cookies de analytics não é sair de um experimento.</li>
+</ul>`},
+  v6: {
+    pergunta: "Existe um programa em que o usuário se inscreve para testar novidades antes dos outros?",
+    lembrete: "Beta por adesão é diferente da V5: não é saída dos experimentos, e as duas variáveis nunca se somam.",
+    html: `
+<p><b>O que procurar.</b> Programas em que o usuário se inscreve, por vontade própria, para
+testar novidades antes dos outros. Exemplos: TestFlight, Search Labs, canais beta.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Existe programa opt-in?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Qual</b>: o nome do programa e como ele funciona, em uma linha.</li>
+</ul>
+<p><b>Cuidado com.</b> Um programa beta não é uma saída dos experimentos. Quem se inscreve
+ganha acesso antecipado; todos os outros usuários continuam nos testes de rotina. Por isso
+esta variável é separada da V5, e as duas nunca se somam.</p>`},
+  v7: {
+    pergunta: "A plataforma avisa, depois, que a pessoa participou de um experimento?",
+    lembrete: "Aviso de tratamento de dados, de decisão automatizada ou de mudança no serviço não é debriefing. Se for No, diga qual dos dois casos.",
+    html: `
+<p><b>O que procurar.</b> Debriefing no sentido da ética em pesquisa: um aviso, depois do
+fato, de que a pessoa participou de um experimento.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Debriefing existe?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Evidência / justificativa do No</b>: se for <code>Yes</code>, a frase e o documento.
+Se for <code>No</code>, diga qual dos dois casos você encontrou e aponte o log de
+palavras-chave, que mostra o que foi procurado.</li>
+</ul>
+<p><b>Os dois casos de No.</b> O documento pode tratar do assunto e não oferecer o aviso,
+ou o assunto pode nunca aparecer. Pelo texto não dá para saber se a plataforma considerou o
+debriefing e descartou, ou se nunca pensou nele. Por isso basta registrar qual dos dois
+casos é, na evidência ou em Notas.</p>
+<p><b>Cuidado com.</b> Três avisos parecem debriefing e não são. Os três apareceram como
+falso positivo no piloto:</p>
+<ul>
+<li>aviso de que seus dados são tratados;</li>
+<li>aviso de que uma decisão automatizada foi tomada sobre você;</li>
+<li>aviso de que o serviço mudou.</li>
+</ul>`},
+  v8: {
+    pergunta: "Os documentos ao usuário mencionam revisão ética, comitê ou avaliação de risco de experimentos?",
+    lembrete: "Linguagem vaga de impacto é No com nota. Avaliação de risco do DSA que não está nos documentos ao usuário também é No.",
+    html: `
+<p><b>O que procurar.</b> Alguma menção, nos documentos voltados ao usuário, a revisão
+ética, comitê de ética ou avaliação de risco <i>de experimentos</i>.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Menção a ética/revisão/risco para experimentos?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Nota</b>: casos de fronteira, e diferenças entre o que a lei exige e o que o
+documento diz.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Linguagem vaga sobre "impacto" (por exemplo, "impacto sobre você e outras pessoas"
+ligado ao encerramento de um serviço) é <code>No</code>, com nota.</li>
+<li>O Digital Services Act (Arts. 34 e 35) obriga as grandes plataformas a avaliar riscos
+sistêmicos. Essas avaliações existem por obrigação legal, mas não são documentos ao
+usuário. Se a avaliação de risco não aparece nos documentos ao usuário, a resposta é
+<code>No</code>. Anote como diferença entre a obrigação regulatória e o que o documento diz.</li>
+<li>"Code of Ethics" no menu ou no rodapé é código de conduta da empresa, não revisão ética
+de experimento. Avaliação de risco antifraude, no pagamento, também não conta. A busca por
+palavra-chave mostra esses trechos com aviso.</li>
+<li>Os dois casos de No da V7 valem aqui também.</li>
+</ul>`},
+  v9: {
+    pergunta: "Em que tipos de documento a plataforma fala de experimentação?",
+    lembrete: "Marque todos os locais. Vinculante se decide pela função do documento, não pelo endereço da página.",
+    html: `
+<p><b>O que procurar.</b> Os tipos de documento em que a plataforma fala de experimentação.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Locais</b>: marque todos os tipos de documento onde a divulgação aparece.<ul>
+<li><code>privacy policy</code>: política de privacidade.</li>
+<li><code>ToS/conditions</code>: termos de uso ou condições.</li>
+<li><code>research notice separado</code>: um aviso próprio sobre pesquisa, separado da política.</li>
+<li><code>help centre</code>: central de ajuda.</li>
+<li><code>blog/PR/site de pesquisa</code>: blog, notícia ou site institucional de pesquisa.</li>
+</ul></li>
+<li><b>Registro agregado</b>: no conjunto, a divulgação está em documento vinculante
+(<code>binding</code>), não vinculante (<code>non-binding</code>) ou nos dois (<code>both</code>)?</li>
+<li><b>Evidência / observações</b>: onde está cada uma, e qualquer observação.</li>
+</ul>
+<p><b>Cuidado com.</b> O que torna um documento vinculante é a função legal dele, não o
+endereço da página. Uma política de privacidade publicada dentro da central de ajuda
+continua vinculante. Um site institucional que explica como o produto funciona não é. Na
+dúvida, pergunte: o documento se declara parte do acordo com o usuário?</p>`},
+  kw: {
+    pergunta: "O que a busca por palavra-chave encontrou, depois da sua triagem?",
+    lembrete: "O log já vem com a contagem bruta. Corrija os números, tirando o que você descartou como falso positivo.",
+    html: `
+<p><b>O que é.</b> Este passo registra o que a busca por palavra-chave encontrou, depois da
+sua triagem. Não há nada novo para procurar.</p>
+<p><b>Como preencher.</b> O campo <b>Log</b> já vem preenchido com a contagem bruta de cada
+termo, documento por documento, no formato <code>termo:número</code>. Corrija os números:
+tire as ocorrências que você descartou como falso positivo e deixe só as que têm sentido de
+experimentação.</p>
+<p><b>Por que é obrigatório.</b> O log torna cada No verificável. Sem ele, "procurei e não
+achei" e "não procurei" ficam iguais no dado.</p>`},
 };
 
 let current = DATA.order[0];
@@ -743,7 +916,7 @@ function crit(v){
   const c = CRIT[v]; if(!c) return "";
   /* Glosa antes do critério: é ela que se lê. O texto do codebook vem depois,
      rotulado, porque é ele que vale — e é transcrição congelada, não editável. */
-  const g = GLOSA[v] ? `<div class="glosa">${GLOSA[v]}</div>` +
+  const g = GLOSA[v] ? `<div class="glosa">${GLOSA[v].html}</div>` +
     `<div class="critfonte">texto exato do codebook v2, congelado em 04/07/2026</div>` : "";
   return `<details class="crit" data-crit="${v}"${uiGet()["crit_"+v]?" open":""}>` +
     `<summary>${esc(c.sum)}</summary><div class="critbody">${g}${c.html}${anchorsHTML(v)}</div></details>`;
