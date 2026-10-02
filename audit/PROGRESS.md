@@ -4,20 +4,20 @@ Gerado automaticamente por `.github/workflows/coding-snapshot.yml`.
 **Metadados apenas** — quantos campos estão preenchidos e quando, nunca
 o que foi codificado. As codificações ficam retidas até a adjudicação.
 
-| Snapshot | `2026-08-01T10:44:55+00:00` |
+| Snapshot | `2026-10-02T15:38:53+00:00` |
 |---|---|
-| Último autosave do instrumento | `2026-08-01T00:28:28.780Z` |
+| Último autosave do instrumento | `—` |
 | Serviços concluídos | **0/26** |
-| Em andamento | 1 |
-| Não iniciados | 25 |
-| Campos centrais | 1/338 (0.3%) |
-| Campos de evidência | 1/182 (0.5%) |
+| Em andamento | 0 |
+| Não iniciados | 26 |
+| Campos centrais | 0/338 (0.0%) |
+| Campos de evidência | 0/182 (0.0%) |
 | Log de palavras-chave | 0/26 |
 
 | | Serviço | Centrais | Evidência | KW | Docs | Última edição |
 |---|---|---|---|---|---|---|
-| ◐ | Wikipedia | 1/13 | 1/7 | — | 0 | 2026-08-01T00:28:24+00:00 |
-| ○ | Temu | 0/13 | 0/7 | — | 0 | 2026-08-01T00:27:44+00:00 |
+| ○ | Wikipedia | 0/13 | 0/7 | — | 0 | — |
+| ○ | Temu | 0/13 | 0/7 | — | 0 | — |
 | ○ | Facebook | 0/13 | 0/7 | — | 0 | — |
 | ○ | YouTube | 0/13 | 0/7 | — | 0 | — |
 | ○ | Google Search | 0/13 | 0/7 | — | 0 | — |
