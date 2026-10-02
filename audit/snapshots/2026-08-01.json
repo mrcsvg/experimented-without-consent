@@ -1,0 +1,317 @@
+{
+ "generated_at": "2026-08-01T10:44:55+00:00",
+ "source": {
+  "branch": "coder2-data",
+  "path": "audit/coder2-progress.json",
+  "saved_at": "2026-08-01T00:28:28.780Z"
+ },
+ "totals": {
+  "services": 26,
+  "concluded": 0,
+  "partial": 1,
+  "not_started": 25,
+  "core_fields": {
+   "filled": 1,
+   "expected": 338,
+   "pct": 0.3
+  },
+  "evidence_fields": {
+   "filled": 1,
+   "expected": 182,
+   "pct": 0.5
+  },
+  "keyword_log": {
+   "present": 0,
+   "expected": 26
+  },
+  "unrecognised_records": []
+ },
+ "services": [
+  {
+   "service": "Wikipedia",
+   "status": "parcial",
+   "core_filled": 1,
+   "core_expected": 13,
+   "evidence_filled": 1,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": "2026-08-01T00:28:24+00:00"
+  },
+  {
+   "service": "Temu",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": "2026-08-01T00:27:44+00:00"
+  },
+  {
+   "service": "Facebook",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "YouTube",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Google Search",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "WhatsApp",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Booking.com",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Google Maps",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Pornhub",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Amazon Store",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "LinkedIn",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Bing",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "XVideos",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Shein",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "X",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "XNXX",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Zalando",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Snapchat",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Stripchat",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "App Store",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Instagram",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Google Play",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Pinterest",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "Google Shopping",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "TikTok",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  },
+  {
+   "service": "AliExpress",
+   "status": "não iniciado",
+   "core_filled": 0,
+   "core_expected": 13,
+   "evidence_filled": 0,
+   "evidence_expected": 7,
+   "keyword_log": false,
+   "docs_read": 0,
+   "last_edit": null
+  }
+ ]
+}

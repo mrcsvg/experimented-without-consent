@@ -1,0 +1,509 @@
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<title>Instrumento de Codificação — Auditoria VLOP/VLOSE</title>
+<style>
+:root{
+  --bg:#FAFBFC; --surface:#FFFFFF; --ink:#1C2733; --muted:#5A6B7A; --line:#DDE4EA;
+  --accent:#1F4E79; --accent-ink:#FFFFFF; --binding:#1F4E79; --nonbinding:#B07A2A;
+  --ok:#2E7D4F; --warn:#B3541E; --field:#FFFFFF; --field-line:#C3CFD9; --hover:#EFF3F7;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#10161C; --surface:#182028; --ink:#E4EAEF; --muted:#93A3B1; --line:#2A3540;
+  --accent:#6FA8D6; --accent-ink:#0E1620; --binding:#6FA8D6; --nonbinding:#D9A65A;
+  --ok:#5FBF8A; --warn:#E08050; --field:#131B22; --field-line:#3A4854; --hover:#1F2A34;
+}}
+:root[data-theme="dark"]{
+  --bg:#10161C; --surface:#182028; --ink:#E4EAEF; --muted:#93A3B1; --line:#2A3540;
+  --accent:#6FA8D6; --accent-ink:#0E1620; --binding:#6FA8D6; --nonbinding:#D9A65A;
+  --ok:#5FBF8A; --warn:#E08050; --field:#131B22; --field-line:#3A4854; --hover:#1F2A34;
+}
+:root[data-theme="light"]{
+  --bg:#FAFBFC; --surface:#FFFFFF; --ink:#1C2733; --muted:#5A6B7A; --line:#DDE4EA;
+  --accent:#1F4E79; --accent-ink:#FFFFFF; --binding:#1F4E79; --nonbinding:#B07A2A;
+  --ok:#2E7D4F; --warn:#B3541E; --field:#FFFFFF; --field-line:#C3CFD9; --hover:#EFF3F7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  text-wrap:balance;margin:0}
+code,.mono,textarea.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.86em}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+header.app{position:sticky;top:0;z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--line);padding:10px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header.app h1{font-size:17px;font-weight:600}
+header.app .sub{color:var(--muted);font-size:12.5px}
+.spacer{flex:1}
+.btn{border:1px solid var(--field-line);background:var(--field);color:var(--ink);
+  border-radius:6px;padding:7px 13px;font-size:13.5px}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+
+nav.tabs{display:flex;gap:2px;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 18px;overflow-x:auto}
+nav.tabs button{border:0;background:none;color:var(--muted);padding:10px 14px;
+  border-bottom:2px solid transparent;font-size:14px;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 18px 80px}
+.prose{max-width:72ch}
+.prose p{margin:.55em 0}
+.prose h2{font-size:21px;margin:1.2em 0 .35em}
+.prose h3{font-size:16.5px;margin:1.1em 0 .3em}
+.prose li{margin:.3em 0}
+.note{border-left:3px solid var(--nonbinding);background:var(--surface);
+  padding:10px 14px;border-radius:0 6px 6px 0;margin:.8em 0}
+.note.blue{border-left-color:var(--binding)}
+
+.layout{display:grid;grid-template-columns:270px 1fr;gap:22px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+aside.rail{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow-y:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px}
+aside.rail .railhead{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);padding:6px 8px 4px}
+.svc{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;
+  background:none;color:var(--ink);padding:7px 8px;border-radius:6px;font-size:13.5px}
+.svc:hover{background:var(--hover)}
+.svc[aria-current="true"]{background:var(--hover);font-weight:600}
+.svc .n{color:var(--muted);font-size:11px;min-width:17px;font-variant-numeric:tabular-nums}
+.svc .state{margin-left:auto;width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.svc .state.partial{background:var(--nonbinding)}
+.svc .state.done{background:var(--ok)}
+
+.panel{min-width:0}
+.svc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.svc-head h2{font-size:24px}
+.chip{display:inline-block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.savestate{font-size:12.5px;color:var(--muted)}
+
+details.docs{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  margin:12px 0 18px}
+details.docs summary{cursor:pointer;padding:10px 14px;font-weight:600;font-size:14px}
+details.docs .doclist{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
+.doc{display:flex;gap:9px;align-items:flex-start;font-size:13.5px}
+.doc input{margin-top:3px}
+.doc .txt{word-break:break-word}
+.accessdate{color:var(--muted);font-size:12.5px;padding:0 14px 12px}
+
+.vcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:16px 18px;margin-bottom:14px}
+.vcard>h3{font-size:16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.vcard>h3 .vid{color:var(--accent);font-variant-numeric:tabular-nums}
+.rule{color:var(--muted);font-size:13px;margin:6px 0 12px;max-width:80ch}
+.rule b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.f>label{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.f select,.f input[type=text],.f textarea{background:var(--field);color:var(--ink);
+  border:1px solid var(--field-line);border-radius:6px;padding:8px 10px;font:inherit;font-size:14px}
+.f textarea{min-height:64px;resize:vertical}
+.opts{display:flex;flex-wrap:wrap;gap:6px 14px;padding:2px 0}
+.opts label{display:flex;gap:6px;align-items:center;font-size:14px}
+.reg-binding{color:var(--binding);font-weight:600}
+.reg-nonbinding{color:var(--nonbinding);font-weight:600}
+.kwchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.kwchips code{background:var(--hover);border:1px solid var(--line);border-radius:5px;padding:2px 7px}
+.done-row{display:flex;align-items:center;gap:10px;background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin-top:4px}
+.done-row label{font-weight:600}
+footer.appfoot{color:var(--muted);font-size:12.5px;text-align:center;padding:26px 0 10px}
+table.cb{border-collapse:collapse;width:100%;font-size:13.5px}
+table.cb th,table.cb td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.cb th{background:var(--hover);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.tablewrap{overflow-x:auto}
+</style>
+
+<header class="app">
+  <div>
+    <h1>Instrumento de Codificação — 2º avaliador</h1>
+    <div class="sub">Auditoria de disclosures · 26 serviços DSA VLOP/VLOSE · codebook v2 (congelado 04/jul/2026)</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="chip" id="progresschip" title="serviços marcados como concluídos">0/26 concluídos</span>
+  <span class="savestate" id="globalsave">salvo localmente</span>
+  <span class="savestate" id="syncstate" title="estado da sincronização">·</span>
+  <button class="btn" id="importbtn">Importar backup</button>
+  <input type="file" id="importfile" accept=".json" style="display:none">
+  <button class="btn primary" id="exportbtn">Exportar JSON</button>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="howto">Instruções</button>
+  <button role="tab" aria-selected="false" data-tab="codebook">Codebook</button>
+  <button role="tab" aria-selected="false" data-tab="coding">Codificação</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ INSTRUÇÕES ============ -->
+<section id="tab-howto" class="prose">
+  <h2>Como funciona</h2>
+  <p>Este instrumento acompanha o <b>codebook v2</b> (aba ao lado, sempre à mão). Você codifica um serviço por vez: abre os documentos listados, responde às 9 variáveis e cola a evidência verbatim. Tudo é salvo <b>neste navegador</b> automaticamente (localStorage) — nada sai da sua máquina até você clicar em <b>Exportar JSON</b> e enviar o arquivo ao Marcus.</p>
+
+  <div class="note blue"><b>Cegueira operacional.</b> Codifique a partir dos documentos, não da memória dos resultados que já lhe foram comunicados. Durante a codificação, não consulte os arquivos da 1ª passada (<code>coded-data.json</code>, <code>coding-results.md</code>, §4.3 do paper). Esta página não contém nenhum código da 1ª passada.</div>
+
+  <h3>Volume e ordem</h3>
+  <p>O volume é <b>a seu critério</b> — o instrumento aceita qualquer N. A lista à esquerda segue uma ordem <b>estratificada por gênero de plataforma, sorteada com semente fixa</b> (20260722): todos os gêneros aparecem desde o início, então qualquer prefixo (5, 10, 26…) é uma amostra defensável. Basta seguir a ordem e parar onde quiser.</p>
+
+  <h3>Regras que evitam divergência espúria</h3>
+  <ul>
+    <li><b>Leia os documentos do manifesto</b> (mesmas URLs e datas da 1ª passada, listadas em cada serviço). Link morto ou conteúdo visivelmente alterado: registre no campo de acesso e pule — não substitua por outra versão.</li>
+    <li><b>Evidência primeiro:</b> código de presença exige citação verbatim + documento; código de ausência exige o log de palavras-chave preenchido.</li>
+    <li><b>Dúvida de regra ≠ dúvida de julgamento:</b> anote a dúvida em Notes e codifique sua melhor leitura. A discussão acontece na adjudicação, <i>depois</i> do cálculo de concordância.</li>
+    <li><b>Vantagem de captura:</b> você codifica do Brasil. Se uma tabela de bases legais não aparecer, use a opção <i>"não verificável da minha vantagem"</i> no V4 — é diferente de "No".</li>
+  </ul>
+
+  <h3>Registro vinculante vs. não-vinculante</h3>
+  <p>É a distinção central do estudo. <span class="reg-binding">Vinculante</span>: privacy policy/notice, termos/condições, aviso de cookies, anexo de bases legais — o que governa a relação com o usuário. <span class="reg-nonbinding">Não-vinculante</span>: help centre, blog de engenharia, PR, site corporativo de pesquisa. O que define é a função legal, não a URL onde o documento mora.</p>
+
+  <p>Quando terminar (qualquer N): <b>Exportar JSON</b> no topo e enviar o arquivo. A concordância é calculada por variável; depois disso a gente senta para adjudicar as divergências.</p>
+</section>
+
+<!-- ============ CODEBOOK ============ -->
+<section id="tab-codebook" class="prose" hidden>
+  <h2>Codebook v2 — referência completa</h2>
+  <p class="sub" style="color:var(--muted)">Congelado em 04/jul/2026, pós-piloto (Meta, Google Search, Amazon). Unidade de análise = o serviço designado (Google Search ≠ Google Play ≠ YouTube). Evidência primeiro, sempre.</p>
+
+  <h3>V1 — Reconhecimento de experimentação (0–3) + registro</h3>
+  <div class="tablewrap"><table class="cb">
+    <tr><th>Código</th><th>Critério</th></tr>
+    <tr><td><b>0</b></td><td>Nenhum reconhecimento, nem de "melhorar"</td></tr>
+    <tr><td><b>1</b></td><td>Só "melhorar/aprimorar o serviço"; nem "testar"</td></tr>
+    <tr><td><b>2</b></td><td>Reconhece <b>testar usuários</b>, método não nomeado</td></tr>
+    <tr><td><b>3</b></td><td>Nomeia <b>experimento / A-B / randomização</b> explicitamente</td></tr>
+  </table></div>
+  <p>Codifique o <b>teto</b> (nível mais alto em qualquer registro) e <b>onde ele vive</b> (binding / non-binding / both). Fronteira 2→3: menção a variantes, grupos, aleatorização ou "experiments" em sentido experimental = 3. "Free trial" de assinatura <b>não</b> é experimentação.</p>
+
+  <h3>V2 — Enquadramento (multi-seleção)</h3>
+  <p><code>service improvement</code> · <code>research</code> (genérica) · <code>human-subjects research</code> · <code>social-good/community</code>. Marque todos que aparecem, com citação para cada. Co-ocorrência é comum.</p>
+
+  <h3>V3 — Especificidade (decomposta)</h3>
+  <p><b>V3a</b> nomeia atividades/superfícies? · <b>V3b</b> nomeia <i>alvos</i> de experimento (ranking, preço, mensagem, afeto, fricção…)? Personalização descrita como feature ≠ alvo de experimento. · <b>V3c</b> divulga experimento específico/ativo? · <b>V3-pricing</b> preço nomeado como alvo? Cláusula de "mispricing" <b>não</b> conta.</p>
+
+  <h3>V4 — Base legal (multi-seleção)</h3>
+  <p><code>legitimate interest</code> · <code>consent</code> · <code>contract</code> · <code>not stated</code> (não declarada para experimentação; inferida da cláusula de melhoria). Registre também <b>qual finalidade</b> você mapeou como cobrindo experimentação, e se a tabela de bases é <b>geo-gated</b> (ou não-verificável da sua vantagem).</p>
+
+  <h3>V5 — Opt-out de experimentação (escada)</h3>
+  <p><code>none</code> → <code>GDPR-objection-only</code> (só Art. 21 genérico) → <code>cookie/ads-only</code> (banner rege ads/medição, não experimentos) → <code>dedicated</code> → <code>opt-in</code>. <b>Escopo estrito à experimentação</b> — controle de cookies de analytics não conta.</p>
+
+  <h3>V6 — Opt-in beta/teste</h3>
+  <p>Y/N + nome (TestFlight, Search Labs…). <b>Eixo ortogonal: não mitiga o V5.</b></p>
+
+  <h3>V7 — Debriefing</h3>
+  <p>Aviso <i>posterior</i> de participação em experimento. <b>Excluir:</b> aviso de processamento, de decisão automatizada, de mudança de serviço — nenhum é debriefing.</p>
+
+  <h3>V8 — Ética / revisão / risco</h3>
+  <p>Menção, nos documentos ao usuário, a revisão ética, board ou avaliação de risco <b>para experimentos</b>. Linguagem borderline de "impacto" = N com nota. Risk assessment sistêmico do DSA (regulador) não vira Y — anote como gap regulatório-vs-documento.</p>
+
+  <h3>V9 — Onde divulgado + registro</h3>
+  <p>Locais (privacy policy, ToS, research notice, help, blog/PR…) + registro (binding / non-binding / both). Separe registro legal de hospedagem/URL.</p>
+
+  <h3>Protocolo de palavras-chave (por documento)</h3>
+  <p>Buscar e registrar hits de: <code>experiment</code> <code>A/B</code> <code>randomi[sz]e</code> <code>test</code> <code>trial</code> <code>beta</code> <code>control group</code> <code>debrief</code> <code>ethics</code> <code>review board</code> <code>IRB</code> <code>risk assessment</code>. Triagem manual: "test" acende em "contest", "trial" em "free trial" — conte só o sentido experimental e anote exclusões. É o log que torna cada "No" auditável.</p>
+</section>
+
+<!-- ============ CODIFICAÇÃO ============ -->
+<section id="tab-coding" hidden>
+  <div class="layout">
+    <aside class="rail" id="rail">
+      <div class="railhead">Ordem sugerida (estratificada)</div>
+    </aside>
+    <div class="panel" id="panel"></div>
+  </div>
+</section>
+
+<footer class="appfoot">Codebook v2 congelado 2026-07-04 · instrumento do 2º avaliador · dados ficam no seu navegador até a exportação</footer>
+</div>
+
+<script>
+const DATA = {"order": ["Wikipedia", "Temu", "Facebook", "YouTube", "Google Search", "WhatsApp", "Booking.com", "Google Maps", "Pornhub", "Amazon Store", "LinkedIn", "Bing", "XVideos", "Shein", "X", "XNXX", "Zalando", "Snapchat", "Stripchat", "App Store", "Instagram", "Google Play", "Pinterest", "Google Shopping", "TikTok", "AliExpress"], "services": [{"service": "Booking.com", "genre": "travel", "docs": ["Privacy Notice for Travellers (binding, EEA/GDPR", "updated May 2026): https://www.booking.com/content/privacy.html", "en-gb variant: https://www.booking.com/content/privacy.en-gb.html", "Terms & Conditions (binding", "Section A6.2): https://www.booking.com/content/terms.html", "Cookie section is folded into the Privacy Notice (\"How we use cookies & other tracking technologies\")", "standalone https://www.booking.com/content/cookie.html is JS-rendered and returned empty via fetch. NON-BINDING (Booking.com's own PR/engineering): https://booking.ai/ (ML & DS blog) and https://medium.com/booking-com-development (Booking.com Engineering) describe 1,000+ concurrent experiments / \"randomized controlled trials.\""], "access_date": "2026-07-15"}, {"service": "Google Search", "genre": "search", "docs": ["BINDING: https://policies.google.com/privacy?hl=en (privacy policy)", "https://policies.google.com/privacy?hl=en-IE&gl=IE (EU legal-bases view of same policy)", "https://policies.google.com/terms?hl=en (ToS)", "https://policies.google.com/technologies/cookies?hl=en (cookies notice)", "https://policies.google.com/technologies/product-privacy?hl=en (key terms hub). NON-BINDING: https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/ (How Search Works – Rigorous testing)", "https://support.google.com/websearch/answer/13572013 + https://labs.google.com/search/ (Search Labs opt-in)."], "access_date": "2026-07-15"}, {"service": "Google Maps", "genre": "maps", "docs": ["BINDING: (1) Privacy Policy https://policies.google.com/privacy?hl=en&gl=IE", "(2) Terms of Service https://policies.google.com/terms?hl=en&gl=IE", "(3) Cookie notice (\"How Google uses cookies\") https://policies.google.com/technologies/cookies?hl=en&gl=IE", "(4) Google Maps/Google Earth Additional Terms of Service https://www.google.com/help/terms_maps/?hl=en . NON-BINDING: (5) Help centre \"Beta test the Google Maps app on Android\" https://support.google.com/maps/answer/7006449?hl=en-GB", "(6) Official blog/PR \"A new way to discover places with generative AI\" https://blog.google/products/maps/google-maps-generative-ai-local-guides/ . NB: Google Maps has no product-specific privacy policy or ToS", "it is governed by Google's cross-product documents (1-3) plus Maps-specific Additional Terms (4)."], "access_date": "2026-07-15"}, {"service": "App Store", "genre": "marketplace", "docs": ["BINDING (EU-facing):", "- Apple Privacy Policy (worldwide/en-ww): https://www.apple.com/legal/privacy/en-ww/", "- App Store & Privacy notice: https://www.apple.com/legal/privacy/data/en/app-store/", "- Apple Media Services Terms & Conditions (Ireland/EU): https://www.apple.com/legal/internet-services/itunes/ie/terms.html", "- Apple Cookie notice: https://www.apple.com/legal/privacy/en-ww/cookies/", "NON-BINDING (help centre / developer / PR):", "- Product Page Optimization overview: https://developer.apple.com/app-store/product-page-optimization/", "- App Store Connect Help — PPO overview: https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/overview-of-product-page-optimization/", "- App Store Connect Help — configure test treatments: https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/configure-test-treatments/", "- TestFlight: https://developer.apple.com/testflight/"], "access_date": "2026-07-15"}, {"service": "AliExpress", "genre": "marketplace", "docs": ["Privacy Policy (eff. 2025-10-14): https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress201909171350_82407.html | Terms of Use (Part A eff. 2026-07-01): https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress202204182115_66077.html | Cookie Notice (eff. 2024-05-16): https://terms.alicdn.com/legal-agreement/terms/c_platform_service_agreement/20240401172006520/20240401172006520.html | Policies hub: https://www.aliexpress.com/p/transparencycenter/policies.html | DSA/Regulatory page (JS-rendered, body did not load): https://www.aliexpress.com/p/transparencycenter/dsa.html | Identified but not deep-read: EU/EEA/UK Consumer T&C https://cdn.contract.alibaba.com/terms/EU_EE_UK_platform_service_agreement/20250514112355975/20250514112355975.html?lng=en"], "access_date": "2026-07-15"}, {"service": "Bing", "genre": "search", "docs": ["BINDING: (1) Microsoft Services Agreement/ToS — https://www.microsoft.com/en-gb/servicesagreement/", "(2) Microsoft Privacy Statement (includes Cookies & legal-bases prose) — https://www.microsoft.com/en-gb/privacy/privacystatement", "(3) Bing privacy/security support pointer — https://support.microsoft.com/en-us/bing/about-microsoft-privacy-and-security-policy . NON-BINDING: (4) Help centre \"How Bing delivers search results\" (linked from MSA via fwlink 2315939) — https://support.microsoft.com/topic/how-bing-delivers-search-results-d18fc815-ac37-4723-bc67-9229ce3eb6a3", "(5) PR blog \"Experimentation and Continuous Improvement at Bing\" (2013) — https://blogs.bing.com/search-quality-insights/June-2013/Experimentation-and-Continuous-Improvement-at-Bing/", "(6) PR blog \"Large Scale Experimentation at Bing\" (2013) — https://blogs.bing.com/search-quality-insights/August-2013/Large-Scale-Experimentation-at-Bing"], "access_date": "2026-07-15"}, {"service": "Facebook", "genre": "social", "docs": ["Privacy Policy: https://www.facebook.com/privacy/policy/ (read via https://mbasic.facebook.com/privacy/policy/printable/?locale=en_GB, eff. 16 Dec 2025) | Terms of Service: https://www.facebook.com/legal/terms (and https://www.facebook.com/terms.php?locale=en_GB) | Cookie Policy: https://www.facebook.com/policies/cookies/ | Non-binding: Meta Business Help Center A/B Testing https://www.facebook.com/business/help/1738164643098669", "Newsroom/press on News Feed ranking tests https://techcrunch.com/2021/04/22/facebook-launches-a-series-tests-to-inform-future-changes-to-its-news-feed-algorithms/"], "access_date": "2026-07-15"}, {"service": "Amazon Store", "genre": "marketplace", "docs": ["BINDING (amazon.de, EN locale): Privacy Notice https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ (=201909010, upd 22.12.2025)", "Data Use Purposes/Legal Bases table https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=TcxwSYJNmpQYGgNWkX", "Cookies notice https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GVASXV5UZ64R4Y25 (upd 5.3.2026)", "Conditions of Use and Sale https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=201909000 (upd 28.11.2025). NON-BINDING: https://www.amazon.science/blog/the-science-of-price-experiments-in-the-amazon-store (15.2.2024)", "https://www.amazon.science/publications/science-of-price-experimentation-at-amazon", "https://www.amazon.science/tag/a-b-testing"], "access_date": "2026-07-15"}, {"service": "Google Shopping", "genre": "marketplace", "docs": ["BINDING: https://policies.google.com/privacy?hl=en (+ gl=IE variant for EEA 'European requirements' legal-bases list)", "https://policies.google.com/terms?hl=en", "https://business.safety.google/privacy/google-services/shopping/ (Data use in Google Shopping for the EEA)", "https://policies.google.com/technologies/cookies?hl=en. NON-BINDING checked: https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/ (Search-scoped, does not mention Shopping)."], "access_date": "2026-07-15"}, {"service": "Google Play", "genre": "marketplace", "docs": ["BINDING: (1) Google Play Terms of Service https://play.google.com/intl/en-US/about/play-terms/index.html (product-specific", "eff. 1 Jul 2024)", "(2) Google Privacy Policy https://policies.google.com/privacy?hl=en-IE&gl=IE (cross-product umbrella, EU legal-bases view", "eff. 2 Apr 2026)", "(3) Google Terms of Service https://policies.google.com/terms?hl=en-IE&gl=IE (cross-product umbrella", "eff. 22 May 2024)", "(4) Cookie notice \"How Google uses cookies\" https://policies.google.com/technologies/cookies?hl=en-IE&gl=IE. NON-BINDING: (5) Google Play Console \"Store listing experiments\" https://play.google.com/console/about/store-listing-experiments/ (developer-facing A/B-testing product page)", "(6) Google Play Help \"Try new Android apps before their official release\" https://support.google.com/googleplay/answer/7003180?hl=en (beta / early access / apps-in-development opt-in). NB: Google Play has no product-specific privacy policy", "it is governed by Google's cross-product Privacy Policy + ToS + Cookie notice plus the Play-specific Play ToS."], "access_date": "2026-07-15"}, {"service": "Snapchat", "genre": "social", "docs": ["BINDING (EU-facing): Privacy Policy (effective 7 Apr 2025) https://values.snap.com/privacy/privacy-policy", "EEA & UK Privacy Notice https://values.snap.com/privacy/privacy-policy/eea-uk-privacy-notice (en-GB variant: https://values.snap.com/en-GB/privacy/privacy-policy/eea-uk-privacy-notice )", "Terms of Service (effective 7 Apr 2025", "Snap Group Limited governs non-US users) https://snap.com/en-GB/terms", "Cookie Policy https://www.snap.com/cookie-policy", "per-purpose legal-basis table + right-to-object, help centre (referenced by the Privacy Policy for legal bases): https://help.snapchat.com/hc/en-us/articles/22534988598676-Learn-About-Snap-s-Data-Processing-and-How-to-Object . NON-BINDING (Snap first-party PR/engineering): Snap Engineering \"Inside Snap's Experimentation Platform\" https://eng.snap.com/snap-nvidia-gcp", "\"Machine Learning for Snapchat Ad Ranking\" https://eng.snap.com/machine-learning-snap-ad-ranking", "NVIDIA+Snap case study https://blogs.nvidia.com/blog/snap-accelerated-data-processing/ . Opt-in beta programme: https://www.snapchat.com/beta (iOS TestFlight / Android Google Play open beta)."], "access_date": "2026-07-15"}, {"service": "LinkedIn", "genre": "social", "docs": ["BINDING: https://www.linkedin.com/legal/privacy-policy (title \"LinkedIn Privacy Policy\"", "§2.6 \"Developing Services and Research\")", "https://www.linkedin.com/legal/user-agreement (title \"User Agreement | LinkedIn\"", "§3.6 \"Recommendations and Automated Processing\")", "https://www.linkedin.com/legal/cookie-policy (title \"Cookie Policy | LinkedIn\"", "section \"Analytics and research\"). HELP/OTHER: https://www.linkedin.com/help/linkedin/answer/a1338610 (\"Object to, or Limit or Restrict, Use of...\" data-processing objection form)", "https://www.linkedin.com/help/linkedin/answer/a1337820 (checked for legal-basis table -> actually about inferences, not the per-purpose table). LINKED-FROM-POLICY (now DEAD): https://engineering.linkedin.com/ab-testing/xlnt-platform-driving-ab-testing-linkedin (HTTP 404)", "https://engineering.linkedin.com/ab-testing/evolution-ab-testing-platform-linkedin (HTTP 404). EXCLUDED (advertiser tooling, not member experimentation): https://www.linkedin.com/help/lms/answer/a529753 A/B Testing."], "access_date": "2026-07-15"}, {"service": "Shein", "genre": "marketplace", "docs": ["BINDING (EU-facing, eur.shein.com, controller Infinite Styles Services Co., Ltd / Dublin): (1) Privacy Notice — https://eur.shein.com/Consumer-Privacy-Notice-s-101.html (EFFECTIVE DATE 9 April 2026)", "(2) Terms & Conditions = General Conditions of Use + General Conditions of Sale — https://eur.shein.com/Terms-and-Conditions-a-399.html (Version 1 July 2026)", "(3) Marketplace User Ranking Policy (DSA Art. 27 transparency, integral part of the T&Cs) — https://eur.shein.com/ranking-policy-a-1979.html. Cookie disclosure is contained within Privacy Notice Section 3 (the footer \"Cookies policy\" link opens the JS cookie-management modal, not a separate text document). NON-BINDING: no SHEIN-owned help/PR/engineering page disclosing experimentation was found."], "access_date": "2026-07-15"}, {"service": "Pinterest", "genre": "social", "docs": ["BINDING (read in full, live 2026-07-15): https://policy.pinterest.com/en/privacy-policy (eff. 2025-04-30", "primary) | https://policy.pinterest.com/en/terms-of-service | https://policy.pinterest.com/en/cookies. NON-BINDING (checked): https://www.pinterest.com/public-beta/ (opt-in beta programme) | Pinterest Engineering PR e.g. https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22 (explicit experiment language, not a user-disclosure doc). Data controller for EEA/CH/UK: Pinterest Europe Ltd. (Dublin) + Pinterest, Inc. joint controllers."], "access_date": "2026-07-15"}, {"service": "Pornhub", "genre": "adult", "docs": ["BINDING, EEA/UK/GDPR-facing (controller Aylo Freesites Ltd, Cyprus). Live URLs (blocked for direct fetch in this env", "read via Internet Archive Wayback verbatim): Privacy Notice (Last Modified Jan 30, 2026) https://www.pornhub.com/information/privacy — snapshot http://web.archive.org/web/20260702023921/https://www.pornhub.com/information/privacy", "Terms of Service (Last Modified Nov 19, 2025) https://www.pornhub.com/information/terms — snapshot http://web.archive.org/web/20260630121901/https://www.pornhub.com/information/terms", "Cookie Notice (Last Modified 5 Jan 2026) https://www.pornhub.com/information/cookie-notice — snapshot http://web.archive.org/web/20260630121251/https://www.pornhub.com/information/cookie-notice", "DSA Recommender-system transparency page (Last Modified Mar 11, 2024) https://www.pornhub.com/information/recommender — snapshot http://web.archive.org/web/20260602163932/https://www.pornhub.com/information/recommender . NON-BINDING checked (no experimentation disclosure found): Pornhub 'Insights' viewing-statistics blog + press", "no Aylo/Pornhub engineering blog or press release naming first-party A/B tests/experiments located via web search. NOTE: corporate aylo.com Privacy Notice/Terms (https://www.aylo.com/assets/files/aylo_privacy_policy.pdf", "aylo_terms_of_use.pdf) govern aylo.com only ('This Website uses only essential cookies') and were set aside as the wrong unit of analysis."], "access_date": "2026-07-15"}, {"service": "Temu", "genre": "marketplace", "docs": ["Privacy Policy (EEA/Switzerland, Last Updated June 9, 2026): https://www.temu.com/no-en/privacy-and-cookie-policy.html | Terms of Use (EEA, Effective Dec 14, 2025): https://www.temu.com/no-en/terms-of-use.html | Cookies and Similar Technologies Policy (EEA, Last Updated Aug 24, 2025): https://www.temu.com/no-en/cookie-and-similar-technologies-policy.html | Support Center/FAQ (non-binding): https://www.temu.com/support/c2/-in-f-55.html"], "access_date": "2026-07-15"}, {"service": "Instagram", "genre": "social", "docs": ["https://privacycenter.instagram.com/policy/ (Meta Privacy Policy, eff. 16-Dec-2025", "full text read via printable https://mbasic.facebook.com/privacy/policy/printable/version/25862970456621906/", "legal-basis section_id=7-WhatIsOurLegal ABSENT from nav in this vantage)", "https://help.instagram.com/581066165581870 (Instagram Terms of Use, en_GB)", "https://privacycenter.instagram.com/policies/cookies/ (Meta Cookies Policy, eff. 12-Dec-2023", "printable https://mbasic.facebook.com/privacy/policies/cookies/printable/ )", "https://transparency.meta.com/features/explaining-ranking/ig-feed/ (NON-binding Transparency Center, IG Feed ranking)"], "access_date": "2026-07-15"}, {"service": "Stripchat", "genre": "adult", "docs": ["https://stripchat.com/privacy (Privacy Policy)", "https://stripchat.com/terms (Terms of Use)", "https://stripchat.com/cookies-policy (Cookie Policy). Retrieved live 2026-07-15 via the r.jina.ai rendering proxy because stripchat.com is hard-blocked to WebFetch and the in-tool browser and the site is a client-rendered SPA (raw HTML / Wayback / archive.ph return only a shell or are themselves blocked). Same-operator corroboration: https://stripcash.company/privacy (Technius Ltd, Cyprus HE 349515)."], "access_date": "2026-07-15"}, {"service": "Wikipedia", "genre": "reference", "docs": ["BINDING: https://foundation.wikimedia.org/wiki/Policy:Privacy_policy (privacy policy)", "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use (terms of use)", "https://foundation.wikimedia.org/wiki/Policy:Cookie_statement (cookie statement)", "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/Frequently_asked_questions (privacy FAQ). NON-BINDING: https://wikitech.wikimedia.org/wiki/A/B_testing (technical)", "https://wikimediafoundation.org/wikipedia-experiments/ (programme/PR)."], "access_date": "2026-07-15"}, {"service": "WhatsApp", "genre": "messaging", "docs": ["BINDING: https://www.whatsapp.com/legal/privacy-policy-eea (EEA Privacy Policy, WhatsApp Ireland Ltd. — primary locus)", "https://www.whatsapp.com/legal/terms-of-service-eea (EEA Terms of Service)", "https://www.whatsapp.com/legal/cookies (Cookies notice). NON-BINDING/other: WhatsApp Beta opt-in via Google Play \"Become a beta tester\" (https://play.google.com/apps/testing/com.whatsapp/join) and Apple TestFlight", "first-party FAQ article for beta returned 404 at time of access."], "access_date": "2026-07-15"}, {"service": "XVideos", "genre": "adult", "docs": ["Privacy Policy: https://info.xvideos.com/legal/privacy | Privacy Notice (non-account visitors): https://info.xvideos.com/legal/privacynotice | Terms of Service: https://info.xvideos.com/legal/tos | Cookie Policy: https://info.xvideos.com/legal/cookiepolicy | EU P2B mirror of ToS: https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md . NB: info.xvideos.com auto-redirects to info.xvideos.net", "the .com URLs are the canonical internally-linked ones. /legal/cookies and /legal/dsa return 404 (correct slugs are /legal/cookiepolicy and, for DSA/recommender, ToS §9)."], "access_date": "2026-07-15"}, {"service": "TikTok", "genre": "social", "docs": ["BINDING (EU-facing):", "1) Privacy Policy (EEA/UK/CH), \"Last updated: 30 November 2025\". Canonical: https://www.tiktok.com/legal/page/eea/privacy-policy/en (live 302->/404 from my non-EEA/Brazil vantage). Read via Internet Archive 200-status snapshot: https://web.archive.org/web/20260713145902id_/https://www.tiktok.com/legal/page/eea/privacy-policy/en", "2) Terms of Service (EEA), \"Last updated: August 2025\". Canonical: https://www.tiktok.com/legal/page/eea/terms-of-service/en (live geo-gated). Read via: https://web.archive.org/web/20260710010832id_/https://www.tiktok.com/legal/page/eea/terms-of-service/en", "3) Cookies Policy (global/website), \"Last updated: 4 November 2024\". Live EN read directly: https://www.tiktok.com/legal/page/global/tiktok-website-cookies-policy/en (the older /global/cookie-policy/en path redirects here)", "NON-BINDING checked:", "4) Newsroom \"An update on our work to safeguard and diversify recommendations\": https://newsroom.tiktok.com/an-update-on-our-work-to-safeguard-and-diversify-recommendations", "\"How TikTok recommends videos #ForYou\": https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you", "5) Transparency/Safety \"Introduction to the TikTok recommendation system\": https://www.tiktok.com/safety/en/policies-and-engagement/recommendation-system", "6) Ads Manager \"About Split Testing\" (advertiser A/B tool): https://ads.tiktok.com/help/article/split-testing"], "access_date": "2026-07-15"}, {"service": "YouTube", "genre": "video", "docs": ["BINDING: (1) YouTube EEA/Ireland Terms of Service — https://www.youtube.com/t/terms?gl=IE&hl=en-GB (names \"Google Ireland Limited... Registered Number: 368047\"", "effective 6 Oct 2023). (1b, contrast) US ToS served without gl param — https://www.youtube.com/t/terms (Google LLC, eff. 5 Jan 2022). (2) Google Privacy Policy (applies to YouTube) — https://policies.google.com/privacy (effective 2 Apr 2026)", "European requirements / legitimate-interests enumeration surfaced via https://policies.google.com/privacy?gl=IE&hl=en-GB#europeanrequirements. (3) Google Cookie/technologies notice — https://policies.google.com/technologies/cookies. NON-BINDING: (4) How YouTube Works — https://www.youtube.com/howyoutubeworks/ and .../product-features/recommendations/. (5) YouTube Help Community \"YouTube test features and experiments\" — https://support.google.com/youtube/thread/18138167. (6) YouTube Help \"Test feature experiments at Youtube.com/new\" (Premium opt-in) — https://support.google.com/youtube/answer/9227818. (7) YouTube Help \"A/B test titles and thumbnails\" (creator tool) — https://support.google.com/youtube/answer/16391400."], "access_date": "2026-07-15"}, {"service": "XNXX", "genre": "adult", "docs": ["Accessed via Wayback Machine (live host info.xnxx.com blocked to WebFetch and to the browser safety filter). Privacy notice: https://info.xnxx.com/legal/privacy (snap 20260629052431). Terms of Service: https://info.xnxx.com/legal/tos (snap 20260629052431). Cookie policy: https://info.xnxx.com/legal/cookiepolicy (snap 20260307194703). DSA researcher data catalogue: https://info.xnxx.com/dsa-data-catalogue (snap 20260101231958)."], "access_date": "2026-07-15"}, {"service": "Zalando", "genre": "marketplace", "docs": ["BINDING (read in full): Privacy Notice EN v.09/2025 (DE market, 47pp) https://mosaic02.ztat.net/cnt/contentful-apps/uploads/6264a7fa-33a0-42b3-8021-da7a5fd85469.pdf", "General T&Cs summary (Zalando.se, 13pp) https://mosaic02.ztat.net/cnt/contentful-apps/uploads/b8944e13-77d3-4b20-8abf-04c3bfb51d9a.pdf . NON-BINDING (read): https://engineering.zalando.com/posts/2021/01/experimentation-platform-part1.html", "index https://engineering.zalando.com/tags/experimentation.html . ATTEMPTED but HTTP 403 (geo-blocked from US): https://en.zalando.de/zalando-privacy-policy/", "https://en.zalando.de/zalando-terms/", "https://accounts.zalando.com/terms-of-use . Landing (search): https://corporate.zalando.com/en/zalando-data-protection-statement"], "access_date": "2026-07-15"}, {"service": "X", "genre": "social", "docs": ["BINDING: (1) Privacy Policy — https://x.com/en/privacy (Effective Jan 15, 2026", "EU/EFTA/UK controller = X Internet Unlimited Company, Dublin). (2) Legal-bases annex \"Additional information about data processing\" — https://help.x.com/en/rules-and-policies/data-processing-legal-bases (per-purpose EU/EFTA/UK legal-basis table). (3) Cookies notice \"How cookies are used on X\" — https://help.x.com/en/rules-and-policies/x-cookies. (4) Terms of Service v21 — https://x.com/en/tos (Effective Jan 15, 2026", "served the \"outside EU/EFTA/UK\" version from my Brazil vantage — see notes). NON-BINDING: (5) \"About the X Experiments Program\" — https://help.x.com/en/rules-and-policies/x-beta-experiments-program. (6) \"About user research at X\" — https://help.x.com/en/rules-and-policies/x-user-research. (7) Help Center category \"Research and Experiments\" — https://help.x.com/en/rules-and-policies#research-and-experiments. (8) Engineering blog \"The what and why of product experimentation at Twitter\" — https://blog.x.com/engineering/en_us/a/2015/the-what-and-why-of-product-experimentation-at-twitter-0."], "access_date": "2026-07-15"}]};
+const KWTERMS = ["experiment","A/B","randomi[sz]e","test","trial","beta","control group","debrief","ethics","review board","IRB","risk assessment"];
+const LSK = s => "vlop-coder2::" + s;
+
+const FRAMING = ["service improvement","research","human-subjects research","social-good/community"];
+const BASIS = ["legitimate interest","consent","contract","not stated"];
+const WHERE = ["privacy policy","ToS/conditions","research notice separado","help centre","blog/PR/site de pesquisa"];
+const REG = ["","binding","non-binding","both"];
+const YN = ["","Yes","No"];
+const V5 = ["","none","GDPR-objection-only","cookie/ads-only","dedicated","opt-in"];
+
+let current = DATA.order[0];
+
+function load(s){ try{ return JSON.parse(localStorage.getItem(LSK(s))) || {} }catch(e){ return {} } }
+function save(s, rec){ rec._ts = Date.now();
+  localStorage.setItem(LSK(s), JSON.stringify(rec));
+  document.getElementById("globalsave").textContent = "salvo " + new Date().toLocaleTimeString();
+  paintRail(); Sync.schedule(); }
+
+/* ---------- sync (opcional: ativa só quando /api/state existe, i.e. no Vercel) ----------
+   Fonte da verdade local = localStorage; o servidor recebe o estado completo (debounce).
+   No load, merge por-serviço pelo timestamp _ts (o mais novo vence). Sem API (artifact,
+   file://), degrada silenciosamente para "somente local". */
+const Sync = {
+  on:false, timer:null, busy:false, dirty:false,
+  chip(t, tip){ const e=document.getElementById("syncstate"); e.textContent=t; e.title=tip||t; },
+  allRecords(){ const out={};
+    DATA.order.forEach(s=>{ const r=load(s); if(Object.keys(r).length) out[s]=r; });
+    return out; },
+  async init(){
+    try{
+      const r = await fetch("/api/state", {method:"GET"});
+      if(!r.ok) throw 0;
+      const server = (await r.json()).records || {};
+      let newer=0;
+      for(const s of Object.keys(server)){
+        if(!DATA.order.includes(s)) continue;
+        const loc = load(s);
+        if((server[s]._ts||0) > (loc._ts||0)){
+          localStorage.setItem(LSK(s), JSON.stringify(server[s])); newer++; }
+      }
+      this.on = true;
+      this.chip(newer? `sincronizado (${newer} do servidor)` : "sincronizado",
+                "progresso salvo também no repositório do projeto");
+      paintRail();
+      if(!document.getElementById("tab-coding").hidden) render();
+    }catch(e){ this.on=false; this.chip("somente local",
+      "sem servidor de sincronização — use Exportar JSON como backup"); }
+  },
+  schedule(){ if(!this.on) return; this.dirty=true;
+    clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(), 2500); },
+  async push(opts){
+    if(!this.on || this.busy) { if(this.busy) this.dirty=true; return; }
+    this.busy=true; this.dirty=false; this.chip("salvando no servidor…");
+    try{
+      const r = await fetch("/api/state", {method:"PUT",
+        headers:{"content-type":"application/json"},
+        keepalive: !!(opts&&opts.keepalive),
+        body: JSON.stringify({records:this.allRecords()})});
+      if(!r.ok) throw 0;
+      this.chip("sincronizado " + new Date().toLocaleTimeString());
+    }catch(e){ this.chip("offline — salvo localmente",
+      "não consegui gravar no servidor; seu progresso está salvo neste navegador"); }
+    this.busy=false;
+    if(this.dirty) this.schedule();
+  }
+};
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden && Sync.dirty) Sync.push({keepalive:true}); });
+Sync.init();
+
+function filledCount(rec){
+  const core = ["v1_code","v1_register","v2_framing","v3_activities","v3_specific","v3_pricing",
+                "v4_basis","v5_optout","v6_optin_beta","v7_debrief","v8_ethics","v9_where","v9_register"];
+  return core.filter(k => { const v = rec[k];
+    return Array.isArray(v) ? v.length>0 : (v!==undefined && v!=="" && v!==null); }).length;
+}
+
+function esc(t){ return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])) }
+function linkify(t){ return esc(t).replace(/https?:\/\/[^\s;,)]+/g,
+  u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`) }
+
+/* ---------- rail ---------- */
+function paintRail(){
+  const nDone = DATA.order.filter(s=>load(s).done).length;
+  document.getElementById("progresschip").textContent = nDone + "/26 concluídos";
+  const rail = document.getElementById("rail");
+  rail.querySelectorAll(".svc").forEach(e=>e.remove());
+  DATA.order.forEach((s,i)=>{
+    const rec = load(s), n = filledCount(rec);
+    const st = rec.done ? "done" : (n>0 ? "partial" : "");
+    const b = document.createElement("button");
+    b.className = "svc"; b.setAttribute("aria-current", s===current);
+    b.innerHTML = `<span class="n">${i+1}</span> ${esc(s)} <span class="state ${st}" title="${rec.done?"concluído":(n>0?n+" campos":"não iniciado")}"></span>`;
+    b.onclick = ()=>{ current=s; render(); };
+    rail.appendChild(b);
+  });
+}
+
+/* ---------- field builders (bind to record) ---------- */
+function fSelect(rec,key,label,opts,extra){
+  const id = "f_"+key;
+  const o = opts.map(v=>`<option value="${esc(v)}" ${rec[key]===v?"selected":""}>${v===""?"—":esc(v)}</option>`).join("");
+  return `<div class="f"><label for="${id}">${label}</label>
+    <select id="${id}" data-k="${key}">${o}</select>${extra||""}</div>`;
+}
+function fChecks(rec,key,label,opts){
+  const cur = rec[key]||[];
+  return `<div class="f"><label>${label}</label><div class="opts">`+
+    opts.map(v=>`<label><input type="checkbox" data-kc="${key}" value="${esc(v)}" ${cur.includes(v)?"checked":""}> ${esc(v)}</label>`).join("")+
+    `</div></div>`;
+}
+function fText(rec,key,label,ph,mono,rows){
+  return `<div class="f"><label for="f_${key}">${label}</label>
+    <textarea id="f_${key}" data-k="${key}" ${mono?'class="mono"':''} ${rows?`style="min-height:${rows}px"`:""}
+      placeholder="${esc(ph||"")}">${esc(rec[key]||"")}</textarea></div>`;
+}
+function fLine(rec,key,label,ph){
+  return `<div class="f"><label for="f_${key}">${label}</label>
+    <input type="text" id="f_${key}" data-k="${key}" value="${esc(rec[key]||"")}" placeholder="${esc(ph||"")}"></div>`;
+}
+
+/* ---------- main panel ---------- */
+function render(){
+  const svc = DATA.services.find(x=>x.service===current);
+  const rec = load(current);
+  const p = document.getElementById("panel");
+  const docsRead = rec.docs_read||[];
+  p.innerHTML = `
+  <div class="svc-head">
+    <h2>${esc(svc.service)}</h2>
+    <span class="chip">${esc(svc.genre)}</span>
+    <span class="chip">${DATA.order.indexOf(current)+1} de 26</span>
+  </div>
+
+  <details class="docs" open>
+    <summary>Documentos do manifesto (1ª passada) — marque os que você leu</summary>
+    <div class="doclist">
+      ${svc.docs.map((d,i)=>`<label class="doc"><input type="checkbox" data-doc="${i}" ${docsRead.includes(i)?"checked":""}><span class="txt">${linkify(d)}</span></label>`).join("")}
+    </div>
+    <div class="accessdate">Data de acesso da 1ª passada: <b>${esc(svc.access_date||"?")}</b> — se um link estiver morto ou o conteúdo visivelmente mudado, registre abaixo e pule o campo afetado.</div>
+    <div style="padding:0 14px 14px">${fText(rec,"access_notes","Problemas de acesso (links mortos, conteúdo alterado)","nenhum")}</div>
+  </details>
+
+  <div class="vcard"><h3><span class="vid">V1</span> Reconhecimento de experimentação</h3>
+    <p class="rule">0 = nada · 1 = só "melhorar" · 2 = <b>testa usuários</b>, método não nomeado · 3 = <b>experimento/A-B explícito</b>. Codifique o teto e onde ele vive. "Free trial" não conta.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v1_code","Código (teto)",["","0","1","2","3"])}
+      ${fSelect(rec,"v1_register","Registro do teto",REG)}
+    </div>
+    ${fText(rec,"v1_evidence","Evidência (citação verbatim + documento)","“...” — Privacy Policy, §x")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V2</span> Enquadramento</h3>
+    <p class="rule">Marque <b>todos</b> que aparecem, com citação para cada. "Research that improves our services" = os dois primeiros.</p>
+    ${fChecks(rec,"v2_framing","Enquadramentos presentes",FRAMING)}
+    ${fText(rec,"v2_evidence","Evidência (uma citação por enquadramento)")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V3</span> Especificidade</h3>
+    <p class="rule">Alvo <i>de experimento</i> ≠ personalização descrita como feature. Preço: cláusula de "mispricing" <b>não</b> conta como alvo.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v3_activities","V3a — atividades/superfícies nomeadas?",YN)}
+      ${fSelect(rec,"v3_specific","V3c — experimento específico/ativo divulgado?",YN)}
+      ${fSelect(rec,"v3_pricing","V3-pricing — preço nomeado como alvo?",YN)}
+      ${fLine(rec,"v3_targets","V3b — alvos nomeados","ranking, preço, mensagem, afeto…")}
+    </div>
+    ${fText(rec,"v3_evidence","Evidência")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V4</span> Base legal</h3>
+    <p class="rule">"Not stated" = nenhuma base declarada <b>para experimentação</b> (inferida da cláusula de melhoria). Se a tabela de bases não aparecer da sua vantagem (Brasil), marque <b>não-verificável</b> — não "No".</p>
+    ${fChecks(rec,"v4_basis","Bases declaradas (multi)",BASIS)}
+    <div class="grid2">
+      ${fLine(rec,"v4_mapped_purpose","Finalidade mapeada como experimentação","ex.: improve services")}
+      ${fSelect(rec,"v4_region_gated","Tabela de bases geo-gated?",["","Yes","No","not-verifiable (vantage)"])}
+    </div>
+    ${fText(rec,"v4_evidence","Evidência")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V5</span> Opt-out de experimentação</h3>
+    <p class="rule">Escada. <b>Escopo estrito à experimentação</b> — banner de cookies que rege ads/medição = "cookie/ads-only", não "dedicated".</p>
+    ${fSelect(rec,"v5_optout","Nível",V5)}
+    ${fText(rec,"v5_evidence","Evidência")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V6</span> Opt-in beta/teste</h3>
+    <p class="rule">Eixo ortogonal — <b>não mitiga o V5</b>.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v6_optin_beta","Existe programa opt-in?",YN)}
+      ${fLine(rec,"v6_which","Qual (nome + como funciona)","ex.: Search Labs; TestFlight")}
+    </div>
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V7</span> Debriefing</h3>
+    <p class="rule"><b>Excluir:</b> aviso de processamento, decisão automatizada, mudança de serviço — nenhum é debriefing.</p>
+    ${fSelect(rec,"v7_debrief","Debriefing existe?",YN)}
+    ${fText(rec,"v7_evidence","Evidência / justificativa do No (aponte o log)")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V8</span> Ética / revisão / risco</h3>
+    <p class="rule">Linguagem borderline de "impacto" = No com nota. Risk assessment do DSA (regulador) não vira Yes.</p>
+    ${fSelect(rec,"v8_ethics","Menção a ética/revisão/risco para experimentos?",YN)}
+    ${fText(rec,"v8_note","Nota (borderlines, gap regulatório)")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V9</span> Onde divulgado</h3>
+    <p class="rule">Separe <span class="reg-binding">registro legal</span> de URL/hosting — binding servido em URL de help continua binding.</p>
+    ${fChecks(rec,"v9_where","Locais (multi)",WHERE)}
+    ${fSelect(rec,"v9_register","Registro agregado",REG)}
+    ${fText(rec,"v9_evidence","Evidência / observações")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">KW</span> Log de palavras-chave (obrigatório)</h3>
+    <p class="rule">Por documento, hits de cada termo (triados — só sentido experimental). É o que torna cada "No" auditável.</p>
+    <div class="kwchips">${KWTERMS.map(t=>`<code>${esc(t)}</code>`).join("")}</div>
+    ${fText(rec,"keyword_log","Log","PP: experiment:0 / A-B:0 / test:2 (1 excluído, 'contest')\nToS: …",true,110)}
+  </div>
+
+  <div class="vcard"><h3>Notes</h3>
+    ${fText(rec,"notes","Dúvidas de regra, borderlines, variância intra-plataforma","")}
+  </div>
+
+  <div class="done-row">
+    <input type="checkbox" id="donechk" ${rec.done?"checked":""}>
+    <label for="donechk">Marcar serviço como concluído</label>
+    <span class="savestate">${filledCount(rec)}/13 campos centrais preenchidos</span>
+  </div>`;
+
+  /* bind */
+  p.querySelectorAll("[data-k]").forEach(el=>{
+    el.addEventListener("input", ()=>{ const r=load(current); r[el.dataset.k]=el.value; save(current,r); });
+  });
+  p.querySelectorAll("[data-kc]").forEach(el=>{
+    el.addEventListener("change", ()=>{ const r=load(current); const k=el.dataset.kc;
+      const set=new Set(r[k]||[]); el.checked?set.add(el.value):set.delete(el.value);
+      r[k]=[...set]; save(current,r); });
+  });
+  p.querySelectorAll("[data-doc]").forEach(el=>{
+    el.addEventListener("change", ()=>{ const r=load(current); const i=+el.dataset.doc;
+      const set=new Set(r.docs_read||[]); el.checked?set.add(i):set.delete(i);
+      r.docs_read=[...set].sort((a,b)=>a-b); save(current,r); });
+  });
+  document.getElementById("donechk").addEventListener("change", e=>{
+    const r=load(current); r.done=e.target.checked; save(current,r); render(); });
+  paintRail();
+  window.scrollTo({top:0});
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.onclick = ()=>{ document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected", x===b));
+    ["howto","codebook","coding"].forEach(t=>{
+      document.getElementById("tab-"+t).hidden = (b.dataset.tab!==t); });
+    if(b.dataset.tab==="coding") render(); };
+});
+
+/* ---------- export / import ---------- */
+document.getElementById("exportbtn").onclick = ()=>{
+  const out = [];
+  DATA.order.forEach(s=>{
+    const rec = load(s);
+    if(Object.keys(rec).length===0) return;
+    const svc = DATA.services.find(x=>x.service===s);
+    out.push(Object.assign({service:s, coder:"coder2",
+      coded_at:new Date().toISOString().slice(0,10),
+      docs_manifest_read:(rec.docs_read||[]).map(i=>svc.docs[i])}, rec));
+  });
+  const blob = new Blob([JSON.stringify(out,null,1)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "coded-data-coder2.json"; a.click();
+};
+document.getElementById("importbtn").onclick = ()=>document.getElementById("importfile").click();
+document.getElementById("importfile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  f.text().then(t=>{ const arr = JSON.parse(t); let n=0;
+    arr.forEach(rec=>{ if(rec.service && DATA.order.includes(rec.service)){
+      localStorage.setItem(LSK(rec.service), JSON.stringify(rec)); n++; } });
+    alert(n+" serviços importados."); paintRail(); render(); });
+});
+
+paintRail();
+</script>
