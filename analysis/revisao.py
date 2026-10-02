@@ -739,6 +739,10 @@ class Painel:
         self.revelou: dict[str, bool] = {}
         self._respondeu: set[str] = set()
         self.recibo = None  # widget do recibo; só existe no modo ipywidgets
+        # Carimbo do registro que este painel leu. Se o do servidor ficar mais novo
+        # (outra janela, outra máquina), gravar daqui apagaria aquela versão: o
+        # servidor guarda o registro do serviço inteiro, não campo a campo.
+        self._ts_visto = (self.estado.records.get(servico) or {}).get("_ts") or 0
 
     # ------------------------------------------------------------ assistência
     def carregar_sugestao(self):
@@ -801,10 +805,12 @@ class Painel:
 
     # ------------------------------------------------------------- renderização
     def cabecalho(self) -> str:
-        vinc = sum(1 for d in self.docs if d["role"] == "binding")
+        # Sem "(N vinculantes)": a contagem vinha das etiquetas, e a etiqueta falta
+        # em 102 dos 157 documentos. O Instagram aparecia com "0 vinculantes",
+        # política de privacidade e termos de uso incluídos.
         perdidos = self.corpus.excluidos(self.servico)
         feitas, total = self.fluxo.progresso()
-        linhas = [f"{self.servico} · {len(self.docs)} documentos ({vinc} vinculantes) · "
+        linhas = [f"{self.servico} · {len(self.docs)} documentos · "
                   f"{feitas} de {total} variáveis respondidas"]
         if perdidos:
             linhas.append(f"⚠ {len(perdidos)} documento(s) que o congelamento não pegou: "
@@ -925,8 +931,11 @@ class Painel:
         botao = W.Button(description="salvar notas")
 
         def _salvar(_):
+            if not self._pode_gravar():
+                return
             self.fluxo.rec["notes"] = caixa.value
             ok = self.estado.gravar(self.servico, self.fluxo.rec)
+            self._gravou()
             if self.recibo is not None:
                 self.recibo.value = self._recibo_notas(ok)
         botao.on_click(_salvar)
@@ -946,6 +955,33 @@ class Painel:
         return (f"<div style='{self._RECIBO};color:#b00'><b>as notas NÃO chegaram ao "
                 "servidor</b>. Estão só nesta sessão do Colab, que apaga o arquivo ao "
                 "reciclar. Confira a rede e salve de novo.</div>")
+
+    # -------------------------------------------------------- outra janela
+    def _alterado_fora(self) -> bool:
+        """O registro deste serviço mudou no servidor depois que este painel o leu?"""
+        if self.estado.offline:
+            return False
+        try:
+            no_servidor = (self.estado._get().get(self.servico) or {}).get("_ts") or 0
+        except Exception:
+            return False  # sem rede, a gravação falha e o recibo vermelho já avisa
+        return no_servidor > self._ts_visto
+
+    def _pode_gravar(self) -> bool:
+        if not self._alterado_fora():
+            return True
+        if self.recibo is not None:
+            self.recibo.value = (
+                f"<div style='{self._RECIBO};color:#b00'><b>nada foi gravado.</b> "
+                f"{_esc(self.servico)} foi alterado em outra janela ou máquina depois que "
+                "este painel abriu, e gravar agora apagaria aquela versão. Rode a célula "
+                "de novo para carregar o que está no servidor.</div>")
+        return False
+
+    def _gravou(self):
+        """Depois de gravar, o carimbo deste painel passa a ser o do que ele gravou."""
+        self._ts_visto = (self.estado.records.get(self.servico) or {}).get("_ts") \
+            or self._ts_visto
 
     # ----------------------------------------------------------------- recibo
     _RECIBO = "margin-top:8px;font:12px/1.5 ui-monospace,monospace"
@@ -1040,11 +1076,17 @@ class Painel:
             campos["keyword_log"].value = campos["keyword_log"].value or self.fluxo.log_sugerido()
 
         cits = self.evidencia_de(vid)
+        # Só a frase, o documento e onde ela está. A justificativa do modelo
+        # (`por_que`) NÃO vai para a tela: em 446 das 1.440 citações ela dizia o
+        # código ("patamar mínimo da escada (nível 1)", "decisivo para
+        # v9_register"), ou seja, a sugestão de código que o congelamento omite
+        # de propósito voltava por outro campo. A localização é fato; a
+        # justificativa é juízo, e o juízo é do avaliador.
         ev = "".join(
             f"<div style='margin:6px 0;padding:6px 10px;border-left:3px solid #0a7'>"
             f"“{_esc(c['verbatim'][:400])}”<br>"
-            f"<span style='color:#888;font-size:12px'>doc {c['doc']} · {_esc(c['onde'])} "
-            f"· {_esc(c.get('por_que', ''))[:160]}</span></div>"
+            f"<span style='color:#888;font-size:12px'>doc {c['doc']} · {_esc(c['onde'])}"
+            f"</span></div>"
             for c in cits) or "<i style='color:#888'>o modelo não acrescentou nada nesta variável</i>"
 
         # O piso vem primeiro na tela, em cinza: é o que a regex achou, com a
@@ -1096,12 +1138,15 @@ class Painel:
         btn_ok = W.Button(description=f"salvar {vid} e avançar", button_style="success")
         saida_ok = W.Output()
 
+        def _respostas():
+            return {chave: (list(w.value) if isinstance(w.value, tuple) else w.value)
+                    for chave, w in campos.items()}
+
         def _salvar(_):
-            respostas = {}
-            for chave, w in campos.items():
-                valor = w.value
-                respostas[chave] = list(valor) if isinstance(valor, tuple) else valor
-            ok = self.responder(vid, respostas)
+            if not self._pode_gravar():
+                return
+            ok = self.responder(vid, _respostas())
+            self._gravou()
             if self.recibo is not None:
                 self.recibo.value = self._recibo_gravacao(vid, ok)
             with saida_ok:
@@ -1116,9 +1161,28 @@ class Painel:
             else:
                 with area:
                     clear_output()
-                    display(HTML(f"<b>{_esc(self.servico)} concluído.</b> "
-                                 "As nove variáveis e o log do §3 fecharam o portão."))
+                    display(HTML(f"<b>{_esc(self.servico)} concluído.</b> As dez "
+                                 "variáveis estão respondidas e gravadas. Para rever "
+                                 "alguma, rode a célula de novo e use o botão de voltar."))
         btn_ok.on_click(_salvar)
+
+        # Voltar grava o que está na tela antes de sair, sem exigir o portão: quem
+        # volta no meio de uma variável não perde o que digitou. O portão só
+        # decide o avançar.
+        btn_volta = W.Button(description="voltar à variável anterior", icon="arrow-left")
+
+        def _voltar(_):
+            if not self._pode_gravar():
+                return
+            ok = self.responder(vid, _respostas())
+            self._gravou()
+            if self.recibo is not None:
+                self.recibo.value = self._recibo_gravacao(vid, ok)
+            if self.fluxo.voltar():
+                self._render_variavel(area)
+        btn_volta.on_click(_voltar)
+        botoes = ([btn_volta] if self.fluxo.i > 0 else []) + [btn_ok] + \
+                 ([btn_sug] if tem_sugestao else [])
 
         with area:
             clear_output()
@@ -1143,7 +1207,7 @@ class Painel:
                 f"{ev}</div>"))
             display(W.VBox([W.HBox([W.Label(c.rotulo, layout=W.Layout(width="260px")), w])
                             for c, w in zip(passo.campos, campos.values())]))
-            display(W.HBox([btn_ok, btn_sug]) if tem_sugestao else btn_ok)
+            display(W.HBox(botoes))
             if not tem_sugestao:
                 display(HTML("<div style='color:#888;font:12px/1.5 ui-monospace,"
                              "monospace;margin-top:4px'>a evidência congelada traz "
@@ -1336,6 +1400,8 @@ def _self_test() -> int:
             # que a tela realmente diz, em vez de só conferir que não estourou.
             self.value = kw.get("value", a[0] if a and isinstance(a[0], str) else "")
             self.filhos = a[0] if a and isinstance(a[0], (list, tuple)) else ()
+            self.kw = kw
+            self._click = None
 
         def on_click(self, f):
             self._click = f
@@ -1455,6 +1521,104 @@ def _self_test() -> int:
                "notas gravadas" in pn.recibo.value)
         checar("notas não abrem nem fecham nenhuma variável",
                pn.fluxo.progresso()[0] == 0)
+    finally:
+        for k, v in guarda.items():
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
+
+    print("revisão de 02/10: o que a simulação completa achou")
+    sys.modules["ipywidgets"] = _FalsoModulo("ipywidgets")
+    sys.modules["IPython"] = _t.ModuleType("IPython")
+    sys.modules["IPython.display"] = ipd_n
+    try:
+        def _arvore(x):
+            yield x
+            for f in getattr(x, "filhos", ()) or ():
+                yield from _arvore(f)
+
+        def _botao(prefixo):
+            bs = [w for x in exibidos_n if isinstance(x, _FalsoW) for w in _arvore(x)
+                  if isinstance(w, _FalsoW) and str(w.kw.get("description", "")).startswith(prefixo)]
+            return bs[-1] if bs else None
+
+        def _campos(painel):
+            caixa = [x for x in exibidos_n if isinstance(x, _FalsoW) and x.filhos and all(
+                isinstance(h, _FalsoW) and len(h.filhos) == 2 for h in x.filhos)][-1]
+            por_rotulo = {c.rotulo: c.chave for c in painel.fluxo.atual().campos}
+            return {por_rotulo[h.filhos[0].value]: h.filhos[1] for h in caixa.filhos}
+
+        def _responder_tudo(campos):
+            for chave, w in campos.items():
+                c = next(c for v in C.VARIAVEIS for c in v.campos if c.chave == chave)
+                if c.tipo == "select":
+                    w.value = [o for o in c.opcoes if o][0]
+                elif c.tipo == "checks":
+                    w.value = tuple(o for o in c.opcoes if o)[:1]
+                elif chave != "keyword_log":
+                    w.value = "x"
+
+        exibidos_n.clear()
+        cache_r = Path(tempfile.mkdtemp()) / "rev.json"
+        pr = Painel("Instagram", corpus=c, estado=F.Estado(offline=True, cache=cache_r),
+                    assistir=False)
+        pr.sugestao = Sugestao("Instagram", "congelado", por_variavel={"V1": {"citacoes": [
+            {"doc": 1, "verbatim": "trecho", "onde": "Seção 2",
+             "por_que": "patamar mínimo da escada (nível 1)"}]}})
+        pr.mostrar()
+        tela_txt = "".join(x for x in exibidos_n if isinstance(x, str)) + \
+            "".join(w.value for x in exibidos_n if isinstance(x, _FalsoW)
+                    for w in _arvore(x) if isinstance(w.value, str))
+        checar("a justificativa do modelo não aparece na tela (ela dizia o código)",
+               "patamar mínimo" not in tela_txt and "nível 1" not in tela_txt)
+        checar("mas a frase e a localização aparecem", "trecho" in tela_txt and "Seção 2" in tela_txt)
+        checar("o cabeçalho não afirma quantos documentos são vinculantes",
+               "vinculantes)" not in tela_txt)
+        checar("na V1 não há botão de voltar", _botao("voltar") is None)
+        _responder_tudo(_campos(pr))
+        _botao("salvar V1")._click(None)
+        checar("na V2 aparece o botão de voltar", _botao("voltar") is not None)
+        _campos(pr)["v2_evidence"].value = "digitado e não salvo"
+        _botao("voltar")._click(None)
+        checar("voltar leva à V1", pr.fluxo.atual().vid == "V1")
+        checar("e não perde o que estava digitado na V2",
+               json.loads(cache_r.read_text())["records"]["Instagram"].get("v2_evidence")
+               == "digitado e não salvo")
+        for _ in range(10):
+            vid = pr.fluxo.atual().vid
+            _responder_tudo(_campos(pr))
+            _botao(f"salvar {vid}")._click(None)
+        fim = [x for x in exibidos_n if isinstance(x, str) and "concluído" in x][-1:]
+        checar("a conclusão chega, sem jargão de protocolo",
+               bool(fim) and "§3" not in fim[0] and "portão" not in fim[0])
+
+        # Duas janelas no mesmo serviço, com um servidor de mentira entre elas.
+        servidor = {"records": {}}
+
+        def _estado_online():
+            e = F.Estado(offline=True, cache=Path(tempfile.mkdtemp()) / "o.json")
+            e.offline = False
+            e._get = lambda: json.loads(json.dumps(servidor["records"]))
+
+            def _put(regs):
+                servidor["records"] = json.loads(json.dumps(regs))
+                return True
+            e._put = _put
+            e.records = e._get()
+            return e
+        janela_a = Painel("Temu", corpus=c, estado=_estado_online(), assistir=False)
+        janela_b = Painel("Temu", corpus=c, estado=_estado_online(), assistir=False)
+        janela_a.recibo = _FalsoW("")
+        respostas_v1 = {"v1_code": "3", "v1_register": "both", "v1_evidence": "b"}
+        janela_b.responder("V1", respostas_v1)
+        janela_b._gravou()
+        checar("a janela que ficou para trás não grava por cima",
+               janela_a._pode_gravar() is False and "nada foi gravado" in janela_a.recibo.value)
+        checar("a que gravou continua podendo gravar", janela_b._pode_gravar() is True)
+        checar("rodar a célula de novo resolve",
+               Painel("Temu", corpus=c, estado=_estado_online(),
+                      assistir=False)._pode_gravar() is True)
     finally:
         for k, v in guarda.items():
             if v is None:

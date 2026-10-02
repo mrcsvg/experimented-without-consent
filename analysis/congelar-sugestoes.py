@@ -21,6 +21,14 @@ enfeite. Então ela fica fora — o que o arquivo leva é evidência localizada,
 é a parte cujo valor a validação confirmou (as duas âncoras do piloto foram
 achadas em 250 mil e 392 mil caracteres).
 
+NEM A JUSTIFICATIVA (`por_que`), desde o formato 2 (02/10/2026). O modelo devolve,
+para cada citação, uma frase dizendo por que ela importa. Na revisão completa de
+02/10 essa frase dizia o código em 446 das 1.440 citações ("patamar mínimo da
+escada (nível 1)", "decisivo para v9_register", "falso positivo clássico"). Era a
+sugestão de código voltando por outro campo, legível no JSON publicado do mesmo
+jeito. O arquivo publicado leva só o que é fato: a frase, o documento e onde ela
+está. A versão com justificativa fica no histórico do git do repositório do corpus.
+
 O QUE O ARQUIVO NÃO PRECISA GARANTIR: cobertura. Essa passou a ser invariante do
 piso determinístico (`revisao.piso`), que roda sem modelo e sem rede. O que está
 aqui é acréscimo em cima de um chão que não esquece.
@@ -41,7 +49,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codebook as C  # noqa: E402
 import revisao as R  # noqa: E402
 
-FORMATO = 1  # versão do formato do arquivo, para o leitor saber o que esperar
+FORMATO = 2  # 2: sem `por_que` nas citações (ver o cabeçalho)
+# Campos de cada citação que podem ser publicados. Qualquer outro fica de fora.
+CAMPOS_PUBLICAVEIS = ("doc", "file", "onde", "role", "verbatim")
 
 
 def sha(texto: str) -> str:
@@ -63,10 +73,17 @@ def congelar_um(servico: str, corpus, modelo: str, cliente=None) -> dict:
         # Parâmetros de geração, porque teto de saída e modo de pensamento fazem
         # parte das condições sob as quais a evidência foi produzida.
         "geracao": {"max_tokens": R.MAX_TOKENS, "thinking": "adaptive"},
-        "citacoes": {vid: v["citacoes"] for vid, v in sug.por_variavel.items()},
+        "citacoes": {vid: [publicavel(c) for c in v["citacoes"]]
+                     for vid, v in sug.por_variavel.items()},
         "descartadas": len(sug.descartadas),
         "uso": sug.uso,
     }
+
+
+def publicavel(citacao: dict) -> dict:
+    """A citação só com os campos que podem ir a público. Lista branca, não negra:
+    um campo novo que o modelo passe a devolver fica de fora até alguém decidir."""
+    return {k: citacao[k] for k in CAMPOS_PUBLICAVEIS if k in citacao}
 
 
 def escrever(destino: Path, registro: dict) -> Path:
@@ -118,6 +135,11 @@ def checar(destino: Path) -> int:
         dados = json.loads(bruto)
         if "sugestao" in json.dumps(dados):
             problemas.append(f"{a['file']}: traz sugestão de código, que não deve ser publicada")
+        extras = {k for cs in dados.get("citacoes", {}).values() for c in cs
+                  for k in c} - set(CAMPOS_PUBLICAVEIS)
+        if extras:
+            problemas.append(f"{a['file']}: citação com campo não publicável {sorted(extras)} "
+                             "(a justificativa do modelo dizia o código)")
         vistos.add(dados["servico"])
     for faltando in sorted(set(C.SERVICOS) - vistos):
         problemas.append(f"{faltando}: sem evidência congelada")

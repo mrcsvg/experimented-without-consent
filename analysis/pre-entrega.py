@@ -5,6 +5,8 @@
     python3 analysis/pre-entrega.py              # ~2 min; não usa API, não escreve nada
     python3 analysis/pre-entrega.py --completo   # confere o sha dos 157 documentos
     python3 analysis/pre-entrega.py --gravar     # inclui a volta de escrita no /api/state
+    PYTHON_WIDGETS=/caminho/venv/bin/python python3 analysis/pre-entrega.py
+                                                 # roda o painel com ipywidgets de verdade
 
 POR QUE ESTE ARQUIVO EXISTE. Os `--check` de cada script conferem o repositório
 local, e o repositório local não é o que o avaliador toca. Ele abre um notebook
@@ -62,8 +64,10 @@ def verificacoes_locais() -> list[tuple[str, list[str], Path | None]]:
          ["analysis/congelar-sugestoes.py", "--check", "--out",
           str(CORPUS_LOCAL / "sugestoes")], CORPUS_LOCAL),
         ("notebook em dia com o roster", ["analysis/gerar-notebook-revisao.py", "--check"], None),
-        ("concordância: region_gated fora do κ",
+        ("concordância: region_gated fora do κ, vocabulário da V9",
          ["analysis/compute-agreement.py", "--self-test"], None),
+        ("painel com ipywidgets de verdade",
+         ["analysis/teste-widgets-reais.py"], None),
         ("validador: self-test", ["analysis/validar-assistente.py", "--simular",
                                   "--corpus", str(md)], md),
         ("congelamento: self-test", ["analysis/congelar-sugestoes.py", "--simular",
@@ -141,10 +145,17 @@ def locais(p: Placar) -> None:
         if exige is not None and not exige.exists():
             print(f"  pulou {desc} — falta {exige}")
             continue
-        r = subprocess.run([sys.executable, *args], cwd=RAIZ, env=env,
+        # O teste de widgets reais pode rodar num python que tenha o ipywidgets.
+        interp = (env.get("PYTHON_WIDGETS") or sys.executable
+                  if args[0].endswith("teste-widgets-reais.py") else sys.executable)
+        r = subprocess.run([interp, *args], cwd=RAIZ, env=env,
                            capture_output=True, text=True)
         saida = [l for l in ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
                  if l.strip()]
+        if r.returncode == 0 and saida and saida[0].startswith("pulou"):
+            # Pulado não é aprovado: aparece à parte, para ninguém ler "ok" onde nada rodou.
+            print(f"  pulou {desc} — {saida[0][7:]}")
+            continue
         p.checar(desc, r.returncode == 0, "" if r.returncode == 0 else saida[-1] if saida else "")
 
 
@@ -327,6 +338,45 @@ def notebook(p: Placar) -> None:
              "mkdtemp" in corpo_ensaio)
 
 
+def do_notebook_ao_kappa(p: Placar) -> None:
+    """O que o notebook grava tem de entrar no cálculo de concordância sem conversão.
+
+    Nenhum outro teste cobre a ponte: os self-tests do painel param no registro
+    gravado, e o do cálculo usa registros inventados. Foi nessa costura que se
+    achou, em 02/10, a V9 com grafias diferentes nas duas passadas, que teria
+    contado como discordância em todo serviço com termos de uso.
+    """
+    p.secao("6. do que o notebook grava até o κ")
+    passada1 = PAPER / "audit" / "coded-data.json"
+    if not passada1.exists():
+        print(f"  pulou a ponte — falta {passada1}")
+        return
+    sys.path.insert(0, str(RAIZ / "analysis"))
+    import importlib
+    C = importlib.import_module("codebook")
+    F = importlib.import_module("coding_flow")
+    with tempfile.TemporaryDirectory(prefix="ponte-") as tmp:
+        cache = Path(tmp) / "estado.json"
+        est = F.Estado(offline=True, cache=cache)
+        for servico in ("Pinterest", "Booking.com"):
+            fl = F.Fluxo(servico, est)
+            for v in C.VARIAVEIS:
+                fl.rec.update({c.chave: ([o for o in c.opcoes if o][0] if c.tipo == "select"
+                                         else [o for o in c.opcoes if o][:2] if c.tipo == "checks"
+                                         else "x") for c in v.campos})
+            est.gravar(servico, fl.rec, rede=False)
+        r = subprocess.run([sys.executable, str(RAIZ / "analysis" / "compute-agreement.py"),
+                            str(passada1), str(cache)], capture_output=True, text=True)
+    out = r.stdout or ""
+    p.checar("o cálculo lê o arquivo do servidor sem conversão", r.returncode == 0,
+             (r.stderr or "").strip().splitlines()[-1] if r.stderr else "")
+    p.checar("os serviços codificados são pareados com a passada 1",
+             "Serviços pareados: 2" in out)
+    p.checar("todas as variáveis do κ aparecem na tabela",
+             all(v in out for v in ("v1_code", "v5_optout", "v9_register", "v9_where")))
+    p.checar("region_gated fica fora do κ, à parte", "v4_region_gated: FORA DO κ" in out)
+
+
 def main() -> int:
     completo = "--completo" in sys.argv
     gravar = "--gravar" in sys.argv
@@ -337,6 +387,7 @@ def main() -> int:
     caminho_do_avaliador(p, completo)
     estado_do_codificador(p, gravar)
     notebook(p)
+    do_notebook_ao_kappa(p)
     print(f"\n{p.n - len(p.falhas)}/{p.n} conferências passaram")
     if p.falhas:
         print("FALHOU:")

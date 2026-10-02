@@ -6,8 +6,14 @@ Uso:
     python3 compute-agreement.py coded-data.json coded-data-coder2.json
     python3 compute-agreement.py --self-test
 
-Entrada 1: passe primário (26 registros). Entrada 2: export do instrumento do
-2º avaliador (qualquer N; alinha por `service`, prefixo-match no nome curto).
+Entrada 1: passe primário (26 registros). Entrada 2: o que o 2º avaliador gravou,
+em qualquer dos dois formatos: a lista que o instrumento em HTML exporta, ou o
+estado do servidor como o notebook grava, `{"records": {serviço: registro}}`. Para
+pegar o estado do notebook:
+
+    curl -s https://experimented-without-consent.vercel.app/api/state > coder2.json
+
+Alinha por `service`, prefixo-match no nome curto. Vale qualquer N.
 
 Política estatística (validada com o 2º avaliador em 2026-07-22):
 - Variáveis degeneradas/quase-degeneradas no passe 1 (v7, v8; v5): concordância
@@ -55,13 +61,20 @@ def norm(v):
     if s in ("false", "no", "n", "não", "nao"): return "no"
     return s
 
+# A passada 1 gravou dois rótulos da V9 com outra grafia que a do codebook e do
+# formulário. Sem este mapa, todo serviço em que os dois marcassem termos de uso
+# contaria como discordância na V9: o Jaccard compara texto, não sentido.
+SINONIMOS = {"tos": "tos/conditions",
+             "separate research notice": "research notice separado"}
+
+
 def norm_multi(v):
     if v is None: return set()
     if isinstance(v, str):
         parts = [p.strip() for p in v.replace(";", ",").split(",")]
     else:
         parts = list(v)
-    return {norm(p) for p in parts if norm(p)}
+    return {SINONIMOS.get(norm(p), norm(p)) for p in parts if norm(p)}
 
 def short(name):  # "Google Play (Google Ireland...)" -> "google play"
     return norm(name.split("(")[0])
@@ -117,9 +130,17 @@ def secao_vantagem(common, p1, p2):
     return linhas
 
 
+def carregar(caminho):
+    """Lista de registros com `service`, venha do export do HTML ou do servidor."""
+    dados = json.load(open(caminho, encoding="utf-8"))
+    if isinstance(dados, dict) and "records" in dados:
+        return [dict(rec, service=svc) for svc, rec in (dados["records"] or {}).items()]
+    return dados
+
+
 def main(f1, f2):
-    p1 = {short(r["service"]): r for r in json.load(open(f1))}
-    p2 = {short(r["service"]): r for r in json.load(open(f2))}
+    p1 = {short(r["service"]): r for r in carregar(f1)}
+    p2 = {short(r["service"]): r for r in carregar(f2)}
     common = [s for s in p2 if s in p1 and p2[s]]
     if not common:
         sys.exit("Nenhum serviço em comum entre os dois arquivos.")
@@ -222,6 +243,22 @@ def _self_test():
            "v4_region_gated" not in adjudicacao)
     checar("a divergência real (V1 do Gama) continua indo para a adjudicação",
            "v1_code" in adjudicacao and "gama" in adjudicacao)
+
+    # V9: a passada 1 escreveu "ToS"; o formulário grava "ToS/conditions".
+    p1b = [dict(base, service="Delta", v9_where=["privacy policy", "ToS"],
+                v4_region_gated=False)]
+    p2b = {"records": {"Delta": dict(base, v9_where=["privacy policy", "ToS/conditions"],
+                                     v4_region_gated="No")}}
+    with tempfile.TemporaryDirectory() as tmp:
+        f1, f2 = os.path.join(tmp, "p1.json"), os.path.join(tmp, "p2.json")
+        json.dump(p1b, open(f1, "w")); json.dump(p2b, open(f2, "w"))
+        saida = io.StringIO()
+        with contextlib.redirect_stdout(saida):
+            main(f1, f2)
+    out = saida.getvalue()
+    checar("aceita o estado do servidor ({records: ...}) como entrada", "Serviços pareados: 1" in out)
+    checar("ToS e ToS/conditions contam como a mesma coisa na V9",
+           "v9_where" in out and "Jaccard médio = 1.000" in out.split("v9_where")[1][:60])
     print(f"\n{'FALHOU: ' + str(len(falhas)) if falhas else 'tudo ok'}")
     return 1 if falhas else 0
 

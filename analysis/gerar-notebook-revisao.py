@@ -94,16 +94,19 @@ seguinte. São dez ao todo, as nove variáveis mais o log de palavras-chave, e u
 linha no alto do painel mostra quais já fecharam e em qual você está.
 
 A ordem é fixa de propósito: você responde a V1 antes de a V2 aparecer, e nenhuma
-variável fecha sem evidência preenchida. Rever o que já respondeu é permitido,
-pular adiante não.
+variável fecha sem evidência preenchida. Para rever o que já respondeu, use o botão
+de voltar; ele grava o que está na tela antes de sair. Pular adiante não é possível.
 
 Embaixo de cada painel há um campo de **Notas**, para dúvidas de regra, casos de
 fronteira e diferenças entre documentos do mesmo serviço. Ele vale para o serviço
 inteiro e tem botão próprio de salvar.
 
 Pode parar no meio e fechar o Colab. Quando voltar ao mesmo serviço, o painel abre
-na primeira variável que ainda falta, com as anteriores já preenchidas. O progresso
-é o mesmo do instrumento em HTML, então dá para alternar entre os dois.
+na primeira variável que ainda falta, com as anteriores já preenchidas.
+
+**Codifique só por este notebook.** O instrumento em HTML que existiu antes é uma
+versão anterior desta ferramenta, e mostra informações que não devem estar na sua
+frente durante a codificação.
 
 O critério completo de cada variável está na célula **O codebook, variável por
 variável**, logo antes dos serviços. Vale ler uma vez antes de começar.
@@ -135,7 +138,9 @@ mudança no documento, e depois não há como separar as duas.
 
 **Confira o recibo embaixo do painel.** Cada variável que você fecha é gravada num
 servidor e versionada, o que permite parar no meio, fechar o Colab e voltar depois,
-inclusive de outra máquina. O recibo fica **verde** quando a resposta chegou ao
+inclusive de outra máquina. Só não deixe o mesmo serviço aberto em duas janelas ao
+mesmo tempo: se uma delas ficar para trás, o painel recusa gravar por cima da outra
+e pede para rodar a célula de novo. O recibo fica **verde** quando a resposta chegou ao
 servidor e **vermelho** quando não chegou. Vermelho significa parar e avisar: o
 arquivo local do Colab é apagado quando a sessão recicla, e o que estiver só nele se
 perde.
@@ -190,8 +195,8 @@ notebook não chama modelo nenhum e não precisa de credencial.
 
 A célula abaixo confirma que a evidência congelada chegou, e mostra a data em que
 foi gerada. Se ela disser que não achou, me avise antes de começar a codificar:
-sem ela o piso da busca por palavra-chave continua funcionando, mas você perde a
-camada que o modelo acrescenta.
+sem ela a busca por palavra-chave continua funcionando, mas você perde as
+passagens que o modelo acrescenta.
 """
 
 CUSTO = '''# Confere a evidência congelada. Não chama modelo, não gasta nada.
