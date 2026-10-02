@@ -170,6 +170,19 @@ def publicado_bate(p: Placar) -> None:
     idx = json.loads(baixar(f"{SITE}/sugestoes/index.json"))
     p.checar("evidência cobre os 26 serviços", len(idx["arquivos"]) == 26,
              f"{len(idx['arquivos'])}")
+    # A impressão do prompt viva tem de ser a que os 26 arquivos registram. Sem
+    # esta conferência, uma vírgula no SISTEMA descola a evidência congelada da
+    # procedência que ela declara, e nada acusa: o `--check` compara os arquivos
+    # entre si, não contra o prompt que os gerou.
+    import importlib
+    sys.path.insert(0, str(RAIZ / "analysis"))
+    R = importlib.import_module("revisao")
+    congeladas = {json.loads((CORPUS_LOCAL / "sugestoes" / a["file"]).read_text())["prompt"]
+                  for a in idx["arquivos"]}
+    p.checar("o prompt de hoje é o que gerou a evidência congelada",
+             congeladas == {R.impressao_do_prompt()},
+             f"vivo {R.impressao_do_prompt()} · congelado {sorted(congeladas)}")
+
     p.checar("uma impressão de prompt para todos",
              len({json.loads((CORPUS_LOCAL / 'sugestoes' / a['file']).read_text())['prompt']
                   for a in idx["arquivos"]}) == 1)

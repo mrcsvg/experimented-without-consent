@@ -147,7 +147,7 @@ def procedencia(corpus=None) -> str:
     """
     quando, onde = _de_onde((corpus or corpus_carregado()).index)
     return (f"O texto foi congelado em {quando}, {onde}. É esta versão que vale, e é dela "
-            "que você codifica — nunca da página ao vivo. Duas razões: as plataformas "
+            "que você codifica, nunca da página ao vivo. Duas razões: as plataformas "
             "mostram texto diferente conforme o país de quem acessa, e por isso a captura "
             "foi feita da UE; e elas reescrevem as políticas sem avisar, então se cada "
             "codificador ler uma versão diferente, a discordância entre vocês fica "
@@ -753,7 +753,7 @@ class Painel:
         linhas = [f"{self.servico} · {len(self.docs)} documentos ({vinc} vinculantes) · "
                   f"{feitas} de {total} variáveis respondidas"]
         if perdidos:
-            linhas.append(f"⚠ {len(perdidos)} documento(s) que o congelamento não pegou — "
+            linhas.append(f"⚠ {len(perdidos)} documento(s) que o congelamento não pegou: "
                           "isso é lacuna de corpus, não ausência de divulgação")
         if self.corpus.quarentena:
             linhas.append(f"⚠ {len(self.corpus.quarentena)} em quarentena (hash)")
@@ -783,16 +783,16 @@ class Painel:
         vid = vid or passo.vid
         print(f"\n[{passo.vid}] {passo.titulo}\n    {re.sub('<[^>]+>', '', passo.regra)}")
         chao = self.piso_de(vid)
-        print(f"    busca por palavra-chave ({len(chao)} trechos) — os 12 termos do "
+        print(f"    busca por palavra-chave ({len(chao)} trechos): os 12 termos do "
               "protocolo, sem modelo nenhum; a triagem é sua:")
         for h in chao[:4]:
             nota = f"  ⚠ {h['flag'][:70]}" if h["flag"] else ""
-            print(f"      [{h['termo']}] …{h['kwic'][:120]}… — {h['file']}{nota}")
+            print(f"      [{h['termo']}] …{h['kwic'][:120]}… · {h['file']}{nota}")
         cits = self.evidencia_de(vid)
-        print(f"    acrescentado pelo modelo ({len(cits)} citações) — o que a busca "
+        print(f"    acrescentado pelo modelo ({len(cits)} citações): o que a busca "
               "não acha porque não usa os termos:")
         for c in cits[:4]:
-            print(f"      “{c['verbatim'][:150]}” — doc {c['doc']} · {c['onde']}")
+            print(f"      “{c['verbatim'][:150]}” · doc {c['doc']} · {c['onde']}")
         pend = self.fluxo.faltando()
         print(f"    portão: {'aberto' if not pend else 'falta ' + ', '.join(k for k, _ in pend)}")
 
@@ -815,7 +815,7 @@ class Painel:
             nome = Path(d["file"]).name
             congelado = self.corpus.url_do_congelado(d)
             alvo = (f"<a href='{_esc(congelado)}' target='_blank' title='abre o texto "
-                    f"congelado — é este que vale'>{_esc(nome)}</a>" if congelado
+                    f"congelado, que é o que vale'>{_esc(nome)}</a>" if congelado
                     else _esc(nome))
             return (f"<div style='padding:2px 0'><b>{d['n']:02d}</b> "
                     f"<span style='color:{'#0a7' if d['role'] == 'binding' else '#888'}'>"
@@ -823,7 +823,7 @@ class Painel:
                     f"<span style='color:#888'>{d['chars'] // 1000}k · {_esc(termos)}</span> "
                     f"<a href='{_esc(d['url'])}' target='_blank' style='color:#aaa;"
                     f"font-size:11px' title='a página ao vivo, só para conferir procedência "
-                    f"— não codifique a partir dela'>original ↗</a></div>")
+                    f"(não codifique a partir dela)'>original ↗</a></div>")
 
         docs_html = "".join(_linha_doc(d, v) for d, v in zip(self.docs, self.dossie_local))
         linhas_cab = self.cabecalho().split("\n")
@@ -856,26 +856,26 @@ class Painel:
 
     def _recibo_inicial(self) -> str:
         if self.estado.offline:
-            return (f"<div style='{self._RECIBO};color:#888'>modo offline — as "
+            return (f"<div style='{self._RECIBO};color:#888'>modo offline: as "
                     f"respostas ficam só em {_esc(str(self.estado.cache))}</div>")
         if not self.estado.online:
             return (f"<div style='{self._RECIBO};color:#b00'><b>sem contato com o "
-                    "servidor</b> — não comece a codificar. No Colab o arquivo local "
+                    "servidor</b>. Não comece a codificar: no Colab o arquivo local "
                     "é apagado quando a sessão recicla, então o que você responder "
                     "agora pode não existir amanhã. Rode a célula de novo; se "
                     "continuar assim, avise antes de responder qualquer variável.</div>")
-        return (f"<div style='{self._RECIBO};color:#0a7'>servidor respondeu — cada "
+        return (f"<div style='{self._RECIBO};color:#0a7'>servidor respondeu. Cada "
                 "variável que fechar é gravada lá, versionada</div>")
 
     def _recibo_gravacao(self, vid: str, ok: bool) -> str:
         if self.estado.offline:
             return (f"<div style='{self._RECIBO};color:#888'>{_esc(vid)} gravado em "
-                    f"{_esc(str(self.estado.cache))} — offline, sem servidor</div>")
+                    f"{_esc(str(self.estado.cache))} (offline, sem servidor)</div>")
         if ok:
             return (f"<div style='{self._RECIBO};color:#0a7'>{_esc(vid)} salvo no "
                     f"servidor · {time.strftime('%H:%M:%S')}</div>")
         return (f"<div style='{self._RECIBO};color:#b00'><b>{_esc(vid)} NÃO chegou ao "
-                "servidor</b> — está só nesta sessão do Colab, que apaga o arquivo ao "
+                "servidor</b>. Está só nesta sessão do Colab, que apaga o arquivo ao "
                 "reciclar. Pare aqui, confira a rede e salve de novo antes de "
                 "seguir.</div>")
 
@@ -884,7 +884,7 @@ class Painel:
     # §3 nem por que ela vem antes do modelo.
     SUB_PISO = ("Os 12 termos do protocolo, procurados <b>literalmente</b> no texto "
                 "congelado. Não passa por modelo nenhum: é busca de texto, dá sempre o "
-                "mesmo resultado e não deixa nada de fora — por isso vem primeiro. Boa "
+                "mesmo resultado e não deixa nada de fora, e por isso vem primeiro. Boa "
                 "parte vai ser falso positivo, e os marcados com ⚠ costumam ser: o aviso "
                 "diz por quê. Descartar é seu trabalho; o que a tela garante é que nada "
                 "foi escondido de você.")
@@ -966,7 +966,7 @@ class Painel:
             r = self.revelar(vid)
             with saida_sug:
                 clear_output()
-                aviso = ("<b style='color:#b00'>revelada ANTES da resposta</b> — "
+                aviso = ("<b style='color:#b00'>revelada ANTES da resposta</b>: "
                          "isso fica registrado") if r["antes_de_responder"] else \
                         "<span style='color:#888'>revelada depois da resposta</span>"
                 display(HTML(f"sugestão: <b>{_esc(r['sugestao'])}</b> "
@@ -988,7 +988,7 @@ class Painel:
                 clear_output()
                 pend = self.fluxo.faltando()
                 if pend:
-                    display(HTML("<b style='color:#b00'>portão fechado</b> — falta " +
+                    display(HTML("<b style='color:#b00'>portão fechado</b>: falta " +
                                  _esc(", ".join(f"{k} ({p})" for k, p in pend))))
                     return
             if self.fluxo.avancar():
@@ -1012,11 +1012,11 @@ class Painel:
                 f"<h4 style='margin:14px 0 2px'>[{vid}] {_esc(passo.titulo)}</h4>"
                 f"<div style='color:#555;max-width:780px'>{passo.regra}</div>"
                 f"{criterio}"
-                f"<div style='margin-top:16px'><b>Busca por palavra-chave — {len(chao)} "
+                f"<div style='margin-top:16px'><b>Busca por palavra-chave: {len(chao)} "
                 f"{'trecho' if len(chao) == 1 else 'trechos'}</b>"
                 f"<div style='color:#666;font-size:12px;max-width:780px'>{self.SUB_PISO}</div>"
                 f"{piso_html}</div>"
-                f"<div style='margin-top:16px'><b>Acrescentado pelo modelo — {len(cits)} "
+                f"<div style='margin-top:16px'><b>Acrescentado pelo modelo: {len(cits)} "
                 f"{'citação' if len(cits) == 1 else 'citações'}</b>"
                 f"<div style='color:#666;font-size:12px;max-width:780px'>{self.SUB_MODELO}</div>"
                 f"{ev}</div>"))
@@ -1026,7 +1026,7 @@ class Painel:
             if not tem_sugestao:
                 display(HTML("<div style='color:#888;font:12px/1.5 ui-monospace,"
                              "monospace;margin-top:4px'>a evidência congelada traz "
-                             "citação, não sugestão de código — quem atribui o código "
+                             "citação, não sugestão de código: quem atribui o código "
                              "é você</div>"))
             display(saida_ok, saida_sug)
 
@@ -1170,7 +1170,7 @@ def _self_test() -> int:
            "offline" in pa3._recibo_inicial())
     est.offline, est.online = False, False
     checar("sem servidor: o recibo manda não começar",
-           "não comece a codificar" in pa3._recibo_inicial())
+           "ão comece a codificar" in pa3._recibo_inicial())
     checar("gravação que não chegou ao servidor é alarme vermelho",
            "NÃO chegou ao servidor" in pa3._recibo_gravacao("V1", False))
     est.online = True
@@ -1288,8 +1288,8 @@ def _self_test() -> int:
         checar("e há ponteiro para onde o critério inteiro está",
                "Critério completo da V1 no alto do notebook" in variavel_html)
         checar("os dois andares têm título e explicação",
-               "Busca por palavra-chave —" in variavel_html
-               and "Acrescentado pelo modelo —" in variavel_html
+               "Busca por palavra-chave:" in variavel_html
+               and "Acrescentado pelo modelo:" in variavel_html
                and "12 termos do protocolo" in variavel_html)
         checar("a tela não manda o codificador procurar o que é a §3",
                "§3" not in topo_html and "§3" not in variavel_html)
