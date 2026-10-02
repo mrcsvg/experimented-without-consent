@@ -62,6 +62,8 @@ def verificacoes_locais() -> list[tuple[str, list[str], Path | None]]:
          ["analysis/congelar-sugestoes.py", "--check", "--out",
           str(CORPUS_LOCAL / "sugestoes")], CORPUS_LOCAL),
         ("notebook em dia com o roster", ["analysis/gerar-notebook-revisao.py", "--check"], None),
+        ("concordância: region_gated fora do κ",
+         ["analysis/compute-agreement.py", "--self-test"], None),
         ("validador: self-test", ["analysis/validar-assistente.py", "--simular",
                                   "--corpus", str(md)], md),
         ("congelamento: self-test", ["analysis/congelar-sugestoes.py", "--simular",
