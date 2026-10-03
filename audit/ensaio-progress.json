@@ -36,9 +36,9 @@
    "v9_register": "both",
    "v9_evidence": "“This policy is approved by the Wikimedia Foundation Board of Trustees .\nIt may not be circumvented, eroded, or ignored by Wikimedia Foundation officers or staff nor local policies of any Wikimedia project .” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Cabeçalho da Privacy Policy)\n“To test features to see what works, understand how users interact with the Wikimedia Sites, track and study use of various features, gain understanding about the demographics of the different Wikimedia Sites and analyze trends.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Privacy Policy, bullet de melhoria)\n“We ask that you review the terms of our Privacy Policy , so that you are aware of how we collect and use your information.” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, Terms of Use, seção \"2. Privacy Policy\")",
    "keyword_log": "01-wiki-policy-privacy-policy.md: experiment:3 / A-B:0 / randomize:0 / test:3 / trial:0 / beta:1 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-wiki-policy-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:1 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-wiki-policy-cookie-statement.md: experiment:0 / A-B:1 / randomize:0 / test:3 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-wiki-policy-privacy-policy-frequently-asked-question.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n05-wiki-a-b-testing.md: experiment:4 / A-B:15 / randomize:0 / test:18 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n06-wikipedia-experiments.md: experiment:7 / A-B:0 / randomize:0 / test:2 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
-   "_ts": 1791045352637,
+   "_ts": 1791045353685,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-03T16:35:52.637Z"
+ "saved_at": "2026-10-03T16:35:53.685Z"
 }
