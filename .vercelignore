@@ -1,0 +1,16 @@
+# Só o site sobe: a página, assistente/, api/ e server/. O resto é código
+# de análise, protocolo e documentação, que vive no repositório.
+analysis/
+notebooks/
+protocol/
+docs/
+instrument/
+server/*.test.mjs
+assistente/*.test.mjs
+assistente/test/
+*.md
+CITATION.cff
+LICENSE
+LICENSE-DATA
+.claude/
+server/dev.mjs
