@@ -36,7 +36,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-HTML = Path(__file__).resolve().parent.parent / "index.html"
+HTML = Path(__file__).resolve().parent.parent / "instrument" / "index.html"
 
 # Constantes lidas do instrumento, na ordem em que uma pode referenciar a anterior.
 CONSTANTES = ["DATA", "KWTERMS", "FRAMING", "BASIS", "WHERE", "REG", "YN", "V5",
