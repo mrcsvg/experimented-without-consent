@@ -1,10 +1,4 @@
 {
- "records": {
-  "Zalando": {
-   "v1_code": "2",
-   "service": "Zalando",
-   "_ts": 1791043632635
-  }
- },
- "saved_at": "2026-10-03T16:07:12.635Z"
+ "records": {},
+ "saved_at": "2026-10-03T16:07:14.356Z"
 }
