@@ -82,7 +82,7 @@ def exportar() -> dict:
             "crit_sha": C.CRIT_CONGELADO.get(k),
             "campos": [{
                 "chave": c.chave, "rotulo": c.rotulo, "tipo": c.tipo,
-                "opcoes": list(c.opcoes or []), "placeholder": c.placeholder or "",
+                "opcoes": list(c.opcoes or []), "placeholder": _texto(c.placeholder or ""),
             } for c in v.campos],
         })
     return {
@@ -95,7 +95,19 @@ def exportar() -> dict:
                    for nome, spec in P.PATTERNS.items()],
         "termo_para_variavel": {t: list(vs) for t, vs in R.TERMO_PARA_VARIAVEL.items()},
         "regras_gerais_html": regras_gerais_html(),
+        # Ajuda por valor e por campo, do instrumento, em texto. Sem o travessão
+        # tipográfico e sem a procedência (§), que aqui não ajudam.
+        "ajuda_valores": {k: _texto(v[0] if isinstance(v, (list, tuple)) else v) for k, v in C.VALHELP.items()},
+        "ajuda_campos": {k: _texto(v.get("note", "")) for k, v in C.FIELDHELP.items() if isinstance(v, dict) and v.get("note")},
     }
+
+
+def _texto(html: str) -> str:
+    import html as html_mod
+    import re
+    t = re.sub(r"<[^>]+>", "", html or "")
+    t = html_mod.unescape(t).replace(" — ", ": ").replace("—", ":")
+    return " ".join(t.split())
 
 
 def escrever(destino: Path) -> dict:
@@ -144,6 +156,12 @@ def _self_test() -> int:
     checar("regras gerais: cinco itens, sem travessão", d["regras_gerais_html"].count("<li>") == 5 and "—" not in d["regras_gerais_html"])
     checar("nenhum travessão em pergunta ou lembrete",
            not any("—" in (v["pergunta"] + v["lembrete"]) for v in d["variaveis"]))
+    checar("ajuda por valor: 18 entradas, em texto, sem travessão",
+           len(d["ajuda_valores"]) == 18 and all("<" not in t and "—" not in t for t in d["ajuda_valores"].values()))
+    checar("nenhum travessão em placeholder",
+           not any("—" in c["placeholder"] for v in d["variaveis"] for c in v["campos"]))
+    checar("ajuda por campo: só texto, sem travessão",
+           d["ajuda_campos"] and all("<" not in t and "—" not in t for t in d["ajuda_campos"].values()))
 
     # Escreve num temporário e relê, para pegar problema de serialização.
     import tempfile

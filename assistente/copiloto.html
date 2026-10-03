@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Como o copiloto funciona</title>
+<style>
+  body { margin: 0; color: #1b1b1b; font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  h2 { font-size: 20px; margin: 26px 0 6px; }
+  pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f4; border: 1px solid #d9d9d9; border-radius: 8px; padding: 12px 14px; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .suave { color: #5a5a5a; }
+  table { border-collapse: collapse; font-size: 14px; }
+  td, th { text-align: left; padding: 4px 10px; border-top: 1px solid #d9d9d9; }
+</style>
+</head>
+<body>
+<main>
+<h1>Como o copiloto funciona</h1>
+<p class="suave" id="meta">carregando…</p>
+<p>O copiloto da página de codificação não é uma conversa. É um arquivo por serviço, gerado uma vez, antes da codificação, por um modelo de linguagem que recebeu só o texto congelado: o codebook, as citações já verificadas e as contagens de palavras-chave. Ele não viu nenhum código nem anotação da primeira codificação, nem a etiqueta de tipo de documento, nem respostas do segundo codificador. O que a página mostra ao clicar em "ver sugestão do copiloto" é exatamente o que está no arquivo.</p>
+<p>A decisão é sempre do codificador humano. A sugestão existe para acelerar, não para decidir.</p>
+<div id="corpo"></div>
+<h2>Arquivos</h2>
+<p class="suave pequeno">Um por serviço, em <code id="pasta"></code>. A tabela lista o que foi gerado e quantos tokens cada chamada usou.</p>
+<table id="tabela"></table>
+</main>
+<script type="module">
+const CORPUS = (location.hostname === "localhost" && new URLSearchParams(location.search).get("corpus"))
+  || "https://experimented-without-consent-corpus.vercel.app";
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+document.getElementById("pasta").textContent = `${CORPUS}/assistente/copiloto/`;
+try {
+  const [md, idx] = await Promise.all([
+    fetch(`${CORPUS}/assistente/copiloto/prompt.md`).then((r) => r.text()),
+    fetch(`${CORPUS}/assistente/copiloto/index.json`).then((r) => r.json()),
+  ]);
+  document.getElementById("meta").textContent = `Modelo ${idx.modelo} · impressão do prompt ${idx.prompt_sha} · ${idx.servicos.length} serviços · atualizado em ${idx.atualizado_em.slice(0, 10)}`;
+  // O prompt.md é Markdown simples: títulos, parágrafos e blocos de código.
+  const html = [];
+  let emCodigo = false; let buf = [];
+  for (const linha of md.split("\n")) {
+    if (linha.startsWith("```")) {
+      if (emCodigo) { html.push(`<pre>${esc(buf.join("\n"))}</pre>`); buf = []; }
+      emCodigo = !emCodigo; continue;
+    }
+    if (emCodigo) { buf.push(linha); continue; }
+    if (linha.startsWith("# ")) continue; // o título já está na página
+    if (linha.startsWith("## ")) { html.push(`<h2>${esc(linha.slice(3))}</h2>`); continue; }
+    if (/^\d+\. /.test(linha)) { html.push(`<p>${esc(linha)}</p>`); continue; }
+    if (linha.trim()) html.push(`<p>${esc(linha).replace(/`([^`]+)`/g, "<code>$1</code>")}</p>`);
+  }
+  document.getElementById("corpo").innerHTML = html.join("\n");
+  const linhas = idx.servicos.map((s) => `<tr><td>${esc(s.servico)}</td><td><a href="${CORPUS}/assistente/copiloto/${esc(s.file)}" target="_blank" rel="noopener">${esc(s.file)}</a></td><td>${s.invalida ? "sem sugestão (resposta inválida)" : "ok"}</td><td>${(s.uso && s.uso.input) || ""} / ${(s.uso && s.uso.output) || ""}</td></tr>`).join("");
+  document.getElementById("tabela").innerHTML = `<tr><th>serviço</th><th>arquivo</th><th>estado</th><th>tokens entrada / saída</th></tr>${linhas}`;
+} catch (e) {
+  document.getElementById("meta").textContent = `Não consegui carregar os arquivos do copiloto (${e.message}).`;
+}
+</script>
+</body>
+</html>

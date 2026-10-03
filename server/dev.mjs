@@ -47,13 +47,20 @@ http.createServer(async (req, res) => {
     for await (const parte of req) body += parte;
     return state({ method: req.method, headers: req.headers, body }, respostaVercel(res));
   }
-  let p = path.join(raiz, decodeURIComponent(url.pathname));
+  // /corpus/... serve o repositório irmão do corpus, para a página ser testada
+  // com dados locais antes de publicar (a página aceita ?corpus=... só em localhost).
+  const corpusLocal = path.resolve(raiz, "..", "experimented-without-consent-corpus");
+  let base = raiz;
+  let caminho = decodeURIComponent(url.pathname);
+  if (caminho.startsWith("/corpus/")) { base = corpusLocal; caminho = caminho.slice("/corpus".length); }
+  let p = path.join(base, caminho);
   if (p.endsWith("/")) p += "index.html";
-  if (!p.startsWith(raiz) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) {
+  if (!p.startsWith(base) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) {
     res.statusCode = 404;
     return res.end("não encontrado");
   }
   res.setHeader("content-type", MIME[path.extname(p)] || "application/octet-stream");
   res.setHeader("cache-control", "no-store");
+  res.setHeader("access-control-allow-origin", "*");
   fs.createReadStream(p).pipe(res);
 }).listen(porta, () => console.log(`assistente local em http://localhost:${porta}`));

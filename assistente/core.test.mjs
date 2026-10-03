@@ -104,6 +104,16 @@ test("aplicarSugestao: sem citação usa a razão; evidência já escrita fica",
   assert.equal(b.v7_evidence, "já escrevi");
 });
 
+test("aplicarSugestao põe no máximo três citações na evidência", () => {
+  const v1 = porVid.V1;
+  const cits = {};
+  for (let i = 1; i <= 5; i++) cits[`V1-${i}`] = { doc: 1, file: "w/01.md", onde: `§${i}`, verbatim: `frase ${i}` };
+  const sug = { campos: { v1_code: "3" }, razao: "r", confianca: "alta", citacoes: Object.keys(cits) };
+  const r = aplicarSugestao(v1, {}, sug, cits, []);
+  assert.equal(r.v1_evidence.split("\n").length, 3);
+  assert.ok(r.v1_evidence.startsWith("“frase 1”"));
+});
+
 test("aplicarSugestao ignora campo que não é da variável e lista para checks", () => {
   const v2 = porVid.V2;
   const sug = { campos: { v2_framing: ["research", "service improvement"], v1_code: "3" }, razao: "r", confianca: "alta", citacoes: [] };

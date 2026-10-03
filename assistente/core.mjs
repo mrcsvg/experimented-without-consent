@@ -7,6 +7,7 @@
 // Campo de linha que a resposta de outro campo torna exigível: dizer que há
 // programa opt-in sem dizer qual não é uma codificação verificável.
 export const LINE_EXIGIDA = { v6_which: ["v6_optin_beta", "Yes"] };
+export const MAX_CITACOES_NA_EVIDENCIA = 3;
 
 const vazio = (valor) => !valor || (Array.isArray(valor) && valor.length === 0);
 
@@ -99,7 +100,9 @@ export function aplicarSugestao(variavel, reg, sugestao, citacoesPorId, docs) {
     const campo = variavel.campos.find((c) => c.chave === chave);
     novo[chave] = campo.tipo === "checks" ? [].concat(valor || []) : (valor == null ? "" : String(valor));
   }
-  const citadas = (sugestao.citacoes || []).map((id) => (citacoesPorId || {})[id]).filter(Boolean);
+  // No máximo três citações na evidência: o campo tem de continuar legível, e
+  // o codificador pode acrescentar outras com "usar como evidência".
+  const citadas = (sugestao.citacoes || []).map((id) => (citacoesPorId || {})[id]).filter(Boolean).slice(0, MAX_CITACOES_NA_EVIDENCIA);
   const evidencia = citadas.length
     ? citadas.map((c) => textoDeEvidencia(c, docs)).join("\n")
     : (sugestao.razao ? `Copiloto: ${sugestao.razao}` : "");

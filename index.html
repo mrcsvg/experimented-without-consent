@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Segunda codificação</title>
+<style>
+  :root {
+    --tinta: #1b1b1b; --suave: #5a5a5a; --linha: #d9d9d9; --fundo: #ffffff; --papel: #f6f6f4;
+    --azul: #0b5cad; --azul-claro: #e8f0fb; --verde: #1d7a3a; --verde-claro: #e6f4ea;
+    --vermelho: #b3261e; --vermelho-claro: #fbe9e7; --amarelo: #ffe58a; --amarelo-escuro: #7a5b00;
+    --roxo: #5b3fa3; --roxo-claro: #efeaf9; --marca: #fff3a3;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--fundo); color: var(--tinta);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  body.ensaio { padding-top: 44px; }
+  a { color: var(--azul); }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--linha);
+    background: var(--papel); color: var(--tinta); padding: 8px 14px; }
+  button:hover { background: #eeeeea; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primario { background: var(--azul); border-color: var(--azul); color: #fff; font-weight: 600; padding: 12px 20px; font-size: 17px; }
+  button.primario:hover { background: #094a8c; }
+  button.secundario { background: #fff; }
+  button.pequeno { padding: 4px 10px; font-size: 14px; }
+  button.copiloto { background: var(--roxo-claro); border-color: #cfc3ea; color: var(--roxo); }
+  button.perigo { color: var(--vermelho); border-color: #e4b7b3; background: #fff; }
+  .faixa-ensaio { position: fixed; top: 0; left: 0; right: 0; height: 44px; background: var(--amarelo); color: var(--amarelo-escuro);
+    display: flex; align-items: center; justify-content: center; gap: 16px; font-weight: 600; z-index: 50; border-bottom: 1px solid #e3c85a; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 22px; line-height: 1.25; margin: 28px 0 8px; }
+  h3 { font-size: 17px; margin: 20px 0 6px; }
+  p { margin: 8px 0; }
+  .suave { color: var(--suave); }
+  .pequeno { font-size: 14px; }
+  .caixa { border: 1px solid var(--linha); border-radius: 10px; padding: 14px 16px; margin: 12px 0; background: #fff; }
+  .caixa.papel { background: var(--papel); }
+  .cabecalho { position: sticky; top: 0; background: var(--fundo); padding: 10px 0 8px; border-bottom: 1px solid var(--linha); z-index: 10; }
+  body.ensaio .cabecalho { top: 44px; }
+  .cabecalho .linha1 { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .cabecalho h1 { font-size: 22px; margin: 0; }
+  .trilha { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .trilha button { padding: 3px 9px; font-size: 13px; border-radius: 999px; }
+  .trilha .fechado { background: var(--verde-claro); border-color: #b9dec5; color: var(--verde); }
+  .trilha .atual { background: var(--azul); border-color: var(--azul); color: #fff; font-weight: 600; }
+  .trilha .futuro { opacity: .55; cursor: default; }
+  .docs { margin: 10px 0 0; padding: 0; list-style: none; }
+  .docs li { padding: 6px 0; border-top: 1px dashed var(--linha); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .docs li:first-child { border-top: 0; }
+  .docs .n { color: var(--suave); min-width: 22px; }
+  .docs .url { color: var(--suave); font-size: 13px; word-break: break-all; flex-basis: 100%; }
+  .pergunta { font-size: 20px; font-weight: 600; margin: 18px 0 4px; line-height: 1.3; }
+  .lembrete { color: var(--suave); margin: 0 0 10px; }
+  .evid { margin: 14px 0; }
+  .evid h3 { display: flex; align-items: baseline; gap: 8px; }
+  .item { border-left: 3px solid var(--linha); padding: 6px 12px; margin: 8px 0; }
+  .item.modelo { border-left-color: #c9b8ee; }
+  .item .onde { color: var(--suave); font-size: 14px; }
+  .item .acoes { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .item .flag { color: var(--amarelo-escuro); background: #fff8d6; border-radius: 6px; padding: 2px 8px; font-size: 13px; display: inline-block; margin-top: 4px; }
+  .item .termo { font-weight: 600; }
+  .campos { margin: 16px 0; }
+  .campo { margin: 14px 0; }
+  .campo > .rotulo { font-weight: 600; display: block; margin-bottom: 6px; }
+  .opcoes label { display: block; padding: 8px 12px; border: 1px solid var(--linha); border-radius: 8px; margin: 6px 0; cursor: pointer; background: #fff; }
+  .opcoes label:hover { background: var(--papel); }
+  .opcoes input { margin-right: 10px; }
+  .opcoes label.marcado { border-color: var(--azul); background: var(--azul-claro); }
+  .campo input[type=text], .campo textarea { width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--linha); border-radius: 8px; }
+  .campo textarea { min-height: 84px; resize: vertical; }
+  .campo .ajuda { color: var(--suave); font-size: 14px; margin-top: 4px; }
+  .botoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 20px 0 8px; }
+  .recibo { font-size: 14px; padding: 4px 10px; border-radius: 6px; }
+  .recibo.ok { color: var(--verde); background: var(--verde-claro); }
+  .recibo.erro { color: var(--vermelho); background: var(--vermelho-claro); font-weight: 600; }
+  .recibo.andamento { color: var(--suave); background: var(--papel); }
+  .falta { color: var(--vermelho); background: var(--vermelho-claro); border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+  .aviso { background: #fff8d6; border: 1px solid #e3c85a; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+  .sugestao { background: var(--roxo-claro); border: 1px solid #cfc3ea; border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
+  .sugestao .valor { font-weight: 600; }
+  .sugestao .conf { font-size: 13px; color: var(--roxo); }
+  .lista-servicos { list-style: none; padding: 0; margin: 10px 0; }
+  .lista-servicos li { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-top: 1px solid var(--linha); gap: 10px; }
+  .lista-servicos li:first-child { border-top: 0; }
+  .lista-servicos .estado { font-size: 14px; color: var(--suave); }
+  .lista-servicos .estado.feito { color: var(--verde); }
+  .resumo table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .resumo td, .resumo th { text-align: left; vertical-align: top; padding: 6px 8px; border-top: 1px solid var(--linha); }
+  .resumo th { width: 110px; color: var(--suave); font-weight: 600; }
+  .painel { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 92vw); background: #fff; border-left: 1px solid var(--linha);
+    box-shadow: -8px 0 24px rgba(0,0,0,.08); z-index: 60; display: flex; flex-direction: column; }
+  body.ensaio .painel { top: 44px; }
+  .painel header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--linha); }
+  .painel header h2 { margin: 0; font-size: 17px; }
+  .painel .corpo { overflow: auto; padding: 14px 16px 40px; flex: 1; }
+  .painel pre { white-space: pre-wrap; word-break: break-word; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; }
+  .painel mark { background: var(--marca); padding: 1px 2px; }
+  .painel .nota { color: var(--suave); font-size: 14px; }
+  .painel .crit { background: var(--papel); border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 15px; }
+  .painel .crit h4 { margin: 0 0 6px; }
+  .oculto { display: none !important; }
+  .fim { text-align: center; padding: 60px 0; }
+  .fim h1 { font-size: 32px; }
+  footer.rodape { margin-top: 40px; color: var(--suave); font-size: 13px; border-top: 1px solid var(--linha); padding-top: 10px; }
+  @media (max-width: 700px) { main { padding: 16px 14px 60px; } .pergunta { font-size: 18px; } }
+</style>
+</head>
+<body>
+<div id="faixa" class="faixa-ensaio oculto">Ensaio: nada aqui conta <button id="zerar" class="pequeno">zerar ensaio</button></div>
+<main id="app"><p class="suave">Carregando…</p></main>
+<div id="painel" class="painel oculto"></div>
+<script type="module" src="/assistente/app.js"></script>
+</body>
+</html>
