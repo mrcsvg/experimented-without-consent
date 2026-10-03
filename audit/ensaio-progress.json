@@ -1,4 +1,12 @@
 {
- "records": {},
- "saved_at": "2026-10-03T16:07:14.356Z"
+ "records": {
+  "Wikipedia": {
+   "v1_code": "3",
+   "v1_register": "both",
+   "v1_evidence": "“optimize mobile applications, customize content and set language preferences, test features to see what works, and improve performance” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"Information We Receive Automatically\", parágrafo que começa com \"Put simply, we use this information to enhance your experience\")\n“To test features to see what works, understand how users interact with the Wikimedia Sites, track and study use of various features, gain understanding about the demographics of the different Wikimedia Sites and analyze trends.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"How We Use Information We Receive From You\" > bullet \"Improving the Wikimedia Sites and making your user experience safer and better\")\n“To Understand & Experiment” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Título de subseção em \"When May We Share Your Information?\" (Sharing))\n“We give volunteer developers and researchers access to systems that contain your Personal Information to allow them to protect, develop, and contribute to the Wikimedia Sites.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"To Understand & Experiment\", resumo em destaque)\n“Helps us count the number of site visitors, run A/B tests, and mitigate DDoS attacks.” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, Tabela de cookies, categoria \"Performance and Analysis\", linha do cookie WMF-Uniq)\n“In the Wikimedia platform, the impact of many new features are tested using controlled experiments.” (Documento 5: A/B testing - Wikitech, Primeira linha do corpo da página A/B testing (Wikitech))\n“The most common way to bucket editors for A/B tests has been on their user ID.” (Documento 5: A/B testing - Wikitech, Seção \"Bucketing\")\n“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório)",
+   "service": "Wikipedia",
+   "_ts": 1791044971691
+  }
+ },
+ "saved_at": "2026-10-03T16:29:31.691Z"
 }
