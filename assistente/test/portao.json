@@ -1,0 +1,943 @@
+{
+ "origem": "analysis/fixtures-portao.py, a partir de coding_flow.Fluxo.faltando",
+ "variaveis": [
+  {
+   "vid": "V1",
+   "titulo": "Reconhecimento de experimentação",
+   "campos": [
+    {
+     "chave": "v1_code",
+     "rotulo": "Código (teto)",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "0",
+      "1",
+      "2",
+      "3"
+     ]
+    },
+    {
+     "chave": "v1_register",
+     "rotulo": "Registro do teto",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "binding",
+      "non-binding",
+      "both"
+     ]
+    },
+    {
+     "chave": "v1_evidence",
+     "rotulo": "Evidência (citação verbatim + documento)",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V2",
+   "titulo": "Enquadramento",
+   "campos": [
+    {
+     "chave": "v2_framing",
+     "rotulo": "Enquadramentos presentes",
+     "tipo": "checks",
+     "opcoes": [
+      "service improvement",
+      "research",
+      "human-subjects research",
+      "social-good/community"
+     ]
+    },
+    {
+     "chave": "v2_evidence",
+     "rotulo": "Evidência (uma citação por enquadramento)",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V3",
+   "titulo": "Especificidade",
+   "campos": [
+    {
+     "chave": "v3_activities",
+     "rotulo": "V3a — atividades/superfícies nomeadas?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v3_specific",
+     "rotulo": "V3c — experimento específico/ativo divulgado?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v3_pricing",
+     "rotulo": "V3-pricing — preço nomeado como alvo?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v3_targets",
+     "rotulo": "V3b — alvos nomeados",
+     "tipo": "line",
+     "opcoes": []
+    },
+    {
+     "chave": "v3_evidence",
+     "rotulo": "Evidência",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V4",
+   "titulo": "Base legal",
+   "campos": [
+    {
+     "chave": "v4_basis",
+     "rotulo": "Bases declaradas (multi)",
+     "tipo": "checks",
+     "opcoes": [
+      "legitimate interest",
+      "consent",
+      "contract",
+      "not stated"
+     ]
+    },
+    {
+     "chave": "v4_mapped_purpose",
+     "rotulo": "Finalidade mapeada como experimentação",
+     "tipo": "line",
+     "opcoes": []
+    },
+    {
+     "chave": "v4_region_gated",
+     "rotulo": "Tabela de bases geo-gated?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No",
+      "not-verifiable (vantage)"
+     ]
+    },
+    {
+     "chave": "v4_evidence",
+     "rotulo": "Evidência",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V5",
+   "titulo": "Opt-out de experimentação",
+   "campos": [
+    {
+     "chave": "v5_optout",
+     "rotulo": "Nível",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "none",
+      "GDPR-objection-only",
+      "cookie/ads-only",
+      "dedicated",
+      "opt-in"
+     ]
+    },
+    {
+     "chave": "v5_evidence",
+     "rotulo": "Evidência",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V6",
+   "titulo": "Opt-in beta/teste",
+   "campos": [
+    {
+     "chave": "v6_optin_beta",
+     "rotulo": "Existe programa opt-in?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v6_which",
+     "rotulo": "Qual (nome + como funciona)",
+     "tipo": "line",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V7",
+   "titulo": "Debriefing",
+   "campos": [
+    {
+     "chave": "v7_debrief",
+     "rotulo": "Debriefing existe?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v7_evidence",
+     "rotulo": "Evidência / justificativa do No (aponte o log)",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V8",
+   "titulo": "Ética / revisão / risco",
+   "campos": [
+    {
+     "chave": "v8_ethics",
+     "rotulo": "Menção a ética/revisão/risco para experimentos?",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "Yes",
+      "No"
+     ]
+    },
+    {
+     "chave": "v8_note",
+     "rotulo": "Nota (borderlines, gap regulatório)",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "V9",
+   "titulo": "Onde divulgado",
+   "campos": [
+    {
+     "chave": "v9_where",
+     "rotulo": "Locais (multi)",
+     "tipo": "checks",
+     "opcoes": [
+      "privacy policy",
+      "ToS/conditions",
+      "research notice separado",
+      "help centre",
+      "blog/PR/site de pesquisa"
+     ]
+    },
+    {
+     "chave": "v9_register",
+     "rotulo": "Registro agregado",
+     "tipo": "select",
+     "opcoes": [
+      "",
+      "binding",
+      "non-binding",
+      "both"
+     ]
+    },
+    {
+     "chave": "v9_evidence",
+     "rotulo": "Evidência / observações",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  },
+  {
+   "vid": "KW",
+   "titulo": "Log de palavras-chave (obrigatório)",
+   "campos": [
+    {
+     "chave": "keyword_log",
+     "rotulo": "Log",
+     "tipo": "text",
+     "opcoes": []
+    }
+   ]
+  }
+ ],
+ "servicos": [
+  "Wikipedia",
+  "Temu",
+  "Facebook",
+  "YouTube",
+  "Google Search",
+  "WhatsApp",
+  "Booking.com",
+  "Google Maps",
+  "Pornhub",
+  "Amazon Store",
+  "LinkedIn",
+  "Bing",
+  "XVideos",
+  "Shein",
+  "X",
+  "XNXX",
+  "Zalando",
+  "Snapchat",
+  "Stripchat",
+  "App Store",
+  "Instagram",
+  "Google Play",
+  "Pinterest",
+  "Google Shopping",
+  "TikTok",
+  "AliExpress"
+ ],
+ "casos": [
+  {
+   "vid": "V1",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v1_code",
+     "resposta"
+    ],
+    [
+     "v1_register",
+     "resposta"
+    ],
+    [
+     "v1_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V1",
+   "nome": "só as perguntas",
+   "reg": {
+    "v1_code": "0",
+    "v1_register": "binding"
+   },
+   "esperado": [
+    [
+     "v1_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V1",
+   "nome": "completo",
+   "reg": {
+    "v1_code": "0",
+    "v1_register": "binding",
+    "v1_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V1",
+   "nome": "v1_evidence vazio",
+   "reg": {
+    "v1_code": "0",
+    "v1_register": "binding",
+    "v1_evidence": ""
+   },
+   "esperado": [
+    [
+     "v1_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V2",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v2_framing",
+     "resposta"
+    ],
+    [
+     "v2_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V2",
+   "nome": "só as perguntas",
+   "reg": {
+    "v2_framing": [
+     "service improvement"
+    ]
+   },
+   "esperado": [
+    [
+     "v2_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V2",
+   "nome": "completo",
+   "reg": {
+    "v2_framing": [
+     "service improvement"
+    ],
+    "v2_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V2",
+   "nome": "v2_framing vazio",
+   "reg": {
+    "v2_framing": [],
+    "v2_evidence": "texto"
+   },
+   "esperado": [
+    [
+     "v2_framing",
+     "resposta"
+    ]
+   ]
+  },
+  {
+   "vid": "V2",
+   "nome": "v2_evidence vazio",
+   "reg": {
+    "v2_framing": [
+     "service improvement"
+    ],
+    "v2_evidence": ""
+   },
+   "esperado": [
+    [
+     "v2_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V3",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v3_activities",
+     "resposta"
+    ],
+    [
+     "v3_specific",
+     "resposta"
+    ],
+    [
+     "v3_pricing",
+     "resposta"
+    ],
+    [
+     "v3_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V3",
+   "nome": "só as perguntas",
+   "reg": {
+    "v3_activities": "Yes",
+    "v3_specific": "Yes",
+    "v3_pricing": "Yes"
+   },
+   "esperado": [
+    [
+     "v3_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V3",
+   "nome": "completo",
+   "reg": {
+    "v3_activities": "Yes",
+    "v3_specific": "Yes",
+    "v3_pricing": "Yes",
+    "v3_targets": "texto",
+    "v3_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V3",
+   "nome": "v3_evidence vazio",
+   "reg": {
+    "v3_activities": "Yes",
+    "v3_specific": "Yes",
+    "v3_pricing": "Yes",
+    "v3_targets": "texto",
+    "v3_evidence": ""
+   },
+   "esperado": [
+    [
+     "v3_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V4",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v4_basis",
+     "resposta"
+    ],
+    [
+     "v4_region_gated",
+     "resposta"
+    ],
+    [
+     "v4_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V4",
+   "nome": "só as perguntas",
+   "reg": {
+    "v4_basis": [
+     "legitimate interest"
+    ],
+    "v4_region_gated": "Yes"
+   },
+   "esperado": [
+    [
+     "v4_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V4",
+   "nome": "completo",
+   "reg": {
+    "v4_basis": [
+     "legitimate interest"
+    ],
+    "v4_region_gated": "Yes",
+    "v4_mapped_purpose": "texto",
+    "v4_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V4",
+   "nome": "v4_basis vazio",
+   "reg": {
+    "v4_basis": [],
+    "v4_region_gated": "Yes",
+    "v4_mapped_purpose": "texto",
+    "v4_evidence": "texto"
+   },
+   "esperado": [
+    [
+     "v4_basis",
+     "resposta"
+    ]
+   ]
+  },
+  {
+   "vid": "V4",
+   "nome": "v4_evidence vazio",
+   "reg": {
+    "v4_basis": [
+     "legitimate interest"
+    ],
+    "v4_region_gated": "Yes",
+    "v4_mapped_purpose": "texto",
+    "v4_evidence": ""
+   },
+   "esperado": [
+    [
+     "v4_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V5",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v5_optout",
+     "resposta"
+    ],
+    [
+     "v5_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V5",
+   "nome": "só as perguntas",
+   "reg": {
+    "v5_optout": "none"
+   },
+   "esperado": [
+    [
+     "v5_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V5",
+   "nome": "completo",
+   "reg": {
+    "v5_optout": "none",
+    "v5_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V5",
+   "nome": "v5_evidence vazio",
+   "reg": {
+    "v5_optout": "none",
+    "v5_evidence": ""
+   },
+   "esperado": [
+    [
+     "v5_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V6",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v6_optin_beta",
+     "resposta"
+    ]
+   ]
+  },
+  {
+   "vid": "V6",
+   "nome": "só as perguntas",
+   "reg": {
+    "v6_optin_beta": "Yes"
+   },
+   "esperado": [
+    [
+     "v6_which",
+     "exigido porque v6_optin_beta = Yes"
+    ]
+   ]
+  },
+  {
+   "vid": "V6",
+   "nome": "completo",
+   "reg": {
+    "v6_optin_beta": "Yes",
+    "v6_which": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V7",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v7_debrief",
+     "resposta"
+    ],
+    [
+     "v7_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V7",
+   "nome": "só as perguntas",
+   "reg": {
+    "v7_debrief": "Yes"
+   },
+   "esperado": [
+    [
+     "v7_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V7",
+   "nome": "completo",
+   "reg": {
+    "v7_debrief": "Yes",
+    "v7_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V7",
+   "nome": "v7_evidence vazio",
+   "reg": {
+    "v7_debrief": "Yes",
+    "v7_evidence": ""
+   },
+   "esperado": [
+    [
+     "v7_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V8",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v8_ethics",
+     "resposta"
+    ],
+    [
+     "v8_note",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V8",
+   "nome": "só as perguntas",
+   "reg": {
+    "v8_ethics": "Yes"
+   },
+   "esperado": [
+    [
+     "v8_note",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V8",
+   "nome": "completo",
+   "reg": {
+    "v8_ethics": "Yes",
+    "v8_note": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V8",
+   "nome": "v8_note vazio",
+   "reg": {
+    "v8_ethics": "Yes",
+    "v8_note": ""
+   },
+   "esperado": [
+    [
+     "v8_note",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V9",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "v9_where",
+     "resposta"
+    ],
+    [
+     "v9_register",
+     "resposta"
+    ],
+    [
+     "v9_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V9",
+   "nome": "só as perguntas",
+   "reg": {
+    "v9_where": [
+     "privacy policy"
+    ],
+    "v9_register": "binding"
+   },
+   "esperado": [
+    [
+     "v9_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "V9",
+   "nome": "completo",
+   "reg": {
+    "v9_where": [
+     "privacy policy"
+    ],
+    "v9_register": "binding",
+    "v9_evidence": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V9",
+   "nome": "v9_where vazio",
+   "reg": {
+    "v9_where": [],
+    "v9_register": "binding",
+    "v9_evidence": "texto"
+   },
+   "esperado": [
+    [
+     "v9_where",
+     "resposta"
+    ]
+   ]
+  },
+  {
+   "vid": "V9",
+   "nome": "v9_evidence vazio",
+   "reg": {
+    "v9_where": [
+     "privacy policy"
+    ],
+    "v9_register": "binding",
+    "v9_evidence": ""
+   },
+   "esperado": [
+    [
+     "v9_evidence",
+     "evidência"
+    ]
+   ]
+  },
+  {
+   "vid": "KW",
+   "nome": "vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "keyword_log",
+     "log de palavras-chave"
+    ]
+   ]
+  },
+  {
+   "vid": "KW",
+   "nome": "completo",
+   "reg": {
+    "keyword_log": "texto"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "KW",
+   "nome": "keyword_log vazio",
+   "reg": {
+    "keyword_log": ""
+   },
+   "esperado": [
+    [
+     "keyword_log",
+     "log de palavras-chave"
+    ]
+   ]
+  },
+  {
+   "vid": "V6",
+   "nome": "beta Yes sem qual",
+   "reg": {
+    "v6_optin_beta": "Yes"
+   },
+   "esperado": [
+    [
+     "v6_which",
+     "exigido porque v6_optin_beta = Yes"
+    ]
+   ]
+  },
+  {
+   "vid": "V6",
+   "nome": "beta Yes com qual",
+   "reg": {
+    "v6_optin_beta": "Yes",
+    "v6_which": "TestFlight"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "V6",
+   "nome": "beta No sem qual",
+   "reg": {
+    "v6_optin_beta": "No"
+   },
+   "esperado": []
+  },
+  {
+   "vid": "KW",
+   "nome": "log vazio",
+   "reg": {},
+   "esperado": [
+    [
+     "keyword_log",
+     "log de palavras-chave"
+    ]
+   ]
+  },
+  {
+   "vid": "KW",
+   "nome": "log preenchido",
+   "reg": {
+    "keyword_log": "01.md: experiment:0"
+   },
+   "esperado": []
+  }
+ ]
+}
