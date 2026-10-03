@@ -26,7 +26,7 @@ O QUE ELE NÃO RECEBE: códigos ou anotações da passada 1; a etiqueta `role`
 isso sobre a mensagem montada.
 
 O QUE ELE DEVOLVE, por variável V1..V9: um valor por campo (dentro das opções
-do codebook, garantido pelo esquema de saída e conferido de novo aqui), uma
+do codebook, conferido aqui, com uma segunda tentativa se vier fora), uma
 razão de até duas frases, a confiança e os ids das citações usadas. Os campos
 de texto (evidência e nota) não são pedidos: a página os preenche com as
 citações indicadas.
@@ -123,36 +123,73 @@ def texto_de(html: str) -> str:
 
 # ------------------------------------------------------------ esquema de saída
 
-def esquema(cb: dict) -> dict:
-    """JSON Schema da resposta, gerado do codebook: as opções viram enum."""
-    props = {}
-    for v in cb["variaveis"]:
-        if v["vid"] not in VARIAVEIS_DO_COPILOTO:
+def esquema(cb: dict | None = None) -> dict:
+    """JSON Schema da resposta: compacto, em forma de lista.
+
+    A primeira versão tinha um objeto por variável com os campos fixos e as
+    opções em enum; a API recusou ("compiled grammar is too large"), com e sem
+    enum. Esta forma tem um só tipo de item repetido, e a API aceita. A
+    conversão para o formato por variável e a conferência das opções ficam em
+    Python (`normalizar` e `validar`).
+    """
+    campo = {"type": "object",
+             "properties": {"chave": {"type": "string"},
+                            "valor": {"type": "string"},
+                            "valores": {"type": "array", "items": {"type": "string"}}},
+             "required": ["chave", "valor", "valores"], "additionalProperties": False}
+    variavel = {"type": "object",
+                "properties": {"vid": {"type": "string"},
+                               "campos": {"type": "array", "items": campo},
+                               "razao": {"type": "string"},
+                               "confianca": {"type": "string"},
+                               "citacoes": {"type": "array", "items": {"type": "string"}}},
+                "required": ["vid", "campos", "razao", "confianca", "citacoes"],
+                "additionalProperties": False}
+    return {"type": "object",
+            "properties": {"variaveis": {"type": "array", "items": variavel}},
+            "required": ["variaveis"], "additionalProperties": False}
+
+
+def _tipos(cb: dict) -> dict:
+    return {c["chave"]: c["tipo"] for v in cb["variaveis"] for c in v["campos"]}
+
+
+def normalizar(bruto: dict, cb: dict) -> dict:
+    """Da lista que o esquema impõe para {vid: {campos: {chave: valor}, ...}}."""
+    tipos = _tipos(cb)
+    saida = {}
+    for item in (bruto or {}).get("variaveis", []) if isinstance(bruto, dict) else []:
+        if not isinstance(item, dict):
             continue
         campos = {}
-        for c in v["campos"]:
-            if c["tipo"] == "text":
+        for c in item.get("campos", []) or []:
+            if not isinstance(c, dict) or not c.get("chave"):
                 continue
-            opcoes = [o for o in c["opcoes"] if o != ""]
-            if c["tipo"] == "select":
-                campos[c["chave"]] = {"type": "string", "enum": opcoes}
-            elif c["tipo"] == "checks":
-                campos[c["chave"]] = {"type": "array", "items": {"type": "string", "enum": opcoes}}
-            else:  # line
-                campos[c["chave"]] = {"type": "string"}
-        props[v["vid"]] = {
-            "type": "object",
-            "properties": {
-                "campos": {"type": "object", "properties": campos,
-                           "required": list(campos), "additionalProperties": False},
-                "razao": {"type": "string"},
-                "confianca": {"type": "string", "enum": list(CONFIANCAS)},
-                "citacoes": {"type": "array", "items": {"type": "string"}},
-            },
-            "required": ["campos", "razao", "confianca", "citacoes"],
-            "additionalProperties": False,
-        }
-    return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}
+            if tipos.get(c["chave"]) == "checks":
+                vals = c.get("valores") or ([c["valor"]] if c.get("valor") else [])
+                campos[c["chave"]] = [str(x) for x in vals]
+            else:
+                campos[c["chave"]] = str(c.get("valor") or "")
+        saida[item.get("vid")] = {"campos": campos, "razao": item.get("razao"),
+                                  "confianca": item.get("confianca"),
+                                  "citacoes": item.get("citacoes")}
+    return saida
+
+
+def para_bruto(normalizado: dict, cb: dict) -> dict:
+    """O inverso de `normalizar`, para a simulação e para testes."""
+    tipos = _tipos(cb)
+    lista = []
+    for vid, item in normalizado.items():
+        campos = []
+        for chave, val in item["campos"].items():
+            if tipos.get(chave) == "checks":
+                campos.append({"chave": chave, "valor": "", "valores": list(val)})
+            else:
+                campos.append({"chave": chave, "valor": str(val), "valores": []})
+        lista.append({"vid": vid, "campos": campos, "razao": item["razao"],
+                      "confianca": item["confianca"], "citacoes": item["citacoes"]})
+    return {"variaveis": lista}
 
 
 def impressao_do_prompt(cb: dict) -> str:
@@ -198,9 +235,12 @@ def montar_mensagem(servico: str, cb: dict, ids: dict, piso: dict) -> str:
         partes.append("(nenhuma citação verificada para este serviço)")
     for cid, c in ids.items():
         partes.append(f"{cid} (documento {c.get('doc')}, {c.get('onde', '')}): \"{c.get('verbatim', '')}\"")
-    partes += ["", "FORMATO DA RESPOSTA: um objeto JSON com as chaves V1 a V9. Em cada uma: "
-               "\"campos\" (um valor por campo listado acima), \"razao\" (até duas frases), "
-               "\"confianca\" (alta, média ou baixa) e \"citacoes\" (lista de identificadores usados)."]
+    partes += ["", "FORMATO DA RESPOSTA: um objeto JSON {\"variaveis\": [...]} com um item por "
+               "variável, de V1 a V9. Cada item tem \"vid\", \"campos\" (uma entrada por campo "
+               "listado acima: {\"chave\", \"valor\", \"valores\"}; campo de múltipla escolha usa "
+               "\"valores\" e deixa \"valor\" vazio; os outros usam \"valor\" e deixam \"valores\" "
+               "vazio), \"razao\" (até duas frases), \"confianca\" (alta, média ou baixa) e "
+               "\"citacoes\" (lista de identificadores usados)."]
     return "\n".join(partes)
 
 
@@ -275,7 +315,7 @@ def _chamar(cliente, modelo: str, cb: dict, mensagem: str):
         raise RuntimeError(f"resposta truncada em {MAX_TOKENS} tokens de saída")
     texto = next(b.text for b in resposta.content if b.type == "text")
     uso = {"input": resposta.usage.input_tokens, "output": resposta.usage.output_tokens}
-    return json.loads(_limpar_json(texto)), uso
+    return normalizar(json.loads(_limpar_json(texto)), cb), uso
 
 
 def entradas(servico: str, corpus) -> tuple[dict, dict]:
@@ -347,7 +387,7 @@ def prompt_md(cb: dict, modelo: str) -> str:
         "## O que o modelo devolve",
         "",
         "Para cada variável V1 a V9: um valor por campo (dentro das opções do codebook, "
-        "garantido pelo esquema de saída), uma razão de até duas frases, a confiança "
+        "conferido na geração), uma razão de até duas frases, a confiança "
         "(alta, média ou baixa) e os identificadores das citações usadas. Os campos de "
         "evidência não são pedidos ao modelo: a página os preenche com as citações indicadas.",
         "",
@@ -492,7 +532,7 @@ class _ClienteFalso:
         corpo = self.resposta_canonica()
         if self.forcar:
             corpo = self.forcar(corpo, self.chamadas)
-        cliente = self
+        corpo = para_bruto(corpo, self.cb)
 
         class _Ctx:
             def __enter__(self_inner):
@@ -540,16 +580,18 @@ def _self_test(corpus_dir: str | None) -> int:
     checar_um("critério vira texto, sem tags", "<" not in texto_de(cb["variaveis"][0]["crit_html"]))
 
     esq = esquema(cb)
-    checar_um("esquema cobre V1..V9 e nada mais", list(esq["properties"]) == list(VARIAVEIS_DO_COPILOTO))
-    checar_um("esquema pede os campos sem os de texto",
-              "v1_evidence" not in esq["properties"]["V1"]["properties"]["campos"]["properties"]
-              and "v1_code" in esq["properties"]["V1"]["properties"]["campos"]["properties"])
-    checar_um("v1_code no esquema é enum sem o vazio",
-              esq["properties"]["V1"]["properties"]["campos"]["properties"]["v1_code"]["enum"] == ["0", "1", "2", "3"])
+    checar_um("esquema é compacto: uma lista de variáveis com campos {chave, valor, valores}",
+              list(esq["properties"]) == ["variaveis"]
+              and set(esq["properties"]["variaveis"]["items"]["properties"]["campos"]["items"]["properties"]) == {"chave", "valor", "valores"})
+    checar_um("esquema cabe em menos de 1.500 caracteres", len(json.dumps(esq)) < 1500)
 
     falso = _ClienteFalso(cb, ids)
     canon = falso.resposta_canonica()
     checar_um("validar aceita a resposta canônica", validar(canon, cb, ids) == [])
+    checar_um("normalizar desfaz para_bruto", normalizar(para_bruto(canon, cb), cb) == canon)
+    checar_um("normalizar aceita múltipla escolha vinda em 'valor' por engano",
+              normalizar({"variaveis": [{"vid": "V2", "campos": [{"chave": "v2_framing", "valor": "research", "valores": []}],
+                                         "razao": "r", "confianca": "baixa", "citacoes": []}]}, cb)["V2"]["campos"]["v2_framing"] == ["research"])
     ruim = json.loads(json.dumps(canon)); ruim["V1"]["campos"]["v1_code"] = "7"
     checar_um("validar rejeita valor fora das opções", any("v1_code" in p for p in validar(ruim, cb, ids)))
     ruim = json.loads(json.dumps(canon)); ruim["V2"]["campos"]["v2_framing"] = []
