@@ -1,4 +1,12 @@
 {
- "records": {},
- "saved_at": "2026-10-04T20:57:47.393Z"
+ "records": {
+  "Wikipedia": {
+   "v1_code": "3",
+   "v1_register": "both",
+   "v1_evidence": "“optimize mobile applications, customize content and set language preferences, test features to see what works, and improve performance” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"Information We Receive Automatically\", parágrafo que começa com \"Put simply, we use this information to enhance your experience\")\n“To test features to see what works, understand how users interact with the Wikimedia Sites, track and study use of various features, gain understanding about the demographics of the different Wikimedia Sites and analyze trends.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"How We Use Information We Receive From You\" > bullet \"Improving the Wikimedia Sites and making your user experience safer and better\")\n“To Understand & Experiment” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Título de subseção em \"When May We Share Your Information?\" (Sharing))",
+   "service": "Wikipedia",
+   "_ts": 1791147500676
+  }
+ },
+ "saved_at": "2026-10-04T20:58:20.676Z"
 }
