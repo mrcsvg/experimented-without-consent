@@ -1,10 +1,12 @@
 {
  "records": {
   "Wikipedia": {
-   "v1_evidence": "“…ol-specific policies. Tool providers . We support platforms for third-party developers to experiment and develop new tools and sites, such as wmflabs.org . When you use one of the tools deve…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\")",
-   "service": "Wikipedia",
-   "_ts": 1791150180183
+   "v1_evidence": "",
+   "_ts": 1791150198880,
+   "v1_code": "",
+   "v1_register": "",
+   "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-04T21:43:00.183Z"
+ "saved_at": "2026-10-04T21:43:18.880Z"
 }
