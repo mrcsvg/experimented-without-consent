@@ -63,10 +63,12 @@ analysis/nb-clean.py            keeps notebook output out of the repository
 ### The second coder's page
 
 `index.html` plus `assistente/` is a guided page (HTML and JavaScript, no build
-step). It takes the coder through one service at a time and, inside it, one
-variable per screen: the question in plain language, the evidence (a
-deterministic keyword floor and the model's frozen verbatim citations), the
-fields, and a copilot suggestion behind a button. Every answer is saved to
+step). It takes the coder through one service at a time: first the type of
+each document (which decides its register), then one variable per screen. The
+coder rates every excerpt (a deterministic keyword floor plus the model's frozen
+verbatim citations) and the variable's answer is computed from those ratings by
+the frozen codebook's rule, with a manual override and a comment; a copilot
+suggestion per excerpt sits behind a button. Every answer is saved to
 `/api/state`, which commits it to a data branch of this repository, so each
 coding carries a timestamp. The link carries a key in its fragment; a second key
 opens a rehearsal mode that writes to a separate file.

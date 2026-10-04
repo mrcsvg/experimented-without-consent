@@ -7,7 +7,6 @@
 // Campo de linha que a resposta de outro campo torna exigível: dizer que há
 // programa opt-in sem dizer qual não é uma codificação verificável.
 export const LINE_EXIGIDA = { v6_which: ["v6_optin_beta", "Yes"] };
-export const MAX_CITACOES_NA_EVIDENCIA = 3;
 
 const vazio = (valor) => !valor || (Array.isArray(valor) && valor.length === 0);
 
@@ -27,41 +26,6 @@ export function faltando(variavel, reg) {
     }
   }
   return pend;
-}
-
-export function fechados(codebook, reg) {
-  const saida = {};
-  for (const v of codebook.variaveis) saida[v.vid] = faltando(v, reg).length === 0;
-  return saida;
-}
-
-export function progresso(codebook, reg) {
-  const f = fechados(codebook, reg);
-  return { feitas: Object.values(f).filter(Boolean).length, total: codebook.variaveis.length };
-}
-
-export function concluido(codebook, reg) {
-  const p = progresso(codebook, reg);
-  return p.feitas === p.total;
-}
-
-// Abre na primeira variável ainda incompleta, não na V1. Tudo respondido abre
-// na última, para rever.
-export function primeiroIncompleto(codebook, reg) {
-  const i = codebook.variaveis.findIndex((v) => faltando(v, reg).length > 0);
-  return i === -1 ? codebook.variaveis.length - 1 : i;
-}
-
-// O próximo serviço incompleto depois de `atual`, na ordem do codebook, dando
-// a volta. null quando os 26 estão concluídos.
-export function proximoServico(codebook, records, atual) {
-  const ordem = codebook.servicos;
-  const inicio = atual ? ordem.indexOf(atual) + 1 : 0;
-  for (let k = 0; k < ordem.length; k++) {
-    const s = ordem[(inicio + k) % ordem.length];
-    if (!concluido(codebook, (records || {})[s] || {})) return s;
-  }
-  return null;
 }
 
 export function logSugerido(piso) {
@@ -88,30 +52,6 @@ export function textoDeEvidencia(citacao, docs) {
   if (citacao.onde) partes.push(citacao.onde);
   const onde = partes.length ? ` (${partes.join(", ")})` : "";
   return `“${(citacao.verbatim || "").trim()}”${onde}`;
-}
-
-// Preenche os campos da variável com a sugestão e a evidência com as citações
-// indicadas. Campo de texto já escrito pelo codificador fica como está.
-export function aplicarSugestao(variavel, reg, sugestao, citacoesPorId, docs) {
-  const novo = { ...(reg || {}) };
-  const chaves = new Set(variavel.campos.map((c) => c.chave));
-  for (const [chave, valor] of Object.entries(sugestao.campos || {})) {
-    if (!chaves.has(chave)) continue;
-    const campo = variavel.campos.find((c) => c.chave === chave);
-    novo[chave] = campo.tipo === "checks" ? [].concat(valor || []) : (valor == null ? "" : String(valor));
-  }
-  // No máximo três citações na evidência: o campo tem de continuar legível, e
-  // o codificador pode acrescentar outras com "usar como evidência".
-  const citadas = (sugestao.citacoes || []).map((id) => (citacoesPorId || {})[id]).filter(Boolean).slice(0, MAX_CITACOES_NA_EVIDENCIA);
-  const evidencia = citadas.length
-    ? citadas.map((c) => textoDeEvidencia(c, docs)).join("\n")
-    : (sugestao.razao ? `Copiloto: ${sugestao.razao}` : "");
-  for (const c of variavel.campos) {
-    if (c.tipo === "text" && c.chave !== "keyword_log" && vazio(novo[c.chave]) && evidencia) {
-      novo[c.chave] = evidencia;
-    }
-  }
-  return novo;
 }
 
 export function chaveDoLink(hash) {
