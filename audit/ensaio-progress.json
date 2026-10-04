@@ -465,16 +465,37 @@
      "registro": "non-binding"
     }
    },
-   "notas": {},
+   "notas": {
+    "V1": {
+     "c:V1-1": {
+      "nota": "1"
+     },
+     "c:V1-2": {
+      "nota": "1"
+     },
+     "c:V1-3": {
+      "nota": "1"
+     },
+     "c:V1-4": {
+      "nota": "1"
+     },
+     "c:V1-5": {
+      "nota": "x"
+     },
+     "c:V1-6": {
+      "nota": "1"
+     }
+    }
+   },
    "extras": {},
    "override": {},
    "comentarios": {},
    "confirmadas": {
     "DOCS": true
    },
-   "v1_code": "0",
-   "v1_register": "",
-   "v1_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos julgados: não é isso).",
+   "v1_code": "1",
+   "v1_register": "binding",
+   "v1_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: 1 · só melhorar\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: 1 · só melhorar\n“We improve the Service, analyse performance, and maintain and improve our business. As part of these activities, we may create aggregated or otherwise deidentified data. We fix errors and ensure the Service works properly outside what is strictly contractually necessary to provide you with the Service.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, corpo da finalidade de melhoria) · nota: 1 · só melhorar\n“We use the Personal Data that we collect for various purposes, including to develop, improve, support and provide the Service, allowing you to use its features” (Documento 2: Temu | Privacy Policy, Doc 2, abertura de “How and Why We Process Your Information and Our Legal Bases for Processing”) · nota: 1 · só melhorar\n“We may use your customer support activity and chats with merchandise partners data to optimise our customer service support activity, for example, to improve the responses provided by our virtual assistant.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, finalidade de melhoria/otimização) · nota: 1 · só melhorar",
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 4 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v3_activities": "No",
@@ -496,14 +517,16 @@
    "v7_evidence": "Nenhum dos 2 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v8_ethics": "No",
    "v8_note": "Nenhum dos 2 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "v9_where": [],
-   "v9_register": "",
-   "v9_evidence": "Nenhum dos 5 trechos sustenta outra resposta (todos julgados: não é isso).",
+   "v9_where": [
+    "privacy policy"
+   ],
+   "v9_register": "binding",
+   "v9_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: divulga experimentação aqui\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: divulga experimentação aqui\n“We improve the Service, analyse performance, and maintain and improve our business. As part of these activities, we may create aggregated or otherwise deidentified data. We fix errors and ensure the Service works properly outside what is strictly contractually necessary to provide you with the Service.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, corpo da finalidade de melhoria) · nota: divulga experimentação aqui\n“We use the Personal Data that we collect for various purposes, including to develop, improve, support and provide the Service, allowing you to use its features” (Documento 2: Temu | Privacy Policy, Doc 2, abertura de “How and Why We Process Your Information and Our Legal Bases for Processing”) · nota: divulga experimentação aqui\n“We may use your customer support activity and chats with merchandise partners data to optimise our customer service support activity, for example, to improve the responses provided by our virtual assistant.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, finalidade de melhoria/otimização) · nota: divulga experimentação aqui",
    "keyword_log": "",
    "notes": "",
-   "service": "Temu",
-   "_ts": 1791158090883
+   "_ts": 1791158093695,
+   "service": "Temu"
   }
  },
- "saved_at": "2026-10-04T23:54:50.883Z"
+ "saved_at": "2026-10-04T23:54:53.695Z"
 }
