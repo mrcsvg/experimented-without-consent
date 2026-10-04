@@ -136,3 +136,228 @@ export function mesclar(local, servidor) {
   }
   return { records, pendentes };
 }
+
+// ============================================================ notas por trecho
+// Versão B (04/10/2026): o codificador dá uma nota a cada trecho e a resposta
+// da variável é calculada do critério congelado. As opções de nota, os tipos
+// de documento e os extras vêm do codebook.json (`notas`, `tipos_doc`,
+// `extras`), exportados por analysis/exportar-codebook.py.
+
+export const NAO_E_ISSO = "x";
+export const DOCS = "DOCS";
+
+// FNV-1a de 32 bits sobre UTF-8, em 8 hex. O mesmo cálculo existe em
+// copiloto.py: os ids dos trechos têm de bater entre a página e o copiloto.
+export function hash8(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let h = 0x811c9dc5;
+  for (const b of bytes) { h ^= b; h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16).padStart(8, "0");
+}
+
+export function idDoHit(hit) { return `h:${hash8(`${hit.file}\n${hit.kwic}`)}`; }
+
+function notaDe(reg, vid, id) {
+  const n = reg && reg.notas && reg.notas[vid] && reg.notas[vid][id];
+  return n ? n.nota : undefined;
+}
+function comDe(reg, vid, id) {
+  const n = reg && reg.notas && reg.notas[vid] && reg.notas[vid][id];
+  return (n && n.com) || "";
+}
+const relevante = (nota) => nota !== undefined && nota !== NAO_E_ISSO && !(Array.isArray(nota) && nota.length === 0);
+
+export function registroPadrao(codebook, tipo) {
+  const t = (codebook.tipos_doc || []).find((x) => x.valor === tipo);
+  return t ? t.registro : null;
+}
+
+// Os trechos de uma variável: busca por palavra-chave e citações do modelo,
+// com ids estáveis. Na V9 entram também os trechos da V1 que receberam nível
+// 1 a 3, já julgados como "divulga aqui" até o codificador dizer o contrário.
+export function trechosDaVariavel(vid, d, reg) {
+  const hits = ((d.piso && d.piso.por_variavel) || {})[vid] || [];
+  const cits = (d.citacoes || {})[vid] || [];
+  const lista = [
+    ...hits.map((h) => ({ id: idDoHit(h), origem: "piso", verbatim: h.kwic, file: h.file, doc: h.n,
+                          onde: `palavra-chave "${h.termo}"`, termo: h.termo, flag: h.flag, total_no_doc: h.total_no_doc })),
+    ...cits.map((c, i) => ({ id: `c:${vid}-${i + 1}`, origem: "modelo", verbatim: c.verbatim, file: c.file, doc: c.doc, onde: c.onde || "" })),
+  ];
+  if (vid === "V9") {
+    const vistos = new Set(lista.map((t) => t.id));
+    for (const t of trechosDaVariavel("V1", d, reg)) {
+      const n = notaDe(reg, "V1", t.id);
+      if (relevante(n) && !vistos.has(t.id)) lista.push({ ...t, origem: "v1", notaV1: n });
+    }
+  }
+  return lista;
+}
+
+function notaEfetiva(reg, vid, t) {
+  const n = notaDe(reg, vid, t.id);
+  if (n !== undefined) return n;
+  return t.origem === "v1" ? "sim" : undefined;
+}
+
+export function textoDeEvidenciaNotas(vid, specVid, trechos, relevantes, comentario, docs, linhasExtras = []) {
+  const ops = (specVid && specVid.opcoes) || [];
+  const rotulo = (valor) => { const o = ops.find((x) => x.valor === valor); return o ? o.rotulo : String(valor); };
+  const linhas = relevantes.map((t) =>
+    `${textoDeEvidencia(t, docs)} · nota: ${[].concat(t.nota).map(rotulo).join(", ")}${t.com ? ` · comentário: ${t.com}` : ""}`);
+  if (!relevantes.length) {
+    linhas.push(trechos.length
+      ? `Nenhum dos ${trechos.length} trechos sustenta outra resposta (todos julgados: não é isso).`
+      : "Nenhum trecho localizado para esta variável.");
+  }
+  linhas.push(...linhasExtras);
+  if (comentario) linhas.push(`Comentário: ${comentario}`);
+  return linhas.join("\n");
+}
+
+// Os campos planos (os mesmos de hoje) calculados das notas, com a evidência
+// montada. `origem[campo]` diz se veio do cálculo, de um extra ou de correção.
+export function derivar(codebook, reg, d) {
+  reg = reg || {};
+  const campos = {}; const evidencias = {}; const origem = {}; const n = {};
+  const spec = codebook.notas || {};
+  const docsTipo = reg.docs_tipo || {};
+  const registroDoDoc = (file) => { const t = docsTipo[file]; return t ? (t.registro || registroPadrao(codebook, t.tipo)) : null; };
+  const tipoDoDoc = (file) => (docsTipo[file] || {}).tipo || null;
+  const agregarRegistro = (files) => {
+    const s = new Set(files.map(registroDoDoc).filter(Boolean));
+    return s.size === 2 ? "both" : s.size === 1 ? [...s][0] : "";
+  };
+
+  for (const v of codebook.variaveis) {
+    const vid = v.vid;
+    if (vid === "KW") continue;
+    const trechos = trechosDaVariavel(vid, d, reg);
+    const julgados = trechos.filter((t) => notaEfetiva(reg, vid, t) !== undefined);
+    const rel = trechos.filter((t) => relevante(notaEfetiva(reg, vid, t)))
+      .map((t) => ({ ...t, nota: notaEfetiva(reg, vid, t), com: comDe(reg, vid, t.id) }));
+    n[vid] = { total: trechos.length, julgados: julgados.length, relevantes: rel.length };
+    const ops = (spec[vid] || {}).opcoes || [];
+    const ordem = ops.map((o) => o.valor);
+    const uniao = () => { const s = new Set(); for (const t of rel) for (const x of [].concat(t.nota)) s.add(x); return ordem.filter((x) => s.has(x)); };
+    const linhasExtras = [];
+    switch (vid) {
+      case "V1": {
+        const niveis = rel.map((t) => Number(t.nota)).filter((x) => x >= 1);
+        const teto = niveis.length ? Math.max(...niveis) : 0;
+        campos.v1_code = String(teto);
+        campos.v1_register = teto ? agregarRegistro(rel.filter((t) => Number(t.nota) === teto).map((t) => t.file)) : "";
+        const vinc = rel.filter((t) => registroDoDoc(t.file) === "binding").map((t) => Number(t.nota)).filter((x) => x >= 1);
+        const tetoVinc = vinc.length ? Math.max(...vinc) : 0;
+        if (teto && tetoVinc !== teto) linhasExtras.push(`Nível do registro vinculante sozinho: ${tetoVinc}.`);
+        break;
+      }
+      case "V2": campos.v2_framing = uniao(); break;
+      case "V3": { const u = new Set(uniao()); for (const o of ops) campos[o.campo] = u.has(o.valor) ? "Yes" : "No"; break; }
+      case "V4": { const u = uniao(); campos.v4_basis = u.length ? u : ["not stated"]; break; }
+      case "V5": {
+        const idx = rel.map((t) => ordem.indexOf(t.nota)).filter((i) => i >= 0);
+        campos.v5_optout = idx.length ? ordem[Math.max(...idx)] : "none";
+        break;
+      }
+      case "V6": campos.v6_optin_beta = rel.length ? "Yes" : "No"; break;
+      case "V7": campos.v7_debrief = rel.length ? "Yes" : "No"; break;
+      case "V8": campos.v8_ethics = rel.length ? "Yes" : "No"; break;
+      case "V9": {
+        const tipos = new Set(rel.map((t) => tipoDoDoc(t.file)).filter(Boolean));
+        campos.v9_where = (codebook.tipos_doc || []).map((t) => t.valor).filter((x) => tipos.has(x));
+        campos.v9_register = rel.length ? agregarRegistro(rel.map((t) => t.file)) : "";
+        break;
+      }
+      default: break;
+    }
+    for (const chave of (codebook.extras || {})[vid] || []) {
+      campos[chave] = (reg.extras || {})[chave] || "";
+      origem[chave] = "extra";
+    }
+    for (const c of v.campos) {
+      if (c.tipo === "text") continue;
+      if (!origem[c.chave]) origem[c.chave] = "calculado";
+      if (reg.override && c.chave in reg.override) { campos[c.chave] = reg.override[c.chave]; origem[c.chave] = "corrigido"; }
+    }
+    const campoTexto = v.campos.find((c) => c.tipo === "text");
+    if (campoTexto) {
+      evidencias[vid] = textoDeEvidenciaNotas(vid, spec[vid], trechos, rel, (reg.comentarios || {})[vid] || "", d.docs, linhasExtras);
+      campos[campoTexto.chave] = evidencias[vid];
+    }
+  }
+  campos.keyword_log = reg.keyword_log || "";
+  campos.notes = reg.notes || "";
+  return { campos, evidencias, origem, n };
+}
+
+export function etapas(codebook) { return [DOCS, ...codebook.variaveis.map((v) => v.vid)]; }
+
+// A trava por etapa. Devolve [[o que, motivo], ...]; vazia = pode confirmar.
+export function faltandoEtapa(codebook, etapa, reg, d) {
+  reg = reg || {};
+  if (etapa === DOCS) {
+    return (d.docs || []).filter((x) => !((reg.docs_tipo || {})[x.file] || {}).tipo).map((x) => [x.file, "tipo do documento"]);
+  }
+  if (etapa === "KW") return vazio(reg.keyword_log) ? [["keyword_log", "log de palavras-chave"]] : [];
+  if (faltandoEtapa(codebook, DOCS, reg, d).length) return [[DOCS, "classifique os documentos antes"]];
+  const pend = [];
+  const trechos = trechosDaVariavel(etapa, d, reg);
+  const semNota = trechos.filter((t) => t.origem !== "v1" && notaDe(reg, etapa, t.id) === undefined).length;
+  if (semNota) pend.push(["trechos", `${semNota} trecho${semNota === 1 ? "" : "s"} sem nota`]);
+  if (!trechos.length && !(reg.confirmadas || {})[etapa]) pend.push(["confirmar", "sem trechos: confirme a ausência"]);
+  const { campos } = derivar(codebook, reg, d);
+  if (etapa === "V4" && vazio(campos.v4_region_gated)) pend.push(["v4_region_gated", "resposta"]);
+  if (etapa === "V6" && campos.v6_optin_beta === "Yes" && vazio(campos.v6_which)) pend.push(["v6_which", "exigido porque v6_optin_beta = Yes"]);
+  return pend;
+}
+
+// Uma etapa só fecha com a trava aberta E o clique em Confirmar.
+export function fechadas(codebook, reg, d) {
+  const saida = {};
+  for (const e of etapas(codebook)) saida[e] = faltandoEtapa(codebook, e, reg, d).length === 0 && !!((reg || {}).confirmadas || {})[e];
+  return saida;
+}
+
+export function progressoEtapas(codebook, reg, d) {
+  const f = fechadas(codebook, reg, d);
+  return { feitas: Object.values(f).filter(Boolean).length, total: etapas(codebook).length };
+}
+
+export function concluidoEtapas(codebook, reg, d) {
+  const p = progressoEtapas(codebook, reg, d);
+  return p.feitas === p.total;
+}
+
+export function primeiraEtapaIncompleta(codebook, reg, d) {
+  const f = fechadas(codebook, reg, d);
+  const lista = etapas(codebook);
+  const i = lista.findIndex((e) => !f[e]);
+  return i === -1 ? lista.length - 1 : i;
+}
+
+// Aplica a sugestão do copiloto só onde o codificador ainda não disse nada.
+export function aplicarNotas(reg, vid, sugestao, trechos) {
+  const notas = { ...((reg || {}).notas || {}) };
+  notas[vid] = { ...(notas[vid] || {}) };
+  for (const t of trechos || []) {
+    if (t.origem === "v1" || notas[vid][t.id] !== undefined) continue;
+    const s = ((sugestao || {}).notas || {})[t.id];
+    if (s !== undefined && s !== null && s !== "") notas[vid][t.id] = { nota: s };
+  }
+  const extras = { ...((reg || {}).extras || {}) };
+  for (const [k, val] of Object.entries((sugestao || {}).extras || {})) {
+    if (vazio(extras[k]) && !vazio(val)) extras[k] = val;
+  }
+  return { ...(reg || {}), notas, extras };
+}
+
+export function aplicarTipos(codebook, reg, sugestaoDocs, docs) {
+  const docs_tipo = { ...((reg || {}).docs_tipo || {}) };
+  for (const doc of docs || []) {
+    if ((docs_tipo[doc.file] || {}).tipo) continue;
+    const tipo = (sugestaoDocs || {})[doc.n] ?? (sugestaoDocs || {})[String(doc.n)];
+    const registro = registroPadrao(codebook, tipo);
+    if (tipo && registro) docs_tipo[doc.file] = { tipo, registro };
+  }
+  return { ...(reg || {}), docs_tipo };
+}

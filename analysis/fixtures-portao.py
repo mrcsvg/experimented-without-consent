@@ -90,10 +90,17 @@ def main() -> int:
                   "campos": [{"chave": c.chave, "rotulo": c.rotulo, "tipo": c.tipo,
                               "opcoes": list(c.opcoes or [])} for c in v.campos]}
                  for v in C.VARIAVEIS]
+    # As regras das notas por trecho vêm do mesmo exportador que a página lê.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("exportar_codebook", Path(__file__).resolve().parent / "exportar-codebook.py")
+    EC = importlib.util.module_from_spec(spec); spec.loader.exec_module(EC)
     a.out.write_text(json.dumps({
         "origem": "analysis/fixtures-portao.py, a partir de coding_flow.Fluxo.faltando",
         "variaveis": variaveis,
         "servicos": list(C.SERVICOS),
+        "notas": EC.NOTAS,
+        "tipos_doc": EC.TIPOS_DOC,
+        "extras": EC.EXTRAS,
         "casos": lista,
     }, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"portão: {len(lista)} casos → {a.out}")

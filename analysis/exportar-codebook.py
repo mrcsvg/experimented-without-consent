@@ -58,6 +58,55 @@ REGRAS_GERAIS = [
 ]
 
 
+# ---------------------------------------------------------- notas por trecho
+# Decisão de 04/10/2026: o codificador dá uma nota a cada trecho e a resposta da
+# variável é calculada do critério congelado. As opções de nota são as do
+# próprio codebook (V2, V4, V5) ou tags que apontam para os campos (V3). "x",
+# não é isso, existe em toda variável e não entra aqui. A ausência (0, No,
+# none, not stated) é o que sobra quando nenhum trecho recebe nota.
+NOTAS = {
+    "V1": {"modo": "um", "opcoes": [
+        {"valor": "1", "rotulo": "1 · só melhorar"},
+        {"valor": "2", "rotulo": "2 · testar usuários"},
+        {"valor": "3", "rotulo": "3 · experimento, A/B, randomização"}]},
+    "V2": {"modo": "varios", "opcoes": [
+        {"valor": "service improvement", "rotulo": "melhoria do serviço"},
+        {"valor": "research", "rotulo": "pesquisa"},
+        {"valor": "human-subjects research", "rotulo": "pesquisa com humanos"},
+        {"valor": "social-good/community", "rotulo": "bem da comunidade"}]},
+    "V3": {"modo": "varios", "opcoes": [
+        {"valor": "activities", "rotulo": "nomeia atividades", "campo": "v3_activities"},
+        {"valor": "specific", "rotulo": "experimento específico", "campo": "v3_specific"},
+        {"valor": "pricing", "rotulo": "preço como alvo", "campo": "v3_pricing"}]},
+    "V4": {"modo": "varios", "opcoes": [
+        {"valor": "legitimate interest", "rotulo": "interesse legítimo"},
+        {"valor": "consent", "rotulo": "consentimento"},
+        {"valor": "contract", "rotulo": "contrato"}]},
+    "V5": {"modo": "um", "opcoes": [
+        {"valor": "GDPR-objection-only", "rotulo": "só a objeção genérica do GDPR"},
+        {"valor": "cookie/ads-only", "rotulo": "só cookies ou anúncios"},
+        {"valor": "dedicated", "rotulo": "opt-out dedicado a experimentos"},
+        {"valor": "opt-in", "rotulo": "opt-in"}]},
+    "V6": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "programa beta ou opt-in"}]},
+    "V7": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "é debriefing"}]},
+    "V8": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "revisão ética, comitê ou risco"}]},
+    "V9": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "divulga experimentação aqui"}]},
+}
+
+# Tipos de documento, na ordem das opções de v9_where, com o registro padrão.
+# O codificador pode virar o registro: "registro não é hospedagem".
+TIPOS_DOC = [
+    {"valor": "privacy policy", "rotulo": "política de privacidade (inclui aviso de cookies e tabela de bases legais)", "registro": "binding"},
+    {"valor": "ToS/conditions", "rotulo": "termos de uso", "registro": "binding"},
+    {"valor": "research notice separado", "rotulo": "aviso de pesquisa separado", "registro": "non-binding"},
+    {"valor": "help centre", "rotulo": "central de ajuda", "registro": "non-binding"},
+    {"valor": "blog/PR/site de pesquisa", "rotulo": "blog, imprensa ou site de pesquisa", "registro": "non-binding"},
+]
+
+# Perguntas que não vêm de trecho e continuam perguntas.
+EXTRAS = {"V3": ["v3_targets"], "V4": ["v4_mapped_purpose", "v4_region_gated"], "V6": ["v6_which"]}
+
+
 def regras_gerais_html() -> str:
     lis = "".join(f"<li><b>{t}</b> {d}</li>" for t, d in REGRAS_GERAIS)
     return f"<h3>Cinco regras que valem para todas as variáveis</h3><ol>{lis}</ol>"
@@ -99,6 +148,9 @@ def exportar() -> dict:
         # tipográfico e sem a procedência (§), que aqui não ajudam.
         "ajuda_valores": {k: _texto(v[0] if isinstance(v, (list, tuple)) else v) for k, v in C.VALHELP.items()},
         "ajuda_campos": {k: _texto(v.get("note", "")) for k, v in C.FIELDHELP.items() if isinstance(v, dict) and v.get("note")},
+        "notas": NOTAS,
+        "tipos_doc": TIPOS_DOC,
+        "extras": EXTRAS,
     }
 
 
@@ -160,6 +212,20 @@ def _self_test() -> int:
            len(d["ajuda_valores"]) == 18 and all("<" not in t and "—" not in t for t in d["ajuda_valores"].values()))
     checar("nenhum travessão em placeholder",
            not any("—" in c["placeholder"] for v in d["variaveis"] for c in v["campos"]))
+    # Notas por trecho: as opções têm de ser as do codebook, letra por letra.
+    opcoes = {c["chave"]: [o for o in c["opcoes"] if o] for v in d["variaveis"] for c in v["campos"] if c["opcoes"]}
+    vals = lambda vid: [o["valor"] for o in d["notas"][vid]["opcoes"]]
+    checar("notas V2 = opções de v2_framing", vals("V2") == opcoes["v2_framing"])
+    checar("notas V4 = opções de v4_basis sem not stated", vals("V4") == [o for o in opcoes["v4_basis"] if o != "not stated"])
+    checar("notas V5 = escada de v5_optout sem none, na ordem", vals("V5") == [o for o in opcoes["v5_optout"] if o != "none"])
+    checar("notas V1 = níveis 1..3", vals("V1") == ["1", "2", "3"])
+    checar("notas V3 apontam para os três campos Yes/No",
+           [o["campo"] for o in d["notas"]["V3"]["opcoes"]] == ["v3_activities", "v3_specific", "v3_pricing"])
+    checar("tipos de documento = opções de v9_where, na ordem", [t["valor"] for t in d["tipos_doc"]] == opcoes["v9_where"])
+    checar("todo tipo de documento tem registro padrão válido", all(t["registro"] in ("binding", "non-binding") for t in d["tipos_doc"]))
+    checar("extras são campos de linha ou select existentes",
+           all(ch in {c["chave"] for v in d["variaveis"] for c in v["campos"]} for chs in d["extras"].values() for ch in chs))
+    checar("nenhum travessão nas notas e nos tipos", "—" not in json.dumps(d["notas"], ensure_ascii=False) + json.dumps(d["tipos_doc"], ensure_ascii=False))
     checar("ajuda por campo: só texto, sem travessão",
            d["ajuda_campos"] and all("<" not in t and "—" not in t for t in d["ajuda_campos"].values()))
 

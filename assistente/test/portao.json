@@ -314,6 +314,179 @@
   "TikTok",
   "AliExpress"
  ],
+ "notas": {
+  "V1": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "1",
+     "rotulo": "1 · só melhorar"
+    },
+    {
+     "valor": "2",
+     "rotulo": "2 · testar usuários"
+    },
+    {
+     "valor": "3",
+     "rotulo": "3 · experimento, A/B, randomização"
+    }
+   ]
+  },
+  "V2": {
+   "modo": "varios",
+   "opcoes": [
+    {
+     "valor": "service improvement",
+     "rotulo": "melhoria do serviço"
+    },
+    {
+     "valor": "research",
+     "rotulo": "pesquisa"
+    },
+    {
+     "valor": "human-subjects research",
+     "rotulo": "pesquisa com humanos"
+    },
+    {
+     "valor": "social-good/community",
+     "rotulo": "bem da comunidade"
+    }
+   ]
+  },
+  "V3": {
+   "modo": "varios",
+   "opcoes": [
+    {
+     "valor": "activities",
+     "rotulo": "nomeia atividades",
+     "campo": "v3_activities"
+    },
+    {
+     "valor": "specific",
+     "rotulo": "experimento específico",
+     "campo": "v3_specific"
+    },
+    {
+     "valor": "pricing",
+     "rotulo": "preço como alvo",
+     "campo": "v3_pricing"
+    }
+   ]
+  },
+  "V4": {
+   "modo": "varios",
+   "opcoes": [
+    {
+     "valor": "legitimate interest",
+     "rotulo": "interesse legítimo"
+    },
+    {
+     "valor": "consent",
+     "rotulo": "consentimento"
+    },
+    {
+     "valor": "contract",
+     "rotulo": "contrato"
+    }
+   ]
+  },
+  "V5": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "GDPR-objection-only",
+     "rotulo": "só a objeção genérica do GDPR"
+    },
+    {
+     "valor": "cookie/ads-only",
+     "rotulo": "só cookies ou anúncios"
+    },
+    {
+     "valor": "dedicated",
+     "rotulo": "opt-out dedicado a experimentos"
+    },
+    {
+     "valor": "opt-in",
+     "rotulo": "opt-in"
+    }
+   ]
+  },
+  "V6": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "sim",
+     "rotulo": "programa beta ou opt-in"
+    }
+   ]
+  },
+  "V7": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "sim",
+     "rotulo": "é debriefing"
+    }
+   ]
+  },
+  "V8": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "sim",
+     "rotulo": "revisão ética, comitê ou risco"
+    }
+   ]
+  },
+  "V9": {
+   "modo": "um",
+   "opcoes": [
+    {
+     "valor": "sim",
+     "rotulo": "divulga experimentação aqui"
+    }
+   ]
+  }
+ },
+ "tipos_doc": [
+  {
+   "valor": "privacy policy",
+   "rotulo": "política de privacidade (inclui aviso de cookies e tabela de bases legais)",
+   "registro": "binding"
+  },
+  {
+   "valor": "ToS/conditions",
+   "rotulo": "termos de uso",
+   "registro": "binding"
+  },
+  {
+   "valor": "research notice separado",
+   "rotulo": "aviso de pesquisa separado",
+   "registro": "non-binding"
+  },
+  {
+   "valor": "help centre",
+   "rotulo": "central de ajuda",
+   "registro": "non-binding"
+  },
+  {
+   "valor": "blog/PR/site de pesquisa",
+   "rotulo": "blog, imprensa ou site de pesquisa",
+   "registro": "non-binding"
+  }
+ ],
+ "extras": {
+  "V3": [
+   "v3_targets"
+  ],
+  "V4": [
+   "v4_mapped_purpose",
+   "v4_region_gated"
+  ],
+  "V6": [
+   "v6_which"
+  ]
+ },
  "casos": [
   {
    "vid": "V1",
