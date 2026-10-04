@@ -1,11 +1,4 @@
 {
- "records": {
-  "Zalando": {
-   "v1_code": "1",
-   "notes": "pre-entrega --gravar",
-   "service": "Zalando",
-   "_ts": 1791147465562
-  }
- },
- "saved_at": "2026-10-04T20:57:45.562Z"
+ "records": {},
+ "saved_at": "2026-10-04T20:57:47.393Z"
 }
