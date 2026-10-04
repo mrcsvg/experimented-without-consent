@@ -28,7 +28,13 @@
      "registro": "non-binding"
     }
    },
-   "notas": {},
+   "notas": {
+    "V1": {
+     "h:9d6ae312": {
+      "nota": "x"
+     }
+    }
+   },
    "extras": {},
    "override": {},
    "comentarios": {},
@@ -64,9 +70,9 @@
    "v9_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "keyword_log": "",
    "notes": "",
-   "service": "Wikipedia",
-   "_ts": 1791156884750
+   "_ts": 1791156913950,
+   "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-04T23:34:44.750Z"
+ "saved_at": "2026-10-04T23:35:13.950Z"
 }
