@@ -337,20 +337,51 @@ def da_pagina_ao_kappa(p: Placar) -> None:
     if not passada1.exists():
         print(f"  pulou a ponte: falta {passada1}")
         return
-    sys.path.insert(0, str(RAIZ / "analysis"))
-    import importlib
-    C = importlib.import_module("codebook")
-    records = {}
-    for i, servico in enumerate(("Pinterest", "Booking.com")):
-        reg = {"service": servico, "_ts": 1000 + i}
-        for v in C.VARIAVEIS:
-            for c in v.campos:
-                ops = [o for o in c.opcoes if o]
-                reg[c.chave] = ops[0] if c.tipo == "select" else ops[:2] if c.tipo == "checks" else "x"
-        records[servico] = reg
+    if not (CORPUS_LOCAL / "assistente" / "codebook.json").exists():
+        print(f"  pulou a ponte: falta {CORPUS_LOCAL / 'assistente'}")
+        return
+    # O registro nasce como na página: notas por trecho → derivar() em core.mjs.
+    # Um script Node monta dois serviços com os dados publicados localmente.
+    programa = r"""
+import { derivar, trechosDaVariavel, idDoHit } from "./assistente/core.mjs";
+import { readFileSync } from "node:fs";
+const corpus = process.argv[process.argv.length - 1];
+const cb = JSON.parse(readFileSync(`${corpus}/assistente/codebook.json`, "utf8"));
+const idx = JSON.parse(readFileSync(`${corpus}/md/index.json`, "utf8"));
+const records = {};
+for (const [i, nome] of ["Pinterest", "Booking.com"].entries()) {
+  const slug = idx.services.find((x) => x.name === nome).slug;
+  const piso = JSON.parse(readFileSync(`${corpus}/assistente/piso/${slug}.json`, "utf8"));
+  const sug = JSON.parse(readFileSync(`${corpus}/sugestoes/${slug}.json`, "utf8"));
+  const d = { docs: piso.docs, piso, citacoes: sug.citacoes || {} };
+  const reg = { service: nome, _ts: 1000 + i, docs_tipo: {}, notas: {}, extras: { v4_region_gated: "No", v3_targets: "x", v4_mapped_purpose: "x" }, override: {}, comentarios: {}, confirmadas: {}, keyword_log: "x" };
+  for (const doc of piso.docs) reg.docs_tipo[doc.file] = { tipo: cb.tipos_doc[doc.n % 5].valor, registro: cb.tipos_doc[doc.n % 5].registro };
+  for (const vid of Object.keys(cb.notas)) {
+    reg.notas[vid] = {};
+    const spec = cb.notas[vid];
+    for (const t of trechosDaVariavel(vid, d, reg)) {
+      if (t.origem === "v1") continue;
+      const primeira = spec.opcoes[0].valor;
+      reg.notas[vid][t.id] = { nota: spec.modo === "varios" ? [primeira] : primeira };
+    }
+  }
+  if (reg.notas.V6 && Object.keys(reg.notas.V6).length) reg.extras.v6_which = "x";
+  Object.assign(reg, derivar(cb, reg, d).campos);
+  records[nome] = reg;
+}
+process.stdout.write(JSON.stringify({ records, saved_at: "2026-10-04T00:00:00Z", modo: "ensaio" }));
+"""
     with tempfile.TemporaryDirectory(prefix="ponte-") as tmp:
+        script = Path(tmp) / "ponte.mjs"
+        script.write_text(programa, encoding="utf-8")
+        r0 = subprocess.run(["node", "--input-type=module", "-e", programa.replace('"./assistente/core.mjs"', f'"{(RAIZ / "assistente" / "core.mjs").as_uri()}"'), str(CORPUS_LOCAL)],
+                            cwd=RAIZ, capture_output=True, text=True)
+        if r0.returncode != 0:
+            p.checar("o registro derivado pelo core.mjs é gerado", False, (r0.stderr or "").strip().splitlines()[-1] if r0.stderr else "")
+            return
+        p.checar("o registro derivado pelo core.mjs é gerado", True)
         arq = Path(tmp) / "ensaio.json"
-        arq.write_text(json.dumps({"records": records, "saved_at": "2026-10-03T00:00:00Z", "modo": "ensaio"}), encoding="utf-8")
+        arq.write_text(r0.stdout, encoding="utf-8")
         r = subprocess.run([sys.executable, str(RAIZ / "analysis" / "compute-agreement.py"), str(passada1), str(arq)],
                            capture_output=True, text=True)
     out = r.stdout or ""
