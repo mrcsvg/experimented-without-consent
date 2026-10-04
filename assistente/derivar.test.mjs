@@ -23,7 +23,8 @@ const D = {
   citacoes: {
     V1: [{ doc: 2, file: "s/02.md", onde: "§1", verbatim: "we run A/B tests" }],
     V2: [{ doc: 1, file: "s/01.md", onde: "§2", verbatim: "research that improves our services" }],
-    V5: [{ doc: 1, file: "s/01.md", onde: "§7", verbatim: "you may object" }],
+    V5: [{ doc: 1, file: "s/01.md", onde: "§7", verbatim: "you may object" },
+         { doc: 2, file: "s/02.md", onde: "§9", verbatim: "turn off experiments in settings" }],
     V9: [{ doc: 1, file: "s/01.md", onde: "§3", verbatim: "we test features" }],
   },
 };
@@ -104,8 +105,12 @@ test("V4: união, vazio vira not stated, extras passam", () => {
 
 test("V5: o degrau mais alto; nenhum = none", () => {
   assert.equal(derivar(CB, reg(), D).campos.v5_optout, "none");
-  const r = reg({ notas: { V5: { "c:V5-1": { nota: "GDPR-objection-only" } } } });
+  const r = reg({ notas: { V5: { "c:V5-1": { nota: "GDPR-objection-only" }, "c:V5-2": { nota: "x" } } } });
   assert.equal(derivar(CB, r, D).campos.v5_optout, "GDPR-objection-only");
+  const dois = reg({ notas: { V5: { "c:V5-1": { nota: "GDPR-objection-only" }, "c:V5-2": { nota: "dedicated" } } } });
+  assert.equal(derivar(CB, dois, D).campos.v5_optout, "dedicated", "o degrau mais alto, não o primeiro");
+  const invertido = reg({ notas: { V5: { "c:V5-1": { nota: "dedicated" }, "c:V5-2": { nota: "GDPR-objection-only" } } } });
+  assert.equal(derivar(CB, invertido, D).campos.v5_optout, "dedicated", "a ordem dos trechos não importa");
 });
 
 test("V6, V7, V8: Yes se houver trecho com nota; V8 grava a evidência em v8_note", () => {
@@ -207,7 +212,7 @@ test("compatibilidade: um registro derivado completo passa na trava antiga de ca
       V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } },
       V2: { "c:V2-1": { nota: ["research"] } },
       V3: { [ID_HIT1]: { nota: ["activities"] } },
-      V5: { "c:V5-1": { nota: "GDPR-objection-only" } },
+      V5: { "c:V5-1": { nota: "GDPR-objection-only" }, "c:V5-2": { nota: "x" } },
       V8: { [idDoHit(HIT8)]: { nota: "x" } },
     },
     extras: { v3_targets: "features", v4_mapped_purpose: "improve", v4_region_gated: "No", v6_which: "" },
