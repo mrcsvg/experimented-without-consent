@@ -361,3 +361,27 @@ export function aplicarTipos(codebook, reg, sugestaoDocs, docs) {
   }
   return { ...(reg || {}), docs_tipo };
 }
+
+// Na lista de serviços a página não tem os trechos de todos os 26 carregados,
+// então o progresso de cada serviço se mede pelas confirmações: uma etapa só
+// é confirmada com a trava aberta, e qualquer edição na etapa a reabre.
+export function progressoConfirmado(codebook, reg) {
+  const conf = (reg || {}).confirmadas || {};
+  const lista = etapas(codebook);
+  return { feitas: lista.filter((e) => conf[e]).length, total: lista.length };
+}
+
+export function concluidoConfirmado(codebook, reg) {
+  const p = progressoConfirmado(codebook, reg);
+  return p.feitas === p.total;
+}
+
+export function proximoServicoPorConfirmacao(codebook, records, atual) {
+  const ordem = codebook.servicos;
+  const inicio = atual ? ordem.indexOf(atual) + 1 : 0;
+  for (let k = 0; k < ordem.length; k++) {
+    const s = ordem[(inicio + k) % ordem.length];
+    if (!concluidoConfirmado(codebook, (records || {})[s] || {})) return s;
+  }
+  return null;
+}

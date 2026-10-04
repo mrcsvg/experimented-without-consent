@@ -223,3 +223,15 @@ test("compatibilidade: um registro derivado completo passa na trava antiga de ca
     assert.deepEqual(faltando(v, c), [], v.vid);
   }
 });
+
+test("progresso por confirmação: conta etapas confirmadas; próximo serviço dá a volta", async () => {
+  const { progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao } = await import("./core.mjs");
+  const todas = Object.fromEntries(etapas(CB).map((e) => [e, true]));
+  assert.deepEqual(progressoConfirmado(CB, {}), { feitas: 0, total: 11 });
+  assert.deepEqual(progressoConfirmado(CB, { confirmadas: { DOCS: true, V1: true } }), { feitas: 2, total: 11 });
+  assert.equal(concluidoConfirmado(CB, { confirmadas: todas }), true);
+  const cb = { ...CB, servicos: ["A", "B", "C"] };
+  assert.equal(proximoServicoPorConfirmacao(cb, { A: { confirmadas: todas } }, null), "B");
+  assert.equal(proximoServicoPorConfirmacao(cb, { A: { confirmadas: todas }, C: { confirmadas: todas } }, "C"), "B");
+  assert.equal(proximoServicoPorConfirmacao(cb, { A: { confirmadas: todas }, B: { confirmadas: todas }, C: { confirmadas: todas } }, "A"), null);
+});

@@ -1,23 +1,30 @@
 // A página do assistente: DOM, rede e armazenamento. A lógica sem DOM está em
 // core.mjs. Os dados congelados vêm do site do corpus; as respostas vão para
 // /api/state, neste mesmo site, e ficam também no navegador.
+//
+// Versão B (04/10/2026): o codificador classifica os documentos, dá uma nota a
+// cada trecho e a resposta de cada variável é calculada do critério congelado.
 import {
-  faltando, fechados, progresso, concluido, primeiroIncompleto, proximoServico,
-  logSugerido, textoDeEvidencia, aplicarSugestao, chaveDoLink, mesclar,
+  derivar, faltandoEtapa, etapas, fechadas, progressoEtapas, primeiraEtapaIncompleta,
+  trechosDaVariavel, aplicarNotas, aplicarTipos, registroPadrao,
+  progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao,
+  logSugerido, chaveDoLink, mesclar, NAO_E_ISSO, DOCS,
 } from "./core.mjs";
 
 // Em localhost, ?corpus=... aponta para uma cópia local do site do corpus
 // (server/dev.mjs serve o repositório irmão em /corpus). Em produção, só o site.
 const CORPUS = (location.hostname === "localhost" && new URLSearchParams(location.search).get("corpus"))
   || "https://experimented-without-consent-corpus.vercel.app";
-const LS ={ records: "ewc.records", abertura: "ewc.abertura", chave: "ewc.chave" };
+const LS = { records: "ewc.records", abertura: "ewc.abertura", chave: "ewc.chave" };
 const ATRASOS = [5000, 10000, 20000, 30000];
 const DEBOUNCE = 1200;
+const SUB = { docs_tipo: {}, notas: {}, extras: {}, override: {}, comentarios: {}, confirmadas: {} };
 
 const E = {
   chave: null, modo: null, codebook: null, indice: null,
   records: {}, baseTs: {}, pendentes: new Set(), gravando: new Map(), tentativa: {}, recibo: {},
-  servico: null, i: 0, cache: new Map(), textos: new Map(), copilotoAberto: false, timerEdicao: null,
+  servico: null, i: 0, cache: new Map(), textos: new Map(), copilotoAberto: false, corrigindo: false, timerEdicao: null,
+  avisoConflito: false,
 };
 
 const app = document.getElementById("app");
@@ -67,23 +74,32 @@ async function dadosDoServico(nome) {
     json(`${CORPUS}/sugestoes/${slug}.json`).catch(() => null),
     json(`${CORPUS}/assistente/copiloto/${slug}.json`).catch(() => null),
   ]);
-  const citacoesPorId = {};
-  for (const [vid, lista] of Object.entries((sug && sug.citacoes) || {})) {
-    lista.forEach((c, i) => { citacoesPorId[`${vid}-${i + 1}`] = c; });
-  }
-  const d = { slug, piso, docs: piso.docs, citacoes: (sug && sug.citacoes) || {}, citacoesPorId,
-              copiloto: cop && !cop.invalida ? cop : null };
+  const d = { slug, piso, docs: piso.docs, citacoes: (sug && sug.citacoes) || {},
+              copiloto: cop && cop.formato === 2 && !cop.invalida ? cop : null };
   E.cache.set(nome, d);
   return d;
 }
 
 // --------------------------------------------------------------------- gravação
 
-function registro(servico) { return (E.records[servico] ||= {}); }
+function registro(servico) {
+  const r = (E.records[servico] ||= {});
+  for (const k of Object.keys(SUB)) if (!r[k] || typeof r[k] !== "object") r[k] = {};
+  return r;
+}
 
 function semMeta(reg) { const { _pendente, ...resto } = reg; return resto; }
 
+// Os campos planos (os de hoje, que o κ lê) são recalculados das notas a cada
+// mudança, e gravados junto com os dados estruturados.
+function sincronizar(servico) {
+  const d = E.cache.get(servico);
+  if (!d) return;
+  Object.assign(registro(servico), derivar(E.codebook, registro(servico), d).campos);
+}
+
 function marcarEdicao(servico) {
+  sincronizar(servico);
   registro(servico)._pendente = true;
   E.pendentes.add(servico);
   persistirLocal();
@@ -92,7 +108,14 @@ function marcarEdicao(servico) {
   pintarRecibos();
 }
 
-// Uma gravação por vez por serviço. Quem chama não espera: o recibo conta.
+// Qualquer edição numa etapa já confirmada a reabre: confirmar é dizer
+// "está pronto", e o que mudou depois ainda não foi dito.
+function editar(etapa) {
+  const reg = registro(E.servico);
+  if (reg.confirmadas[etapa]) delete reg.confirmadas[etapa];
+  marcarEdicao(E.servico);
+}
+
 function salvar(servico) {
   clearTimeout(E.timerEdicao);
   const anterior = E.gravando.get(servico) || Promise.resolve();
@@ -119,10 +142,7 @@ async function gravarAgora(servico) {
       E.pendentes.delete(servico);
       persistirLocal();
       E.recibo[servico] = { estado: "erro", texto: "alterado em outra janela" };
-      if (E.servico === servico) {
-        E.avisoConflito = true;
-        render();
-      }
+      if (E.servico === servico) { E.avisoConflito = true; render(); }
       return false;
     }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -161,7 +181,12 @@ function pintarRecibos() {
 
 // ----------------------------------------------------------------------- telas
 
-function mostrar(html) { limpar(app); app.appendChild(el(`<div>${html}</div>`)); window.scrollTo(0, 0); }
+function mostrar(html, manterScroll = false) {
+  const y = window.scrollY;
+  limpar(app);
+  app.appendChild(el(`<div>${html}</div>`));
+  window.scrollTo(0, manterScroll ? y : 0);
+}
 
 function telaSemChave() {
   mostrar(`<h1>Segunda codificação</h1>
@@ -180,7 +205,7 @@ function telaErro(msg) {
 
 const ABERTURA = `
 <h1>Segunda codificação</h1>
-<p class="suave">Prof. Marcelo Maia · 26 serviços · 10 etapas por serviço</p>
+<p class="suave">Prof. Marcelo Maia · 26 serviços · 11 etapas por serviço</p>
 
 <h2>O que o estudo mede</h2>
 <p>Plataformas online testam coisas nos seus usuários todos os dias. Elas mudam o que aparece no topo da lista, o texto de uma notificação, a posição de um botão, e medem o efeito comparando grupos de pessoas. Isso se chama experimentação comportamental e é rotina da indústria.</p>
@@ -196,14 +221,15 @@ const ABERTURA = `
 <p><b>Esta página não mostra o que a primeira passada codificou, nem os resultados do estudo.</b> Se você soubesse o que se espera encontrar, sua leitura deixaria de ser uma segunda medição.</p>
 
 <h2>O que você faz</h2>
-<p>A página leva você por um serviço de cada vez e, dentro dele, por <b>uma pergunta por tela</b>: as nove variáveis e, no fim, o log de palavras-chave. Em cada tela você lê a evidência, responde, e clica em <b>Confirmar e seguir</b>. Nenhuma etapa fecha sem resposta e sem evidência. O botão <b>Voltar</b> deixa rever o que já respondeu.</p>
-<p>A evidência vem em duas listas. A <b>busca por palavra-chave</b> procura os 12 termos do protocolo no texto congelado. Não passa por modelo nenhum e não deixa nada de fora; alguns trechos chegam com aviso, porque o termo costuma aparecer em outro sentido. Depois vem o que <b>o modelo</b> localizou: passagens que descrevem experimentação sem usar nenhum dos termos. O botão <b>usar como evidência</b> copia o trecho para o campo de evidência; <b>abrir no documento</b> mostra o trecho no texto inteiro.</p>
-<p>Em cada tela há também o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem proporia para aquela variável, com a razão e os trechos que a sustentam, e o botão <b>aplicar sugestão</b> preenche os campos. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
-<p>No fim de cada tela há o campo <b>Notas</b>, para dúvidas de regra e casos de fronteira. Pode parar a qualquer momento e fechar a página. Quando voltar, ela abre onde você parou.</p>
+<p>A página leva você por um serviço de cada vez. O primeiro passo é dizer <b>que tipo de documento</b> é cada um: política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog. O tipo decide se o documento obriga a plataforma ou não, e você pode corrigir isso à mão.</p>
+<p>Depois vêm as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não é isso" quando o trecho fala de outra coisa. Pode comentar qualquer trecho.</p>
+<p>A <b>resposta da variável é calculada das suas notas</b>, pela regra do codebook: o nível mais alto na V1, a união nas de múltipla escolha, o degrau mais alto na V5, qualquer trecho nas de Sim/Não, os tipos dos documentos na V9. A caixa "Resposta calculada" mostra o resultado. Se discordar do cálculo, "corrigir à mão" abre os campos. Há um comentário por variável. Quando estiver satisfeito, <b>Confirmar e seguir</b>.</p>
+<p>Em cada tela há o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem daria de nota a cada trecho, e <b>aplicar sugestão</b> preenche só os trechos que você ainda não julgou. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
+<p>Pode parar a qualquer momento e fechar a página. Quando voltar, ela abre onde você parou. O botão <b>Voltar</b> deixa rever o que já confirmou.</p>
 
 <h2>Duas regras que afetam o resultado</h2>
 <p><b>Leia sempre o texto congelado, nunca a página ao vivo.</b> As plataformas reescrevem as políticas sem avisar. Se os dois codificadores lerem versões diferentes, a discordância fica indistinguível de mudança no documento.</p>
-<p><b>Confira a confirmação ao lado do botão.</b> Cada resposta é gravada num servidor. Verde, "gravado às", significa que chegou. Vermelho significa que não chegou e que a página vai tentar de novo sozinha; se ficar vermelho, pare e avise. Não deixe o mesmo serviço aberto em duas janelas ao mesmo tempo.</p>
+<p><b>Confira a confirmação ao lado do botão.</b> Cada nota é gravada num servidor. Verde, "gravado às", significa que chegou. Vermelho significa que não chegou e que a página vai tentar de novo sozinha; se ficar vermelho, pare e avise. Não deixe o mesmo serviço aberto em duas janelas ao mesmo tempo.</p>
 <p><b>Codifique só por esta página.</b> Qualquer outra versão da ferramenta que você tenha recebido antes mostra informações que não devem estar na sua frente durante a codificação.</p>
 `;
 
@@ -217,15 +243,14 @@ function telaAbertura() {
 
 function telaContinuar() {
   const cb = E.codebook;
-  const proximo = proximoServico(cb, E.records, null);
+  const proximo = proximoServicoPorConfirmacao(cb, E.records, null);
   const itens = cb.servicos.map((s) => {
-    const reg = E.records[s] || {};
-    const p = progresso(cb, reg);
+    const p = progressoConfirmado(cb, E.records[s] || {});
     const estado = p.feitas === p.total ? `<span class="estado feito">concluído</span>`
-      : p.feitas === 0 ? `<span class="estado">não iniciado</span>` : `<span class="estado">${p.feitas} de ${p.total}</span>`;
+      : p.feitas === 0 ? `<span class="estado">não iniciado</span>` : `<span class="estado">${p.feitas} de ${p.total} etapas</span>`;
     return `<li><a href="#" data-servico="${esc(s)}">${esc(s)}</a>${estado}</li>`;
   }).join("");
-  const feitos = cb.servicos.filter((s) => concluido(cb, E.records[s] || {})).length;
+  const feitos = cb.servicos.filter((s) => concluidoConfirmado(cb, E.records[s] || {})).length;
   mostrar(`<h1>Segunda codificação</h1>
     <p class="suave">${feitos} de ${cb.servicos.length} serviços concluídos</p>
     ${proximo ? `<div class="botoes"><button class="primario" id="continuar">Continuar: ${esc(proximo)}</button></div>` : ""}
@@ -246,236 +271,446 @@ function telaFim() {
 
 async function abrirServico(nome) {
   mostrar(`<p class="suave">Carregando ${esc(nome)}…</p>`);
+  let d;
   try {
-    await dadosDoServico(nome);
+    d = await dadosDoServico(nome);
   } catch (e) {
     telaErro(`${nome}: ${e.message}`);
     return;
   }
   E.servico = nome;
-  E.i = primeiroIncompleto(E.codebook, registro(nome));
+  // Serviço concluído abre no resumo; os outros, na primeira etapa aberta.
+  E.i = concluidoConfirmado(E.codebook, registro(nome)) ? etapas(E.codebook).length : primeiraEtapaIncompleta(E.codebook, registro(nome), d);
   E.copilotoAberto = false;
+  E.corrigindo = false;
   E.avisoConflito = false;
   render();
 }
 
-function render() {
+function render(manterScroll = false) {
   if (!E.servico) { telaContinuar(); return; }
-  if (E.i >= E.codebook.variaveis.length) renderResumo();
-  else renderVariavel();
+  const lista = etapas(E.codebook);
+  if (E.i >= lista.length) return renderResumo();
+  const etapa = lista[E.i];
+  if (etapa === DOCS) return renderDocs(manterScroll);
+  if (etapa === "KW") return renderKW();
+  return renderVariavel(etapa, manterScroll);
 }
 
-// ------------------------------------------------------------ tela da variável
+// ---------------------------------------------------------------- cabeçalho
+
+const rotuloEtapa = (e) => (e === DOCS ? "Docs" : e);
 
 function cabecalhoServico(d) {
   const cb = E.codebook;
   const reg = registro(E.servico);
-  const p = progresso(cb, reg);
-  const f = fechados(cb, reg);
-  const trilha = cb.variaveis.map((v, k) => {
-    const cls = k === E.i ? "atual" : f[v.vid] ? "fechado" : "futuro";
-    return `<button class="${cls}" data-passo="${k}" ${cls === "futuro" ? "disabled" : ""} title="${esc(v.titulo)}">${esc(v.vid)}</button>`;
-  }).join("") + `<button class="${E.i >= cb.variaveis.length ? "atual" : p.feitas === p.total ? "fechado" : "futuro"}" data-passo="${cb.variaveis.length}" ${p.feitas === p.total ? "" : "disabled"}>resumo</button>`;
-  const docs = d.docs.map((x) => `<li><span class="n">${x.n}.</span>
-      <span>${esc(x.titulo || x.file.split("/").pop())}</span>
-      <button class="pequeno" data-abrir="${esc(x.file)}">abrir texto congelado</button>
-      <span class="suave pequeno">${x.chars.toLocaleString("pt-BR")} caracteres</span>
-      <span class="url">página original: <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a></span></li>`).join("");
+  const lista = etapas(cb);
+  const f = fechadas(cb, reg, d);
+  const p = progressoEtapas(cb, reg, d);
+  const tudo = p.feitas === p.total;
+  const trilha = lista.map((e, k) => {
+    const cls = k === E.i ? "atual" : f[e] ? "fechado" : "futuro";
+    const podeIr = cls !== "futuro" || k === 0 || f[lista[k - 1]] || lista.slice(0, k).every((x) => f[x]);
+    return `<button class="${cls}" data-passo="${k}" ${podeIr ? "" : "disabled"}>${esc(rotuloEtapa(e))}</button>`;
+  }).join("") + `<button class="${E.i >= lista.length ? "atual" : tudo ? "fechado" : "futuro"}" data-passo="${lista.length}" ${tudo ? "" : "disabled"}>resumo</button>`;
   return `<div class="cabecalho">
     <div class="linha1"><h1>${esc(E.servico)}</h1>
       <span class="suave">${d.docs.length} documentos · ${p.feitas} de ${p.total} etapas</span>
       <span class="recibo"></span></div>
     <div class="trilha">${trilha}</div>
-    <details><summary class="pequeno suave" style="cursor:pointer">documentos do serviço (${d.docs.length})</summary><ul class="docs">${docs}</ul></details>
-    <p class="pequeno suave" style="margin:6px 0 0"><a href="#" id="voltar-lista">todos os serviços</a> · <a href="#" id="regras">cinco regras gerais</a></p>
+    <p class="pequeno suave" style="margin:6px 0 0"><a href="#" id="voltar-lista">todos os serviços</a> · <a href="#" id="regras">cinco regras gerais</a> · <a href="/assistente/copiloto.html" target="_blank" rel="noopener">como o copiloto funciona</a></p>
   </div>`;
 }
 
 function ligarCabecalho(d) {
   for (const b of app.querySelectorAll(".trilha button[data-passo]")) {
-    b.onclick = () => { if (!b.disabled) { E.i = Number(b.dataset.passo); E.copilotoAberto = false; render(); } };
+    b.onclick = () => { if (!b.disabled) { E.i = Number(b.dataset.passo); E.copilotoAberto = false; E.corrigindo = false; render(); } };
   }
   for (const b of app.querySelectorAll("button[data-abrir]")) {
-    b.onclick = () => abrirDocumento(b.dataset.abrir, null, d);
+    b.onclick = () => abrirDocumento(b.dataset.abrir, b.dataset.trecho || null, d);
   }
-  document.getElementById("voltar-lista").onclick = (ev) => { ev.preventDefault(); salvar(E.servico); E.servico = null; telaContinuar(); };
-  document.getElementById("regras").onclick = (ev) => { ev.preventDefault(); abrirRegras(); };
+  const vl = document.getElementById("voltar-lista");
+  if (vl) vl.onclick = (ev) => { ev.preventDefault(); salvar(E.servico); E.servico = null; telaContinuar(); };
+  const rg = document.getElementById("regras");
+  if (rg) rg.onclick = (ev) => { ev.preventDefault(); abrirRegras(); };
 }
 
-function itemEvidencia(cit, d, classe, extra) {
-  const titulo = (d.docs.find((x) => x.n === cit.doc) || {}).titulo || "";
-  return `<div class="item ${classe}">
-    ${extra || ""}
-    <div>${esc(cit.verbatim)}</div>
-    <div class="onde">Documento ${cit.doc}${titulo ? `: ${esc(titulo)}` : ""}${cit.onde ? ` · ${esc(cit.onde)}` : ""}</div>
-    <div class="acoes"><button class="pequeno" data-abrir-trecho="${esc(cit.file)}" data-trecho="${esc(cit.verbatim)}">abrir no documento</button>
-      <button class="pequeno" data-usar="${esc(JSON.stringify({ doc: cit.doc, file: cit.file, onde: cit.onde, verbatim: cit.verbatim }))}">usar como evidência</button></div>
+function rodape() {
+  return `<footer class="rodape">Texto congelado em ${esc(E.indice.frozen_at ? E.indice.frozen_at.slice(0, 10) : "")} · critério congelado em ${esc(E.codebook.congelado_em)}</footer>`;
+}
+
+function blocoNotasGerais(reg) {
+  return `<div class="caixa papel" style="margin-top:28px">
+      <label class="rotulo" for="notas"><b>Notas sobre este serviço</b> <span class="suave pequeno">dúvidas de regra, casos de fronteira, diferenças entre documentos</span></label>
+      <textarea id="notas" style="width:100%;min-height:70px;margin-top:6px;font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:8px">${esc(reg.notes || "")}</textarea>
+    </div>`;
+}
+
+function ligarNotasGerais(reg) {
+  const notas = document.getElementById("notas");
+  if (notas) notas.addEventListener("input", () => { reg.notes = notas.value; marcarEdicao(E.servico); });
+}
+
+function mostrarFalta(pend, etapa) {
+  const caixa = document.getElementById("falta");
+  if (!caixa) return;
+  const nomes = pend.map(([chave, motivo]) => {
+    if (chave === "trechos") return `<li><b>Trechos:</b> ${esc(motivo)}. Dê uma nota a cada um, ou use "marcar os restantes como não é isso".</li>`;
+    if (chave === DOCS) return `<li><b>Documentos:</b> ${esc(motivo)}.</li>`;
+    if (chave === "confirmar") return `<li>${esc(motivo)}: clique de novo em Confirmar.</li>`;
+    if (chave === "keyword_log") return `<li><b>Log de palavras-chave:</b> não pode ficar vazio.</li>`;
+    const v = E.codebook.variaveis.find((x) => x.vid === etapa);
+    const c = v && v.campos.find((x) => x.chave === chave);
+    if (c) return `<li><b>${esc(c.rotulo)}:</b> falta ${esc(motivo)}</li>`;
+    return `<li><b>${esc(chave)}:</b> ${esc(motivo)}</li>`;
+  }).join("");
+  caixa.innerHTML = `<div class="falta">Para seguir, falta:<ul style="margin:6px 0 0">${nomes}</ul></div>`;
+  caixa.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+function confirmarEtapa(etapa, d) {
+  const reg = registro(E.servico);
+  let pend = faltandoEtapa(E.codebook, etapa, reg, d);
+  // Variável sem trechos: o primeiro clique confirma a ausência.
+  if (pend.length === 1 && pend[0][0] === "confirmar") {
+    reg.confirmadas[etapa] = true;
+    pend = faltandoEtapa(E.codebook, etapa, reg, d);
+  }
+  if (pend.length) { mostrarFalta(pend, etapa); return; }
+  reg.confirmadas[etapa] = true;
+  marcarEdicao(E.servico);
+  E.i += 1;
+  E.copilotoAberto = false;
+  E.corrigindo = false;
+  E.avisoConflito = false;
+  render();
+}
+
+function voltarEtapa() {
+  salvar(E.servico);
+  E.i -= 1;
+  E.copilotoAberto = false;
+  E.corrigindo = false;
+  E.avisoConflito = false;
+  render();
+}
+
+// ------------------------------------------------------------ passo: documentos
+
+function renderDocs(manterScroll) {
+  const cb = E.codebook;
+  const d = E.cache.get(E.servico);
+  const reg = registro(E.servico);
+  const sug = d.copiloto ? d.copiloto.documentos || {} : null;
+  const rotuloTipo = (valor) => ((cb.tipos_doc || []).find((t) => t.valor === valor) || {}).rotulo || valor;
+  const itens = d.docs.map((x) => {
+    const atual = reg.docs_tipo[x.file] || {};
+    const botoes = (cb.tipos_doc || []).map((t) => `<button class="nota ${atual.tipo === t.valor ? "marcado" : ""}" data-tipo="${esc(t.valor)}" data-file="${esc(x.file)}">${esc(t.rotulo)}</button>`).join("");
+    const sugerido = E.copilotoAberto && sug && sug[String(x.n)] ? `<span class="sug">copiloto: ${esc(rotuloTipo(sug[String(x.n)].tipo))}</span>` : "";
+    const registroHtml = atual.tipo
+      ? `<div class="registro">registro: <b>${atual.registro === "binding" ? "vinculante" : "não vinculante"}</b>
+          ${atual.virado ? `<span class="suave pequeno">(virado à mão)</span>` : ""}
+          <button class="pequeno" data-virar="${esc(x.file)}">virar</button></div>`
+      : "";
+    return `<li class="item doc">
+      <div><span class="n">${x.n}.</span> <b>${esc(x.titulo || x.file.split("/").pop())}</b>
+        <button class="pequeno" data-abrir="${esc(x.file)}">abrir texto congelado</button>
+        <span class="suave pequeno">${x.chars.toLocaleString("pt-BR")} caracteres</span></div>
+      <div class="url">página original: <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a></div>
+      <div class="notas">${botoes} ${sugerido}</div>
+      ${registroHtml}
+    </li>`;
+  }).join("");
+  mostrar(`${cabecalhoServico(d)}
+    <div class="pergunta">[Docs] Que tipo de documento é cada um?</div>
+    <p class="lembrete">O tipo decide o registro: política de privacidade e termos de uso obrigam a plataforma; aviso de pesquisa, central de ajuda e blog não obrigam. Se um documento foge à regra, vire o registro à mão. Registro não é hospedagem: o que vale é a função do documento, não a URL. <a href="#" id="regras-docs">regras gerais</a></p>
+    ${E.avisoConflito ? `<div class="aviso">Este serviço foi alterado em outra janela. Recarreguei as respostas; confira e continue.</div>` : ""}
+    ${sug ? `<div class="botoes" style="margin:6px 0"><button class="copiloto" id="ver-copiloto">${E.copilotoAberto ? "esconder sugestão" : "ver sugestão do copiloto"}</button>
+      ${E.copilotoAberto ? `<button class="copiloto" id="aplicar">aplicar sugestão nos documentos sem tipo</button>` : ""}</div>` : ""}
+    <ul class="docs-lista">${itens}</ul>
+    <div id="falta"></div>
+    <div class="botoes"><button class="primario" id="confirmar">Confirmar e seguir</button><span class="recibo"></span></div>
+    ${blocoNotasGerais(reg)}
+    ${rodape()}`, manterScroll);
+  ligarCabecalho(d);
+  pintarRecibos();
+  ligarNotasGerais(reg);
+  document.getElementById("regras-docs").onclick = (ev) => { ev.preventDefault(); abrirRegras(); };
+  for (const b of app.querySelectorAll("button[data-tipo]")) {
+    b.onclick = () => {
+      reg.docs_tipo[b.dataset.file] = { tipo: b.dataset.tipo, registro: registroPadrao(cb, b.dataset.tipo) };
+      editar(DOCS);
+      renderDocs(true);
+    };
+  }
+  for (const b of app.querySelectorAll("button[data-virar]")) {
+    b.onclick = () => {
+      const t = reg.docs_tipo[b.dataset.virar];
+      t.registro = t.registro === "binding" ? "non-binding" : "binding";
+      t.virado = t.registro !== registroPadrao(cb, t.tipo);
+      editar(DOCS);
+      renderDocs(true);
+    };
+  }
+  const ver = document.getElementById("ver-copiloto");
+  if (ver) ver.onclick = () => { E.copilotoAberto = !E.copilotoAberto; renderDocs(true); };
+  const ap = document.getElementById("aplicar");
+  if (ap) ap.onclick = () => {
+    const tipos = Object.fromEntries(Object.entries(sug).map(([n, v]) => [n, v.tipo]));
+    E.records[E.servico] = aplicarTipos(cb, reg, tipos, d.docs);
+    editar(DOCS);
+    renderDocs(true);
+  };
+  document.getElementById("confirmar").onclick = () => confirmarEtapa(DOCS, d);
+}
+
+// ------------------------------------------------------------ tela da variável
+
+function rotuloNota(spec, valor) {
+  if (valor === NAO_E_ISSO) return "não é isso";
+  const o = (spec.opcoes || []).find((x) => x.valor === valor);
+  return o ? o.rotulo : String(valor);
+}
+
+function legivel(campo, valor) {
+  if (Array.isArray(valor)) return valor.length ? valor.join(", ") : "(nenhum)";
+  if (valor === "" || valor == null) return "(vazio)";
+  const ajuda = (E.codebook.ajuda_valores || {})[`${campo.chave}:${valor}`];
+  return ajuda ? `${valor} <span class="suave">${esc(ajuda)}</span>` : esc(String(valor));
+}
+
+function controleHtml(c, valor, prefixo) {
+  // Rádios ou caixas para um campo, com `prefixo` no name para não colidir.
+  const marcados = new Set(Array.isArray(valor) ? valor : valor ? [valor] : []);
+  if (c.tipo === "select" || c.tipo === "checks") {
+    const tipo = c.tipo === "select" ? "radio" : "checkbox";
+    return `<div class="opcoes compacto">${c.opcoes.filter((o) => o !== "").map((o) => {
+      const av = (E.codebook.ajuda_valores || {})[`${c.chave}:${o}`];
+      return `<label class="${marcados.has(o) ? "marcado" : ""}"><input type="${tipo}" name="${prefixo}${esc(c.chave)}" value="${esc(o)}" ${marcados.has(o) ? "checked" : ""}><b>${esc(o)}</b>${av ? ` <span class="suave">${esc(av)}</span>` : ""}</label>`;
+    }).join("")}</div>`;
+  }
+  return `<input type="text" name="${prefixo}${esc(c.chave)}" value="${esc(valor || "")}" placeholder="${esc(c.placeholder || "")}">`;
+}
+
+function caixaCalculo(v, reg, d) {
+  const cb = E.codebook;
+  const x = derivar(cb, reg, d);
+  const extras = new Set((cb.extras || {})[v.vid] || []);
+  const n = x.n[v.vid] || { relevantes: 0, julgados: 0, total: 0 };
+  const temOverride = v.campos.some((c) => c.chave in reg.override);
+  const linhas = v.campos.filter((c) => c.tipo !== "text").map((c) => {
+    if (extras.has(c.chave)) {
+      return `<div class="calc-linha"><span class="rotulo">${esc(c.rotulo)}</span>
+        <span class="tag">pergunta</span>${controleHtml(c, reg.extras[c.chave], "extra-")}</div>`;
+    }
+    const origem = x.origem[c.chave];
+    const tag = origem === "corrigido" ? `<span class="tag corrigido">corrigida à mão</span>`
+      : `<span class="tag">calculada de ${n.relevantes} trecho${n.relevantes === 1 ? "" : "s"}</span>`;
+    const valorHtml = E.corrigindo ? controleHtml(c, x.campos[c.chave], "override-") : `<span class="valor">${legivel(c, x.campos[c.chave])}</span>`;
+    return `<div class="calc-linha"><span class="rotulo">${esc(c.rotulo)}</span>${tag}${valorHtml}</div>`;
+  }).join("");
+  return `<div class="calculo" id="calculo">
+    <div class="calc-titulo"><b>Resposta calculada</b> <span class="suave pequeno">${n.julgados} de ${n.total} trechos julgados · ${n.relevantes} relevante${n.relevantes === 1 ? "" : "s"}</span></div>
+    ${linhas}
+    <div class="botoes" style="margin:8px 0 0">
+      ${E.corrigindo ? `<button class="pequeno" id="fechar-correcao">fechar a correção</button>` : `<button class="pequeno" id="corrigir">corrigir à mão</button>`}
+      ${temOverride ? `<button class="pequeno" id="voltar-calculo">voltar ao cálculo</button>` : ""}
+    </div>
+    <details class="pequeno" style="margin-top:8px"><summary class="suave" style="cursor:pointer">evidência que será gravada</summary><pre class="evidencia">${esc(x.evidencias[v.vid] || "")}</pre></details>
   </div>`;
 }
 
-function campoHtml(c, reg) {
-  const ajuda = (E.codebook.ajuda_campos || {})[c.chave];
-  const ajudaHtml = ajuda ? `<div class="ajuda">${esc(Array.isArray(ajuda) ? ajuda[0] : ajuda)}</div>` : "";
-  if (c.tipo === "select" || c.tipo === "checks") {
-    const atual = reg[c.chave];
-    const marcados = new Set(Array.isArray(atual) ? atual : atual ? [atual] : []);
-    const ops = c.opcoes.filter((o) => o !== "").map((o) => {
-      const av = (E.codebook.ajuda_valores || {})[`${c.chave}:${o}`];
-      const texto = av ? ` <span class="suave">${esc(Array.isArray(av) ? av[0] : av)}</span>` : "";
-      const tipo = c.tipo === "select" ? "radio" : "checkbox";
-      return `<label class="${marcados.has(o) ? "marcado" : ""}"><input type="${tipo}" name="${esc(c.chave)}" value="${esc(o)}" ${marcados.has(o) ? "checked" : ""}><b>${esc(o)}</b>${texto}</label>`;
-    }).join("");
-    return `<div class="campo" data-campo="${esc(c.chave)}"><span class="rotulo">${esc(c.rotulo)}</span>${ajudaHtml}<div class="opcoes">${ops}</div></div>`;
-  }
-  if (c.tipo === "line") {
-    return `<div class="campo" data-campo="${esc(c.chave)}"><label class="rotulo" for="f-${esc(c.chave)}">${esc(c.rotulo)}</label>${ajudaHtml}
-      <input type="text" id="f-${esc(c.chave)}" name="${esc(c.chave)}" value="${esc(reg[c.chave] || "")}" placeholder="${esc(c.placeholder || "")}"></div>`;
-  }
-  return `<div class="campo" data-campo="${esc(c.chave)}"><label class="rotulo" for="f-${esc(c.chave)}">${esc(c.rotulo)}</label>${ajudaHtml}
-    <textarea id="f-${esc(c.chave)}" name="${esc(c.chave)}" placeholder="${esc(c.placeholder || "")}">${esc(reg[c.chave] || "")}</textarea></div>`;
-}
-
-function renderVariavel() {
+function renderVariavel(vid, manterScroll) {
   const cb = E.codebook;
-  const v = cb.variaveis[E.i];
+  const v = cb.variaveis.find((x) => x.vid === vid);
   const d = E.cache.get(E.servico);
   const reg = registro(E.servico);
-  const ehKw = v.vid === "KW";
+  const spec = (cb.notas || {})[vid] || { modo: "um", opcoes: [] };
+  const trechos = trechosDaVariavel(vid, d, reg);
+  const notasVid = reg.notas[vid] || {};
+  const sug = d.copiloto && d.copiloto.variaveis ? d.copiloto.variaveis[vid] : null;
+  const julgados = trechos.filter((t) => t.origem === "v1" || notasVid[t.id] !== undefined).length;
 
-  if (ehKw && !reg.keyword_log) {
-    reg.keyword_log = logSugerido(d.piso);
-  }
+  const itens = trechos.map((t) => {
+    const n = notasVid[t.id];
+    const nota = n !== undefined ? n.nota : (t.origem === "v1" ? "sim" : undefined);
+    const marcados = new Set(nota === undefined ? [] : [].concat(nota));
+    const titulo = (d.docs.find((x) => x.n === t.doc) || {}).titulo || "";
+    const origem = t.origem === "piso" ? `<span class="origem">palavra-chave <b>${esc(t.termo)}</b> <span class="suave">(${t.total_no_doc} no documento)</span></span>`
+      : t.origem === "modelo" ? `<span class="origem">localizado pelo modelo</span>`
+      : `<span class="origem">herdado da V1 <b>(nível ${esc(t.notaV1)})</b></span>`;
+    const botoes = (spec.opcoes || []).map((o) => `<button class="nota ${marcados.has(o.valor) ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${esc(o.valor)}">${esc(o.rotulo)}</button>`).join("")
+      + `<button class="nota x ${nota === NAO_E_ISSO ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${NAO_E_ISSO}">não é isso</button>`
+      + `<button class="pequeno comentar" data-com="${esc(t.id)}">${n && n.com ? "comentário ✎" : "comentar"}</button>`;
+    const sugerida = E.copilotoAberto && sug && sug.notas && sug.notas[t.id] !== undefined
+      ? `<span class="sug">copiloto: ${esc([].concat(sug.notas[t.id]).map((x) => rotuloNota(spec, x)).join(", "))}</span>` : "";
+    return `<div class="item ${t.origem} ${nota === undefined ? "" : nota === NAO_E_ISSO ? "descartado" : "relevante"}" data-item="${esc(t.id)}">
+      <div class="meta">${origem}${t.flag ? `<div class="flag">⚠ ${esc(t.flag)}</div>` : ""}</div>
+      <div class="texto">${esc(t.verbatim)}</div>
+      <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
+        <button class="pequeno" data-abrir="${esc(t.file)}" data-trecho="${esc(t.verbatim)}">abrir no documento</button></div>
+      <div class="notas">${botoes} ${sugerida}</div>
+      <div class="com ${n && n.com ? "" : "oculto"}"><input type="text" data-com-input="${esc(t.id)}" value="${esc(n && n.com ? n.com : "")}" placeholder="comentário curto sobre este trecho"></div>
+    </div>`;
+  }).join("");
 
-  const hits = (d.piso.por_variavel || {})[v.vid] || [];
-  const cits = d.citacoes[v.vid] || [];
-  const sugestao = d.copiloto && d.copiloto.variaveis ? d.copiloto.variaveis[v.vid] : null;
-
-  const hitsHtml = hits.map((h) => itemEvidencia(
-    { doc: h.n, file: h.file, onde: `palavra-chave "${h.termo}"`, verbatim: h.kwic }, d, "piso",
-    `<span class="termo">${esc(h.termo)}</span> <span class="suave pequeno">(${h.total_no_doc} no documento)</span>${h.flag ? `<div class="flag">⚠ ${esc(h.flag)}</div>` : ""}`,
-  )).join("");
-  const citsHtml = cits.map((c) => itemEvidencia(c, d, "modelo")).join("");
-
-  const sugestaoHtml = sugestao ? `<div class="sugestao ${E.copilotoAberto ? "" : "oculto"}" id="caixa-copiloto">
-      <div><b>Sugestão do copiloto</b> <span class="conf">· confiança ${esc(sugestao.confianca)}</span></div>
-      <ul style="margin:8px 0">${Object.entries(sugestao.campos).map(([k, val]) => {
-        const campo = v.campos.find((c) => c.chave === k);
-        return `<li>${esc(campo ? campo.rotulo : k)}: <span class="valor">${esc(Array.isArray(val) ? val.join(", ") : (val || "(vazio)"))}</span></li>`;
-      }).join("")}</ul>
-      <p>${esc(sugestao.razao)}</p>
-      ${(sugestao.citacoes || []).length ? `<p class="pequeno suave">Trechos que ela usa: ${sugestao.citacoes.map(esc).join(", ")}</p>` : ""}
-      <div class="botoes" style="margin:8px 0 0"><button class="copiloto" id="aplicar">aplicar sugestão</button>
-        <a class="pequeno" href="/assistente/copiloto.html" target="_blank" rel="noopener">como o copiloto funciona</a></div>
-    </div>` : "";
-
-  const kwTexto = ehKw ? `<p class="suave">O log já vem preenchido com as contagens automáticas, documento por documento. Corrija o que for falso positivo. O que ficar aqui é o registro do que você procurou.</p>` : "";
+  const copilotoHtml = sug ? `<div class="botoes" style="margin:6px 0">
+      <button class="copiloto" id="ver-copiloto">${E.copilotoAberto ? "esconder sugestão" : "ver sugestão do copiloto"}</button>
+      ${E.copilotoAberto ? `<button class="copiloto" id="aplicar">aplicar sugestão nos trechos sem nota</button>` : ""}
+    </div>${E.copilotoAberto ? `<div class="sugestao"><b>Copiloto</b> ${esc(sug.razao || "")}
+      ${Object.keys(sug.extras || {}).length ? `<div class="pequeno">Perguntas avulsas sugeridas: ${Object.entries(sug.extras).map(([k, val]) => `${esc(k)} = ${esc(val || "(vazio)")}`).join(" · ")}</div>` : ""}
+      <div class="pequeno"><a href="/assistente/copiloto.html" target="_blank" rel="noopener">como o copiloto funciona</a></div></div>` : ""}`
+    : `<p class="pequeno suave">O copiloto não tem sugestão para esta variável.</p>`;
 
   mostrar(`${cabecalhoServico(d)}
-    <div class="pergunta">[${esc(v.vid)}] ${esc(v.pergunta || v.titulo)}</div>
+    <div class="pergunta">[${esc(vid)}] ${esc(v.pergunta || v.titulo)}</div>
     <p class="lembrete">${esc(v.lembrete)} <a href="#" id="criterio">critério completo</a></p>
     ${E.avisoConflito ? `<div class="aviso">Este serviço foi alterado em outra janela. Recarreguei as respostas; confira e continue.</div>` : ""}
-    ${kwTexto}
-    ${ehKw ? "" : `<div class="evid">
-      <h3>Busca por palavra-chave <span class="suave pequeno">${hits.length} trecho${hits.length === 1 ? "" : "s"}</span></h3>
-      ${hits.length ? hitsHtml : `<p class="suave pequeno">Nenhum dos termos endereçados a esta variável aparece nos documentos.</p>`}
-      <h3>Localizado pelo modelo <span class="suave pequeno">${cits.length} citaç${cits.length === 1 ? "ão" : "ões"}</span></h3>
-      ${cits.length ? citsHtml : `<p class="suave pequeno">O modelo não localizou passagem para esta variável.</p>`}
-    </div>`}
-    ${sugestao ? `<div class="botoes" style="margin:6px 0"><button class="copiloto" id="ver-copiloto">${E.copilotoAberto ? "esconder sugestão" : "ver sugestão do copiloto"}</button></div>` : (ehKw ? "" : `<p class="pequeno suave">O copiloto não tem sugestão para esta variável.</p>`)}
-    ${sugestaoHtml}
-    <div class="campos">${v.campos.map((c) => campoHtml(c, reg)).join("")}</div>
+    ${copilotoHtml}
+    <div class="evid">
+      <h3>Trechos <span class="suave pequeno" id="contador">${julgados} de ${trechos.length} julgados</span></h3>
+      <p class="pequeno suave">Para cada trecho, o que ele mostra para esta variável. "Não é isso" vale para falso positivo, outro sentido ou outro assunto.</p>
+      ${trechos.length ? itens : `<p class="suave">Nenhum trecho localizado para esta variável, nem pela busca por palavra-chave nem pelo modelo. Se concordar com a ausência, confirme.</p>`}
+      ${julgados < trechos.length ? `<div class="botoes"><button class="secundario" id="restantes">marcar os ${trechos.length - julgados} restantes como "não é isso"</button></div>` : ""}
+    </div>
+    ${caixaCalculo(v, reg, d)}
+    <div class="campo"><label class="rotulo" for="comentario"><b>Comentário sobre esta variável</b> <span class="suave pequeno">opcional; entra na evidência gravada</span></label>
+      <textarea id="comentario">${esc(reg.comentarios[vid] || "")}</textarea></div>
     <div id="falta"></div>
     <div class="botoes">
       ${E.i > 0 ? `<button class="secundario" id="voltar">Voltar</button>` : ""}
       <button class="primario" id="confirmar">Confirmar e seguir</button>
       <span class="recibo"></span>
     </div>
-    <div class="caixa papel" style="margin-top:28px">
-      <label class="rotulo" for="notas"><b>Notas sobre este serviço</b> <span class="suave pequeno">dúvidas de regra, casos de fronteira, diferenças entre documentos</span></label>
-      <textarea id="notas" style="width:100%;min-height:70px;margin-top:6px;font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:8px">${esc(reg.notes || "")}</textarea>
-    </div>
-    <footer class="rodape">Texto congelado em ${esc(E.indice.frozen_at ? E.indice.frozen_at.slice(0, 10) : "")} · critério congelado em ${esc(cb.congelado_em)} · <a href="/assistente/copiloto.html" target="_blank" rel="noopener">como o copiloto funciona</a></footer>`);
+    ${blocoNotasGerais(reg)}
+    ${rodape()}`, manterScroll);
 
   ligarCabecalho(d);
   pintarRecibos();
+  ligarNotasGerais(reg);
   document.getElementById("criterio").onclick = (ev) => { ev.preventDefault(); abrirCriterio(v); };
 
-  for (const b of app.querySelectorAll("button[data-abrir-trecho]")) {
-    b.onclick = () => abrirDocumento(b.dataset.abrirTrecho, b.dataset.trecho, d);
-  }
-  for (const b of app.querySelectorAll("button[data-usar]")) {
-    b.onclick = () => {
-      const cit = JSON.parse(b.dataset.usar);
-      const campoTexto = v.campos.find((c) => c.tipo === "text" && c.chave !== "keyword_log");
-      if (!campoTexto) return;
-      const atual = (reg[campoTexto.chave] || "").trim();
-      const linha = textoDeEvidencia(cit, d.docs);
-      reg[campoTexto.chave] = atual ? `${atual}\n${linha}` : linha;
-      const ta = document.getElementById(`f-${campoTexto.chave}`);
-      if (ta) { ta.value = reg[campoTexto.chave]; ta.scrollIntoView({ block: "center", behavior: "smooth" }); }
-      marcarEdicao(E.servico);
-      b.textContent = "copiado para a evidência";
-      b.disabled = true;
-    };
-  }
-
-  // Campos: cada mudança vai para o registro, para o navegador e, com atraso, para o servidor.
-  for (const input of app.querySelectorAll(".campos input, .campos textarea")) {
-    input.addEventListener("input", () => lerCampos(v, reg));
-    input.addEventListener("change", () => lerCampos(v, reg));
-  }
-  const notas = document.getElementById("notas");
-  notas.addEventListener("input", () => { reg.notes = notas.value; marcarEdicao(E.servico); });
-
-  const btnVer = document.getElementById("ver-copiloto");
-  if (btnVer) btnVer.onclick = () => { E.copilotoAberto = !E.copilotoAberto; render(); if (E.copilotoAberto) document.getElementById("caixa-copiloto").scrollIntoView({ block: "start", behavior: "smooth" }); };
-  const btnAplicar = document.getElementById("aplicar");
-  if (btnAplicar) btnAplicar.onclick = () => {
-    E.records[E.servico] = aplicarSugestao(v, reg, sugestao, d.citacoesPorId, d.docs);
-    marcarEdicao(E.servico);
-    render();
-    document.querySelector(".campos").scrollIntoView({ block: "start", behavior: "smooth" });
-  };
-
-  const btnVoltar = document.getElementById("voltar");
-  if (btnVoltar) btnVoltar.onclick = () => { salvar(E.servico); E.i -= 1; E.copilotoAberto = false; E.avisoConflito = false; render(); };
-  document.getElementById("confirmar").onclick = () => {
-    lerCampos(v, reg, false);
-    const pend = faltando(v, reg);
-    const caixa = document.getElementById("falta");
-    if (pend.length) {
-      const nomes = pend.map(([chave, motivo]) => {
-        const c = v.campos.find((x) => x.chave === chave);
-        return `<li><b>${esc(c ? c.rotulo : chave)}</b>: falta ${esc(motivo)}</li>`;
-      }).join("");
-      caixa.innerHTML = `<div class="falta">Para seguir, preencha:<ul style="margin:6px 0 0">${nomes}</ul></div>`;
-      caixa.scrollIntoView({ block: "center", behavior: "smooth" });
-      return;
+  const definirNota = (id, valor) => {
+    reg.notas[vid] ||= {};
+    const atual = reg.notas[vid][id] || {};
+    let nova;
+    if (valor === NAO_E_ISSO) nova = NAO_E_ISSO;
+    else if (spec.modo === "varios") {
+      const lista = Array.isArray(atual.nota) ? [...atual.nota] : [];
+      const k = lista.indexOf(valor);
+      if (k >= 0) lista.splice(k, 1); else lista.push(valor);
+      nova = lista.length ? lista : undefined;
+    } else nova = atual.nota === valor ? undefined : valor;
+    if (nova === undefined) {
+      if (atual.com) reg.notas[vid][id] = { com: atual.com }; else delete reg.notas[vid][id];
+      if (reg.notas[vid][id] && reg.notas[vid][id].nota === undefined && !reg.notas[vid][id].com) delete reg.notas[vid][id];
+    } else {
+      reg.notas[vid][id] = { ...atual, nota: nova };
     }
-    salvar(E.servico);
-    E.i += 1;
-    E.copilotoAberto = false;
-    E.avisoConflito = false;
-    render();
+    editar(vid);
+    renderVariavel(vid, true);
   };
+  for (const b of app.querySelectorAll("button.nota[data-id]")) b.onclick = () => definirNota(b.dataset.id, b.dataset.nota);
+  for (const b of app.querySelectorAll("button[data-com]")) {
+    b.onclick = () => { const caixa = app.querySelector(`.item[data-item="${CSS.escape(b.dataset.com)}"] .com`); caixa.classList.toggle("oculto"); if (!caixa.classList.contains("oculto")) caixa.querySelector("input").focus(); };
+  }
+  for (const inp of app.querySelectorAll("input[data-com-input]")) {
+    inp.addEventListener("input", () => {
+      const id = inp.dataset.comInput;
+      reg.notas[vid] ||= {};
+      reg.notas[vid][id] = { ...(reg.notas[vid][id] || {}), com: inp.value };
+      if (!inp.value && reg.notas[vid][id].nota === undefined) delete reg.notas[vid][id];
+      marcarEdicao(E.servico);
+    });
+    inp.addEventListener("change", () => atualizarCalculo(v, reg, d));
+  }
+  const rest = document.getElementById("restantes");
+  if (rest) rest.onclick = () => {
+    reg.notas[vid] ||= {};
+    for (const t of trechos) if (t.origem !== "v1" && (reg.notas[vid][t.id] || {}).nota === undefined) reg.notas[vid][t.id] = { ...(reg.notas[vid][t.id] || {}), nota: NAO_E_ISSO };
+    editar(vid);
+    renderVariavel(vid, true);
+  };
+  const ver = document.getElementById("ver-copiloto");
+  if (ver) ver.onclick = () => { E.copilotoAberto = !E.copilotoAberto; renderVariavel(vid, true); };
+  const ap = document.getElementById("aplicar");
+  if (ap) ap.onclick = () => {
+    E.records[E.servico] = aplicarNotas(reg, vid, sug, trechos);
+    editar(vid);
+    renderVariavel(vid, true);
+  };
+  ligarCalculo(v, reg, d);
+  const com = document.getElementById("comentario");
+  com.addEventListener("input", () => { reg.comentarios[vid] = com.value; marcarEdicao(E.servico); });
+  com.addEventListener("change", () => atualizarCalculo(v, reg, d));
+  const btnVoltar = document.getElementById("voltar");
+  if (btnVoltar) btnVoltar.onclick = voltarEtapa;
+  document.getElementById("confirmar").onclick = () => confirmarEtapa(vid, d);
 }
 
-function lerCampos(v, reg, agendar = true) {
+function atualizarCalculo(v, reg, d) {
+  const antigo = document.getElementById("calculo");
+  if (!antigo) return;
+  antigo.replaceWith(el(caixaCalculo(v, reg, d)));
+  ligarCalculo(v, reg, d);
+}
+
+function ligarCalculo(v, reg, d) {
+  const cb = E.codebook;
+  const extras = new Set((cb.extras || {})[v.vid] || []);
+  const corr = document.getElementById("corrigir");
+  if (corr) corr.onclick = () => { E.corrigindo = true; atualizarCalculo(v, reg, d); };
+  const fechar = document.getElementById("fechar-correcao");
+  if (fechar) fechar.onclick = () => { E.corrigindo = false; atualizarCalculo(v, reg, d); };
+  const vc = document.getElementById("voltar-calculo");
+  if (vc) vc.onclick = () => { for (const c of v.campos) delete reg.override[c.chave]; E.corrigindo = false; editar(v.vid); atualizarCalculo(v, reg, d); };
+  const ler = (c, prefixo) => {
+    if (c.tipo === "select") { const m = document.querySelector(`#calculo input[name="${prefixo}${CSS.escape(c.chave)}"]:checked`); return m ? m.value : ""; }
+    if (c.tipo === "checks") return [...document.querySelectorAll(`#calculo input[name="${prefixo}${CSS.escape(c.chave)}"]:checked`)].map((x) => x.value);
+    const i = document.querySelector(`#calculo input[name="${prefixo}${CSS.escape(c.chave)}"]`); return i ? i.value : "";
+  };
   for (const c of v.campos) {
-    if (c.tipo === "select") {
-      const m = app.querySelector(`input[name="${CSS.escape(c.chave)}"]:checked`);
-      reg[c.chave] = m ? m.value : "";
-    } else if (c.tipo === "checks") {
-      reg[c.chave] = [...app.querySelectorAll(`input[name="${CSS.escape(c.chave)}"]:checked`)].map((x) => x.value);
-    } else {
-      const no = document.getElementById(`f-${c.chave}`);
-      if (no) reg[c.chave] = no.value;
+    if (c.tipo === "text") continue;
+    const prefixo = extras.has(c.chave) ? "extra-" : "override-";
+    for (const inp of document.querySelectorAll(`#calculo [name="${prefixo}${CSS.escape(c.chave)}"]`)) {
+      const aplicar = (rerender) => {
+        const valor = ler(c, prefixo);
+        if (extras.has(c.chave)) reg.extras[c.chave] = valor; else reg.override[c.chave] = valor;
+        editar(v.vid);
+        if (rerender) atualizarCalculo(v, reg, d);
+      };
+      if (inp.type === "text") { inp.addEventListener("input", () => aplicar(false)); inp.addEventListener("change", () => aplicar(true)); }
+      else inp.addEventListener("change", () => aplicar(true));
     }
   }
-  for (const label of app.querySelectorAll(".opcoes label")) {
-    label.classList.toggle("marcado", label.querySelector("input").checked);
-  }
-  if (agendar) marcarEdicao(E.servico);
+}
+
+// ---------------------------------------------------------- palavras-chave
+
+function renderKW() {
+  const cb = E.codebook;
+  const v = cb.variaveis.find((x) => x.vid === "KW");
+  const d = E.cache.get(E.servico);
+  const reg = registro(E.servico);
+  if (!reg.keyword_log) { reg.keyword_log = logSugerido(d.piso); sincronizar(E.servico); }
+  mostrar(`${cabecalhoServico(d)}
+    <div class="pergunta">[KW] ${esc(v.pergunta || v.titulo)}</div>
+    <p class="lembrete">${esc(v.lembrete)} <a href="#" id="criterio">critério completo</a></p>
+    <p class="suave">O log já vem preenchido com as contagens automáticas, documento por documento. Corrija o que for falso positivo. O que ficar aqui é o registro do que você procurou.</p>
+    <div class="campo"><label class="rotulo" for="f-keyword_log">${esc(v.campos[0].rotulo)}</label>
+      <textarea id="f-keyword_log" style="min-height:160px">${esc(reg.keyword_log || "")}</textarea></div>
+    <div id="falta"></div>
+    <div class="botoes"><button class="secundario" id="voltar">Voltar</button><button class="primario" id="confirmar">Confirmar e seguir</button><span class="recibo"></span></div>
+    ${blocoNotasGerais(reg)}
+    ${rodape()}`);
+  ligarCabecalho(d);
+  pintarRecibos();
+  ligarNotasGerais(reg);
+  document.getElementById("criterio").onclick = (ev) => { ev.preventDefault(); abrirCriterio(v); };
+  const ta = document.getElementById("f-keyword_log");
+  ta.addEventListener("input", () => { reg.keyword_log = ta.value; editar("KW"); });
+  document.getElementById("voltar").onclick = voltarEtapa;
+  document.getElementById("confirmar").onclick = () => confirmarEtapa("KW", d);
 }
 
 // ------------------------------------------------------------------- resumo
@@ -484,22 +719,27 @@ function renderResumo() {
   const cb = E.codebook;
   const d = E.cache.get(E.servico);
   const reg = registro(E.servico);
+  const x = derivar(cb, reg, d);
+  const rotuloTipo = (valor) => ((cb.tipos_doc || []).find((t) => t.valor === valor) || {}).rotulo || valor;
+  const docs = d.docs.map((doc) => { const t = reg.docs_tipo[doc.file] || {}; return `<div><span class="suave">${doc.n}.</span> ${esc(doc.titulo || doc.file)}: <b>${esc(rotuloTipo(t.tipo) || "(sem tipo)")}</b> · ${t.registro === "binding" ? "vinculante" : "não vinculante"}${t.virado ? " (virado à mão)" : ""}</div>`; }).join("");
   const linhas = cb.variaveis.map((v) => {
     const valores = v.campos.filter((c) => c.tipo !== "text").map((c) => {
-      const val = reg[c.chave];
+      const val = x.campos[c.chave];
       const t = Array.isArray(val) ? val.join(", ") : (val || "");
-      return t ? `<div><span class="suave">${esc(c.rotulo)}:</span> <b>${esc(t)}</b></div>` : "";
+      const tag = x.origem[c.chave] === "corrigido" ? ` <span class="tag corrigido">corrigida à mão</span>` : "";
+      return `<div><span class="suave">${esc(c.rotulo)}:</span> <b>${esc(t || "(vazio)")}</b>${tag}</div>`;
     }).join("");
-    const textos = v.campos.filter((c) => c.tipo === "text").map((c) => {
-      const t = (reg[c.chave] || "").trim();
-      return t ? `<div class="pequeno suave">${esc(t.length > 220 ? t.slice(0, 219) + "…" : t)}</div>` : "";
-    }).join("");
-    return `<tr><th>[${esc(v.vid)}] ${esc(v.titulo)}</th><td>${valores}${textos}</td></tr>`;
+    const n = x.n[v.vid];
+    const texto = v.campos.find((c) => c.tipo === "text");
+    const ev = texto ? (x.campos[texto.chave] || "").trim() : "";
+    return `<tr><th>[${esc(v.vid)}] ${esc(v.titulo)}${n ? `<div class="pequeno suave">${n.relevantes} de ${n.total} trechos relevantes</div>` : ""}</th>
+      <td>${valores}${ev ? `<div class="pequeno suave">${esc(ev.length > 240 ? ev.slice(0, 239) + "…" : ev)}</div>` : ""}</td></tr>`;
   }).join("");
-  const proximo = proximoServico(cb, E.records, E.servico);
+  const proximo = proximoServicoPorConfirmacao(cb, E.records, E.servico);
   mostrar(`${cabecalhoServico(d)}
     <h2>Resumo de ${esc(E.servico)}</h2>
-    <p class="suave">As dez etapas estão fechadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
+    <p class="suave">As onze etapas estão confirmadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
+    <div class="caixa"><b>Documentos</b>${docs}</div>
     <div class="caixa resumo"><table>${linhas}</table></div>
     ${reg.notes ? `<div class="caixa papel"><b>Notas:</b> ${esc(reg.notes)}</div>` : ""}
     <div class="botoes">
@@ -509,7 +749,7 @@ function renderResumo() {
     </div>`);
   ligarCabecalho(d);
   pintarRecibos();
-  document.getElementById("voltar").onclick = () => { E.i = cb.variaveis.length - 1; render(); };
+  document.getElementById("voltar").onclick = () => { E.i = etapas(cb).length - 1; render(); };
   document.getElementById("proximo").onclick = () => {
     if (proximo) abrirServico(proximo);
     else { E.servico = null; telaFim(); }

@@ -130,7 +130,7 @@ def exportar() -> dict:
             "crit_html": C.criterio(k),
             "crit_sha": C.CRIT_CONGELADO.get(k),
             "campos": [{
-                "chave": c.chave, "rotulo": c.rotulo, "tipo": c.tipo,
+                "chave": c.chave, "rotulo": _texto(c.rotulo), "tipo": c.tipo,
                 "opcoes": list(c.opcoes or []), "placeholder": _texto(c.placeholder or ""),
             } for c in v.campos],
         })
@@ -210,8 +210,8 @@ def _self_test() -> int:
            not any("—" in (v["pergunta"] + v["lembrete"]) for v in d["variaveis"]))
     checar("ajuda por valor: 18 entradas, em texto, sem travessão",
            len(d["ajuda_valores"]) == 18 and all("<" not in t and "—" not in t for t in d["ajuda_valores"].values()))
-    checar("nenhum travessão em placeholder",
-           not any("—" in c["placeholder"] for v in d["variaveis"] for c in v["campos"]))
+    checar("nenhum travessão em placeholder nem em rótulo de campo",
+           not any("—" in c["placeholder"] + c["rotulo"] for v in d["variaveis"] for c in v["campos"]))
     # Notas por trecho: as opções têm de ser as do codebook, letra por letra.
     opcoes = {c["chave"]: [o for o in c["opcoes"] if o] for v in d["variaveis"] for c in v["campos"] if c["opcoes"]}
     vals = lambda vid: [o["valor"] for o in d["notas"][vid]["opcoes"]]

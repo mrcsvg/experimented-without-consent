@@ -143,6 +143,8 @@ def pagina_no_repositorio(p: Placar) -> None:
              all(x in vi for x in ("analysis/", "instrument/", "notebooks/", "docs/")))
     p.checar("o instrumento antigo continua no repositório, fora da raiz",
              (RAIZ / "instrument" / "index.html").exists())
+    p.checar("a página calcula a resposta das notas (derivar) e tem o passo dos documentos",
+             "derivar(" in app and "renderDocs" in app and "aplicarNotas" in app)
     p.checar("os notebooks do Colab saíram",
              not (RAIZ / "notebooks" / "04-revisao-assistida.ipynb").exists()
              and not (RAIZ / "analysis" / "gerar-notebook-revisao.py").exists())
@@ -240,9 +242,15 @@ def caminho_do_codificador(p: Placar, completo: bool) -> None:
     p.checar("citações do Zalando: só frase, documento e localização",
              all(set(c) <= {"doc", "file", "onde", "role", "verbatim"} for lista in sug["citacoes"].values() for c in lista)
              and "sugestao" not in json.dumps(sug))
-    p.checar("copiloto do Zalando: 9 variáveis com campos, razão, confiança e citações",
-             set(cop["variaveis"]) == {f"V{i}" for i in range(1, 10)}
-             and all({"campos", "razao", "confianca", "citacoes"} <= set(v) for v in cop["variaveis"].values()))
+    p.checar("codebook traz as regras das notas por trecho, os tipos de documento e os extras",
+             set(cb.get("notas", {})) == {f"V{i}" for i in range(1, 10)} and len(cb.get("tipos_doc", [])) == 5 and "V4" in cb.get("extras", {}))
+    p.checar("copiloto do Zalando é formato 2: tipo por documento, nota por trecho, extras e razão",
+             cop.get("formato") == 2 and set(cop["variaveis"]) == {f"V{i}" for i in range(1, 10)}
+             and len(cop.get("documentos", {})) == len(piso["docs"])
+             and all({"notas", "extras", "razao"} <= set(v) for v in cop["variaveis"].values()))
+    ids_v1 = {f"c:V1-{i}" for i in range(1, len(sug["citacoes"].get("V1", [])) + 1)}
+    p.checar("as notas do copiloto apontam para ids de trecho da página (c:Vn-i e h:)",
+             all(k.startswith(("c:", "h:")) for k in cop["variaveis"]["V1"]["notas"]) and ids_v1 <= set(cop["variaveis"]["V1"]["notas"]) | set())
     p.checar("copiloto não traz etiqueta role nem nada da passada 1",
              '"role"' not in json.dumps(cop) and "passada 1" not in json.dumps(cop) and "codificado em" not in json.dumps(cop))
     cod_md, cab = (lambda r: (r.status, r.headers.get("content-type", "")))(urllib.request.urlopen(f"{SITE}/md/{piso['docs'][0]['file']}", timeout=60))
