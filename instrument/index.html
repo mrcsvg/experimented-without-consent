@@ -1,0 +1,1201 @@
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<title>Instrumento de Codificação — Auditoria VLOP/VLOSE</title>
+<style>
+:root{
+  --bg:#FAFBFC; --surface:#FFFFFF; --ink:#1C2733; --muted:#5A6B7A; --line:#DDE4EA;
+  --accent:#1F4E79; --accent-ink:#FFFFFF; --binding:#1F4E79; --nonbinding:#B07A2A;
+  --ok:#2E7D4F; --warn:#B3541E; --field:#FFFFFF; --field-line:#C3CFD9; --hover:#EFF3F7;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#10161C; --surface:#182028; --ink:#E4EAEF; --muted:#93A3B1; --line:#2A3540;
+  --accent:#6FA8D6; --accent-ink:#0E1620; --binding:#6FA8D6; --nonbinding:#D9A65A;
+  --ok:#5FBF8A; --warn:#E08050; --field:#131B22; --field-line:#3A4854; --hover:#1F2A34;
+}}
+:root[data-theme="dark"]{
+  --bg:#10161C; --surface:#182028; --ink:#E4EAEF; --muted:#93A3B1; --line:#2A3540;
+  --accent:#6FA8D6; --accent-ink:#0E1620; --binding:#6FA8D6; --nonbinding:#D9A65A;
+  --ok:#5FBF8A; --warn:#E08050; --field:#131B22; --field-line:#3A4854; --hover:#1F2A34;
+}
+:root[data-theme="light"]{
+  --bg:#FAFBFC; --surface:#FFFFFF; --ink:#1C2733; --muted:#5A6B7A; --line:#DDE4EA;
+  --accent:#1F4E79; --accent-ink:#FFFFFF; --binding:#1F4E79; --nonbinding:#B07A2A;
+  --ok:#2E7D4F; --warn:#B3541E; --field:#FFFFFF; --field-line:#C3CFD9; --hover:#EFF3F7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+h1,h2,h3,.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  text-wrap:balance;margin:0}
+code,.mono,textarea.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.86em}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+header.app{position:sticky;top:0;z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--line);padding:10px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header.app h1{font-size:17px;font-weight:600}
+header.app .sub{color:var(--muted);font-size:12.5px}
+.spacer{flex:1}
+.btn{border:1px solid var(--field-line);background:var(--field);color:var(--ink);
+  border-radius:6px;padding:7px 13px;font-size:13.5px}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+
+nav.tabs{display:flex;gap:2px;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 18px;overflow-x:auto}
+nav.tabs button{border:0;background:none;color:var(--muted);padding:10px 14px;
+  border-bottom:2px solid transparent;font-size:14px;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 18px 80px}
+.prose{max-width:72ch}
+.prose p{margin:.55em 0}
+.prose h2{font-size:21px;margin:1.2em 0 .35em}
+.prose h3{font-size:16.5px;margin:1.1em 0 .3em}
+.prose li{margin:.3em 0}
+.note{border-left:3px solid var(--nonbinding);background:var(--surface);
+  padding:10px 14px;border-radius:0 6px 6px 0;margin:.8em 0}
+.note.blue{border-left-color:var(--binding)}
+
+.layout{display:grid;grid-template-columns:270px 1fr;gap:22px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+aside.rail{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow-y:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px}
+aside.rail .railhead{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);padding:6px 8px 4px}
+.svc{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;
+  background:none;color:var(--ink);padding:7px 8px;border-radius:6px;font-size:13.5px}
+.svc:hover{background:var(--hover)}
+.svc[aria-current="true"]{background:var(--hover);font-weight:600}
+.svc .n{color:var(--muted);font-size:11px;min-width:17px;font-variant-numeric:tabular-nums}
+.svc .state{margin-left:auto;width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.svc .state.partial{background:var(--nonbinding)}
+.svc .state.done{background:var(--ok)}
+
+.panel{min-width:0}
+.svc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.svc-head h2{font-size:24px}
+.chip{display:inline-block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.savestate{font-size:12.5px;color:var(--muted)}
+
+details.docs{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  margin:12px 0 18px}
+details.docs summary{cursor:pointer;padding:10px 14px;font-weight:600;font-size:14px}
+details.docs .doclist{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
+.doc{display:flex;gap:9px;align-items:flex-start;font-size:13.5px}
+.doc input{margin-top:3px}
+.doc .txt{word-break:break-word}
+.accessdate{color:var(--muted);font-size:12.5px;padding:0 14px 12px}
+
+/* Corpus congelado: o arquivo é o que se abre, a URL é só procedência — então a
+   URL fica apagada e o arquivo ganha o destaque que o link tinha. */
+.frozenurl{color:var(--muted);text-decoration:line-through;opacity:.65}
+.frozen{display:inline-block;background:var(--field);border:1px solid var(--ok);
+  border-radius:5px;padding:1px 7px;margin-left:2px;font-size:12.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap}
+.frozen i{color:var(--muted);font-style:normal;font-size:11.5px}
+.corpusnote{margin:0 14px 10px;padding:9px 12px;border-radius:6px;
+  background:var(--field);border-left:3px solid var(--ok);font-size:12.5px;line-height:1.45}
+.corpusnote b{color:var(--ink)}
+
+.vcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:16px 18px;margin-bottom:14px}
+.vcard>h3{font-size:16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.vcard>h3 .vid{color:var(--accent);font-variant-numeric:tabular-nums}
+.rule{color:var(--muted);font-size:13px;margin:6px 0 12px;max-width:80ch}
+.rule b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.f>label{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.f select,.f input[type=text],.f textarea{background:var(--field);color:var(--ink);
+  border:1px solid var(--field-line);border-radius:6px;padding:8px 10px;font:inherit;font-size:14px}
+.f textarea{min-height:64px;resize:vertical}
+.opts{display:flex;flex-wrap:wrap;gap:6px 14px;padding:2px 0}
+.opts label{display:flex;gap:6px;align-items:center;font-size:14px}
+.reg-binding{color:var(--binding);font-weight:600}
+.reg-nonbinding{color:var(--nonbinding);font-weight:600}
+.kwchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.kwchips code{background:var(--hover);border:1px solid var(--line);border-radius:5px;padding:2px 7px}
+.done-row{display:flex;align-items:center;gap:10px;background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin-top:4px}
+.done-row label{font-weight:600}
+footer.appfoot{color:var(--muted);font-size:12.5px;text-align:center;padding:26px 0 10px}
+table.cb{border-collapse:collapse;width:100%;font-size:13.5px}
+table.cb th,table.cb td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.cb th{background:var(--hover);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.tablewrap{overflow-x:auto}
+
+/* ---- ajuda contextual: popover + critério expansível ---- */
+.ihelp{border:0;background:none;color:var(--muted);padding:0 1px;line-height:1;
+  font-size:13.5px;border-radius:50%;flex:none}
+.ihelp:hover{color:var(--accent)}
+.f>label .ihelp{font-size:12.5px;margin-left:3px;text-transform:none}
+.vcard>h3 .ihelp{font-size:14px}
+.opts .opt{display:flex;gap:3px;align-items:center}
+.opts .opt label{display:flex;gap:6px;align-items:center;font-size:14px}
+[popover].hp, .hp{margin:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:8px;padding:12px 14px;max-width:min(380px,calc(100vw - 24px));
+  box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:13.5px;line-height:1.5;overflow:visible}
+[popover].hp::backdrop{background:transparent}
+.hp h4{font-size:13px;margin:0 0 7px;font-family:inherit;font-weight:700}
+.hp p{margin:.4em 0}
+.hp dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 10px}
+.hp dt{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;
+  color:var(--accent);white-space:nowrap;padding-top:1px}
+.hp dd{margin:0}
+.hp .hpsrc{display:block;margin-top:10px;padding-top:7px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:11.5px}
+.hp .glosanote{color:var(--muted);font-size:11.5px;margin-top:8px}
+.hp dt sup{color:var(--nonbinding)}
+.selhint{color:var(--muted);font-size:12.5px;margin-top:1px}
+.selhint b{color:var(--ink);font-weight:600}
+details.crit{margin-top:12px;border-top:1px solid var(--line);padding-top:9px}
+details.crit>summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:600;
+  list-style:none;letter-spacing:.02em}
+details.crit>summary:hover{color:var(--accent)}
+details.crit>summary::-webkit-details-marker{display:none}
+details.crit>summary::before{content:"▸ "}
+details.crit[open]>summary::before{content:"▾ "}
+details.crit .critbody{font-size:13.5px;padding:9px 0 2px;max-width:80ch}
+details.crit .critbody p{margin:.55em 0}
+details.crit .glosa p:first-child{margin-top:0}
+details.crit .critfonte{color:var(--muted);font-size:11px;margin:11px 0 2px;border-top:1px solid var(--line);padding-top:8px}
+details.crit .critfonte + p, details.crit .critfonte ~ p{font-size:12.5px;color:var(--muted)}
+details.crit .critbody ul{margin:.5em 0;padding-left:1.15em}
+details.crit .critbody li{margin:.3em 0}
+.anchors{margin:.7em 0 0;padding-top:.6em;border-top:1px dashed var(--line)}
+.anchors .ahead{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.anchors ul{list-style:none;margin:.35em 0 0;padding:0}
+.anchors li{margin:.25em 0}
+.suppressed{border-left:3px solid var(--nonbinding);background:var(--hover);
+  padding:7px 11px;border-radius:0 5px 5px 0;color:var(--muted);font-size:12.5px;margin:.35em 0}
+</style>
+
+<header class="app">
+  <div>
+    <h1>Instrumento de Codificação — 2º avaliador</h1>
+    <div class="sub">Auditoria de disclosures · 26 serviços DSA VLOP/VLOSE · codebook v2 (congelado 04/jul/2026)</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="chip" id="progresschip" title="serviços marcados como concluídos">0/26 concluídos</span>
+  <span class="savestate" id="globalsave">salvo localmente</span>
+  <span class="savestate" id="syncstate" title="estado da sincronização">·</span>
+  <button class="btn" id="importbtn">Importar backup</button>
+  <input type="file" id="importfile" accept=".json" style="display:none">
+  <button class="btn primary" id="exportbtn">Exportar JSON</button>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="howto">Instruções</button>
+  <button role="tab" aria-selected="false" data-tab="codebook">Codebook</button>
+  <button role="tab" aria-selected="false" data-tab="coding">Codificação</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ INSTRUÇÕES ============ -->
+<section id="tab-howto" class="prose">
+  <h2>Como funciona</h2>
+  <p>Este instrumento acompanha o <b>codebook v2</b> (aba ao lado, sempre à mão). Você codifica um serviço por vez: abre os documentos listados, responde às 9 variáveis e cola a evidência verbatim. Tudo é salvo <b>neste navegador</b> automaticamente (localStorage) — nada sai da sua máquina até você clicar em <b>Exportar JSON</b> e enviar o arquivo ao Marcus.</p>
+
+  <div class="note blue"><b>Cegueira operacional.</b> Codifique a partir dos documentos, não da memória dos resultados que já lhe foram comunicados. Durante a codificação, não consulte os arquivos da 1ª passada (<code>coded-data.json</code>, <code>coding-results.md</code>, §4.3 do paper). Esta página não contém nenhum código da 1ª passada.</div>
+
+  <h3>Volume e ordem</h3>
+  <p>O volume é <b>a seu critério</b> — o instrumento aceita qualquer N. A lista à esquerda segue uma ordem <b>estratificada por gênero de plataforma, sorteada com semente fixa</b> (20260722): todos os gêneros aparecem desde o início, então qualquer prefixo (5, 10, 26…) é uma amostra defensável. Basta seguir a ordem e parar onde quiser.</p>
+
+  <h3>Regras que evitam divergência espúria</h3>
+  <ul>
+    <li><b>Leia os documentos do manifesto</b> (mesmas URLs e datas da 1ª passada, listadas em cada serviço). Link morto ou conteúdo visivelmente alterado: registre no campo de acesso e pule — não substitua por outra versão.</li>
+    <li><b>Evidência primeiro:</b> código de presença exige citação verbatim + documento; código de ausência exige o log de palavras-chave preenchido.</li>
+    <li><b>Dúvida de regra ≠ dúvida de julgamento:</b> anote a dúvida em Notes e codifique sua melhor leitura. A discussão acontece na adjudicação, <i>depois</i> do cálculo de concordância.</li>
+    <li><b>Vantagem de captura:</b> você codifica do Brasil. Se uma tabela de bases legais não aparecer, use a opção <i>"não verificável da minha vantagem"</i> no V4 — é diferente de "No".</li>
+  </ul>
+
+  <h3>Registro vinculante vs. não-vinculante</h3>
+  <p>É a distinção central do estudo. <span class="reg-binding">Vinculante</span>: privacy policy/notice, termos/condições, aviso de cookies, anexo de bases legais — o que governa a relação com o usuário. <span class="reg-nonbinding">Não-vinculante</span>: help centre, blog de engenharia, PR, site corporativo de pesquisa. O que define é a função legal, não a URL onde o documento mora.</p>
+
+  <p>Quando terminar (qualquer N): <b>Exportar JSON</b> no topo e enviar o arquivo. A concordância é calculada por variável; depois disso a gente senta para adjudicar as divergências.</p>
+</section>
+
+<!-- ============ CODEBOOK ============ -->
+<section id="tab-codebook" class="prose" hidden>
+  <h2>Codebook v2 — o instrumento congelado</h2>
+  <p style="color:var(--muted)">Congelado em <b>2026-07-04</b>, pós-piloto (Meta, Google Search, Amazon), com sign-off do autor. Nenhuma regra aqui é nova: é a v2, por extenso. Idêntico a <code>protocol/codebook-v2.md</code> no repositório.</p>
+  <p><b>Pergunta da auditoria:</b> o que cada serviço divulga, <i>ao usuário</i>, sobre experimentação comportamental (testes A/B e afins) — e em que registro documental?</p>
+
+  <h2>1. Regras gerais (valem para todas as variáveis)</h2>
+
+  <p><b>Unidade de análise = o serviço designado</b>, não o provedor. Google Search, Google Play, Google Maps, Google Shopping e YouTube são cinco linhas distintas; Facebook e Instagram, duas. Em plataformas multi-app com redações divergentes, codificar pelo conjunto documental primário do serviço designado e registrar a variância em Notes.</p>
+
+  <div class="note blue"><b>Conjunto autoritativo = documentos vinculantes</b> voltados à UE: política de privacidade/notice, termos/condições de uso, aviso de cookies e anexo/tabela de bases legais (quando existir). Páginas de ajuda, blogs de engenharia, PR e sites corporativos de pesquisa são <b>registro não-vinculante</b>: entram na codificação (V1/V9 os capturam), mas <i>nunca</i> como se fossem o contrato.</div>
+
+  <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o "How Search Works" do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>
+
+  <p><b>Evidência primeiro.</b> Todo código que afirma presença exige <b>citação verbatim + documento + URL</b>. Todo código de ausência exige o <b>log de busca por palavra-chave</b> (§3) demonstrando a busca. Célula sem evidência é célula não codificada.</p>
+
+  <p><b>Datação por documento.</b> Registrar data de vigência (<i>effective date</i>) e data de acesso <b>de cada documento</b>, não uma data por plataforma.</p>
+
+  <div class="note"><b>Ausência tem dois sabores.</b> "No" substantivo (o documento trata do tema e nega/omite o mecanismo) é diferente de "não endereçado no registro" (o tema nunca é contemplado). Na dúvida, registre "No" e anote a distinção em Notes — não dá para distinguir "considerado e rejeitado" de "nunca pensado" só pelo texto.</div>
+
+  <h2>2. As 9 variáveis</h2>
+
+  <h3>V1 — Reconhecimento de experimentação (escada 0–3) + registro</h3>
+  <div class="tablewrap"><table class="cb">
+    <tr><th>Código</th><th>Critério</th><th>Âncora do piloto</th></tr>
+    <tr><td><b>0</b></td><td>Nenhum reconhecimento, nem de "melhorar"</td><td>—</td></tr>
+    <tr><td><b>1</b></td><td>Só linguagem de "melhorar/aprimorar o serviço"; nem "testar"</td><td>Amazon (vinculante)</td></tr>
+    <tr><td><b>2</b></td><td>Reconhece <b>testar usuários</b>, mas não nomeia o método</td><td>Meta ("testing and troubleshooting new features")</td></tr>
+    <tr><td><b>3</b></td><td>Nomeia <b>experimento / teste A/B / randomização</b> explicitamente</td><td>Google ("700,000 experiments")</td></tr>
+  </table></div>
+  <p>Codificar o <b>nível de teto</b> (o mais alto encontrado em qualquer registro) <b>e</b> <code>v1_register</code>: onde esse teto vive — <span class="reg-binding">binding</span> / <span class="reg-nonbinding">non-binding</span> / both. O achado central do estudo mora nessa combinação (ex.: v1=3 + register=non-binding significa "admite experimentar, mas só fora do contrato"). Registre também, em Notes, o nível do registro vinculante sozinho quando diferir do teto.</p>
+  <p><b>Regra de fronteira (nível 2 vs 3):</b> "test new features" sem menção a grupos/variantes/aleatorização = 2. Qualquer menção a A/B, variantes servidas a usuários distintos, grupos de controle ou "experiments" em sentido experimental = 3. "Trial" de assinatura/período grátis <b>não</b> é experimentação (falso positivo comum).</p>
+
+  <h3>V2 — Enquadramento (multi-seleção)</h3>
+  <p>Valores: <code>service improvement</code> · <code>research</code> (genérica) · <code>human-subjects research</code> · <code>social-good/community</code> · outro (anotar). Marcar <b>todos</b> que aparecem, com citação para cada. Co-ocorrência é comum ("research that improves our services" = os dois primeiros). <code>social-good/community</code> captura linguagem de "bem-estar da comunidade" (âncora: Instagram) — ecoa a justificativa do estudo de contágio emocional de 2014.</p>
+
+  <h3>V3 — Especificidade (decomposta)</h3>
+  <ul>
+    <li><b>V3a</b> — nomeia atividades/superfícies testadas? (Y/N) (ex.: "features", "layout", "ranking")</li>
+    <li><b>V3b</b> — nomeia <b>alvos</b> de experimento? (lista aberta: ranking, preço, mensagem/copy, afeto/emoção, fricção, defaults…) Distinguir alvo <i>de experimento</i> de mera personalização declarada (recomendação algorítmica descrita como feature ≠ alvo de experimento).</li>
+    <li><b>V3c</b> — divulga algum experimento <b>específico/ativo</b>? (Y/N)</li>
+    <li><b>V3-pricing</b> — flag dedicada: <b>preço/personalização de preço nomeado como alvo?</b> (Y/N). Cláusula de "erro de precificação" (<i>mispricing</i>) <b>não</b> conta. Se preço aparecer só em registro não-vinculante, marcar Y e anotar o registro em Notes — a flag não tem campo próprio de registro na v2 (limitação conhecida; candidata a v3).</li>
+  </ul>
+
+  <h3>V4 — Base legal declarada (multi-seleção)</h3>
+  <p>Valores: <code>legitimate interest</code> · <code>consent</code> · <code>contract</code> · <code>not stated</code> (= não declarada <b>para experimentação</b>; inferida da cláusula de melhoria). Registrar também:</p>
+  <ul>
+    <li><code>v4_mapped_purpose</code>: <b>qual finalidade declarada</b> você mapeou como cobrindo experimentação (ex.: "improve services");</li>
+    <li><code>v4_region_gated</code> (Y/N): a tabela de bases por finalidade só carrega de IP/locale da UE?</li>
+  </ul>
+  <div class="note"><b>Atenção de vantagem.</b> O segundo avaliador deve ler <b>os documentos do manifesto</b> (mesmas URLs e datas da 1ª passada). Se um link estiver morto ou o conteúdo visivelmente mudado, <b>registrar e pular o campo</b> — não substituir por versão diferente do documento (isso criaria divergência espúria).</div>
+
+  <h3>V5 — Opt-out de experimentação (escada)</h3>
+  <p><code>none</code> → <code>GDPR-objection-only</code> (só o direito genérico de objeção do Art. 21, sem controle específico de experimento) → <code>cookie/ads-only</code> (banner existe, mas governa ads/medição, não experimentação) → <code>dedicated</code> (opt-out específico de experimentação) → <code>opt-in</code>.</p>
+  <p><b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento. Falso positivo clássico: banner de consentimento parece opt-out mas rege publicidade.</p>
+
+  <h3>V6 — Programa opt-in de beta/teste (Y/N + nome)</h3>
+  <p>TestFlight, Search Labs, canais beta etc. <b>Eixo ortogonal</b>: inscreve voluntários em acesso antecipado a features; <b>não mitiga o V5</b> — os demais usuários continuam nos experimentos de rotina. Nunca somar V6 com V5.</p>
+
+  <h3>V7 — Debriefing (Y/N)</h3>
+  <p>Aviso <i>posterior</i> de que a pessoa participou de um experimento. <b>Excluir explicitamente</b> (falsos positivos vistos no piloto): aviso de processamento, aviso de decisão automatizada, aviso de mudança de serviço. Nenhum deles é debriefing.</p>
+
+  <h3>V8 — Ética / revisão / avaliação de risco (Y/N + nota)</h3>
+  <p>Menção, nos documentos ao usuário, a revisão ética, comitê/board, ou avaliação de risco <b>para experimentos</b>. Linguagem borderline de "impacto" (ex.: "impact on you and others" atada a descontinuação de serviço) = N com nota. Avaliações de risco sistêmico do DSA existem por obrigação regulatória, mas se não estão nos documentos ao consumidor, <b>não viram Y</b> — registrar como nota de gap regulatório-vs-documento.</p>
+
+  <h3>V9 — Onde divulgado (multi-seleção) + registro</h3>
+  <p>Locais: <code>privacy policy</code> · <code>ToS/conditions</code> · <code>research notice separado</code> · <code>help centre</code> · <code>blog/PR/site de pesquisa</code> · outro. E <code>v9_register</code>: <span class="reg-binding">binding</span> / <span class="reg-nonbinding">non-binding</span> / both. Separar (de novo) registro legal de URL/hosting.</p>
+
+  <h2>3. Protocolo de busca por palavra-chave (obrigatório por documento)</h2>
+  <p>Para <b>cada documento</b> do conjunto, buscar e registrar contagem de hits de:</p>
+  <div class="kwchips"><code>experiment</code> <code>A/B</code> <code>randomi[sz]e</code> <code>test</code> <code>trial</code> <code>beta</code> <code>control group</code> <code>debrief</code> <code>ethics</code> <code>review board</code> <code>IRB</code> <code>risk assessment</code></div>
+  <p>Formato do log: <code>experiment:0 / A-B:0 / test:3 (PP); experiment:8 (help)</code>. Hits precisam de triagem manual — "test" acende em "contest", "trial" em "free trial" (contar só usos no sentido experimental, anotar exclusões). <b>É esse log que torna cada "No" auditável</b>: a alegação de ausência vem acompanhada da prova de que se procurou.</p>
+
+  <h2>4. Instruções específicas do segundo avaliador</h2>
+  <ol>
+    <li><b>Cegueira operacional.</b> Codifique <b>a partir dos documentos</b>, sem consultar os códigos da 1ª passada (<code>coded-data.json</code>, <code>coding-results.md</code> e a seção 4.3 do paper contêm resultados — não os abra durante a codificação). Sabemos que os achados-título já lhe foram comunicados; isso será declarado na seção de confiabilidade. O que pedimos é que cada célula saia do texto do documento, não da memória do resultado.</li>
+    <li><b>Volume a seu critério.</b> O instrumento aceita qualquer N. Siga a <b>ordem sugerida</b> (estratificada por gênero de plataforma, sorteada com semente fixa <code>20260722</code>) e pare onde quiser — a ordem garante que qualquer prefixo é uma amostra defensável, com todos os gêneros representados desde o início.</li>
+    <li><b>Dúvida de regra ≠ dúvida de julgamento.</b> Se uma regra do codebook parecer ambígua, anote a dúvida em Notes e codifique mesmo assim (sua melhor leitura). A discussão acontece na adjudicação — <i>depois</i> do cálculo de concordância, nunca antes.</li>
+    <li><b>Ferramenta.</b> Esta página traz o codebook embutido, os links dos documentos por serviço, os campos das 9 variáveis e exporta um JSON no esquema exato da 1ª passada. Alternativa: a aba "Coding" de <code>coding-template-v2.xlsx</code> (colunas I–AH), ignorando as linhas preenchidas.</li>
+  </ol>
+
+  <h2>5. O que acontece com o resultado</h2>
+  <p>Concordância calculada por variável (<code>compute-agreement.py</code>): <b>percentual de concordância + tabela de contingência</b> nas variáveis degeneradas ou quase (V7 e V8 não variaram na 1ª passada; V5 variou minimamente), <b>κ de Cohen</b> nas que variam, <b>κ ponderado</b> na V1 (ordinal). Depois do cálculo — e só depois — adjudicação conjunta das divergências, com registro de decisão e racional; regras esclarecidas voltam para o codebook como notas de v2.1, sem tocar códigos já lançados sem trilha.</p>
+
+  <div class="note"><b>Por que a aba de Codificação omite algumas âncoras.</b> As âncoras nominais acima (Amazon, Meta, Google, Instagram) valem como calibração e por isso estão aqui, íntegras. Nos cards de codificação, porém, a âncora que nomeia o serviço aberto na tela é omitida, com aviso: consultar a referência é uma escolha sua; ter a resposta no campo de visão durante a decisão, não.</div>
+</section>
+
+<!-- ============ CODIFICAÇÃO ============ -->
+<section id="tab-coding" hidden>
+  <div class="layout">
+    <aside class="rail" id="rail">
+      <div class="railhead">Ordem sugerida (estratificada)</div>
+    </aside>
+    <div class="panel" id="panel"></div>
+  </div>
+</section>
+
+<footer class="appfoot">Codebook v2 congelado 2026-07-04 · instrumento do 2º avaliador · dados ficam no seu navegador até a exportação</footer>
+</div>
+
+<script>
+const DATA = {"order": ["Wikipedia", "Temu", "Facebook", "YouTube", "Google Search", "WhatsApp", "Booking.com", "Google Maps", "Pornhub", "Amazon Store", "LinkedIn", "Bing", "XVideos", "Shein", "X", "XNXX", "Zalando", "Snapchat", "Stripchat", "App Store", "Instagram", "Google Play", "Pinterest", "Google Shopping", "TikTok", "AliExpress"], "services": [{"service": "Booking.com", "genre": "travel", "docs": ["Privacy Notice for Travellers (binding, EEA/GDPR", "updated May 2026): https://www.booking.com/content/privacy.html", "en-gb variant: https://www.booking.com/content/privacy.en-gb.html", "Terms & Conditions (binding", "Section A6.2): https://www.booking.com/content/terms.html", "Cookie section is folded into the Privacy Notice (\"How we use cookies & other tracking technologies\")", "standalone https://www.booking.com/content/cookie.html is JS-rendered and returned empty via fetch. NON-BINDING (Booking.com's own PR/engineering): https://booking.ai/ (ML & DS blog) and https://medium.com/booking-com-development (Booking.com Engineering) describe 1,000+ concurrent experiments / \"randomized controlled trials.\""], "access_date": "2026-07-15"}, {"service": "Google Search", "genre": "search", "docs": ["BINDING: https://policies.google.com/privacy?hl=en (privacy policy)", "https://policies.google.com/privacy?hl=en-IE&gl=IE (EU legal-bases view of same policy)", "https://policies.google.com/terms?hl=en (ToS)", "https://policies.google.com/technologies/cookies?hl=en (cookies notice)", "https://policies.google.com/technologies/product-privacy?hl=en (key terms hub). NON-BINDING: https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/ (How Search Works – Rigorous testing)", "https://support.google.com/websearch/answer/13572013 + https://labs.google.com/search/ (Search Labs opt-in)."], "access_date": "2026-07-15"}, {"service": "Google Maps", "genre": "maps", "docs": ["BINDING: (1) Privacy Policy https://policies.google.com/privacy?hl=en&gl=IE", "(2) Terms of Service https://policies.google.com/terms?hl=en&gl=IE", "(3) Cookie notice (\"How Google uses cookies\") https://policies.google.com/technologies/cookies?hl=en&gl=IE", "(4) Google Maps/Google Earth Additional Terms of Service https://www.google.com/help/terms_maps/?hl=en . NON-BINDING: (5) Help centre \"Beta test the Google Maps app on Android\" https://support.google.com/maps/answer/7006449?hl=en-GB", "(6) Official blog/PR \"A new way to discover places with generative AI\" https://blog.google/products/maps/google-maps-generative-ai-local-guides/ . NB: Google Maps has no product-specific privacy policy or ToS", "it is governed by Google's cross-product documents (1-3) plus Maps-specific Additional Terms (4)."], "access_date": "2026-07-15"}, {"service": "App Store", "genre": "marketplace", "docs": ["BINDING (EU-facing):", "- Apple Privacy Policy (worldwide/en-ww): https://www.apple.com/legal/privacy/en-ww/", "- App Store & Privacy notice: https://www.apple.com/legal/privacy/data/en/app-store/", "- Apple Media Services Terms & Conditions (Ireland/EU): https://www.apple.com/legal/internet-services/itunes/ie/terms.html", "- Apple Cookie notice: https://www.apple.com/legal/privacy/en-ww/cookies/", "NON-BINDING (help centre / developer / PR):", "- Product Page Optimization overview: https://developer.apple.com/app-store/product-page-optimization/", "- App Store Connect Help — PPO overview: https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/overview-of-product-page-optimization/", "- App Store Connect Help — configure test treatments: https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/configure-test-treatments/", "- TestFlight: https://developer.apple.com/testflight/"], "access_date": "2026-07-15"}, {"service": "AliExpress", "genre": "marketplace", "docs": ["Privacy Policy (eff. 2025-10-14): https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress201909171350_82407.html | Terms of Use (Part A eff. 2026-07-01): https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress202204182115_66077.html | Cookie Notice (eff. 2024-05-16): https://terms.alicdn.com/legal-agreement/terms/c_platform_service_agreement/20240401172006520/20240401172006520.html | Policies hub: https://www.aliexpress.com/p/transparencycenter/policies.html | DSA/Regulatory page (JS-rendered, body did not load): https://www.aliexpress.com/p/transparencycenter/dsa.html | Identified but not deep-read: EU/EEA/UK Consumer T&C https://cdn.contract.alibaba.com/terms/EU_EE_UK_platform_service_agreement/20250514112355975/20250514112355975.html?lng=en"], "access_date": "2026-07-15"}, {"service": "Bing", "genre": "search", "docs": ["BINDING: (1) Microsoft Services Agreement/ToS — https://www.microsoft.com/en-gb/servicesagreement/", "(2) Microsoft Privacy Statement (includes Cookies & legal-bases prose) — https://www.microsoft.com/en-gb/privacy/privacystatement", "(3) Bing privacy/security support pointer — https://support.microsoft.com/en-us/bing/about-microsoft-privacy-and-security-policy . NON-BINDING: (4) Help centre \"How Bing delivers search results\" (linked from MSA via fwlink 2315939) — https://support.microsoft.com/topic/how-bing-delivers-search-results-d18fc815-ac37-4723-bc67-9229ce3eb6a3", "(5) PR blog \"Experimentation and Continuous Improvement at Bing\" (2013) — https://blogs.bing.com/search-quality-insights/June-2013/Experimentation-and-Continuous-Improvement-at-Bing/", "(6) PR blog \"Large Scale Experimentation at Bing\" (2013) — https://blogs.bing.com/search-quality-insights/August-2013/Large-Scale-Experimentation-at-Bing"], "access_date": "2026-07-15"}, {"service": "Facebook", "genre": "social", "docs": ["Privacy Policy: https://www.facebook.com/privacy/policy/ (read via https://mbasic.facebook.com/privacy/policy/printable/?locale=en_GB, eff. 16 Dec 2025) | Terms of Service: https://www.facebook.com/legal/terms (and https://www.facebook.com/terms.php?locale=en_GB) | Cookie Policy: https://www.facebook.com/policies/cookies/ | Non-binding: Meta Business Help Center A/B Testing https://www.facebook.com/business/help/1738164643098669", "Newsroom/press on News Feed ranking tests https://techcrunch.com/2021/04/22/facebook-launches-a-series-tests-to-inform-future-changes-to-its-news-feed-algorithms/"], "access_date": "2026-07-15"}, {"service": "Amazon Store", "genre": "marketplace", "docs": ["BINDING (amazon.de, EN locale): Privacy Notice https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ (=201909010, upd 22.12.2025)", "Data Use Purposes/Legal Bases table https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=TcxwSYJNmpQYGgNWkX", "Cookies notice https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GVASXV5UZ64R4Y25 (upd 5.3.2026)", "Conditions of Use and Sale https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=201909000 (upd 28.11.2025). NON-BINDING: https://www.amazon.science/blog/the-science-of-price-experiments-in-the-amazon-store (15.2.2024)", "https://www.amazon.science/publications/science-of-price-experimentation-at-amazon", "https://www.amazon.science/tag/a-b-testing"], "access_date": "2026-07-15"}, {"service": "Google Shopping", "genre": "marketplace", "docs": ["BINDING: https://policies.google.com/privacy?hl=en (+ gl=IE variant for EEA 'European requirements' legal-bases list)", "https://policies.google.com/terms?hl=en", "https://business.safety.google/privacy/google-services/shopping/ (Data use in Google Shopping for the EEA)", "https://policies.google.com/technologies/cookies?hl=en. NON-BINDING checked: https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/ (Search-scoped, does not mention Shopping)."], "access_date": "2026-07-15"}, {"service": "Google Play", "genre": "marketplace", "docs": ["BINDING: (1) Google Play Terms of Service https://play.google.com/intl/en-US/about/play-terms/index.html (product-specific", "eff. 1 Jul 2024)", "(2) Google Privacy Policy https://policies.google.com/privacy?hl=en-IE&gl=IE (cross-product umbrella, EU legal-bases view", "eff. 2 Apr 2026)", "(3) Google Terms of Service https://policies.google.com/terms?hl=en-IE&gl=IE (cross-product umbrella", "eff. 22 May 2024)", "(4) Cookie notice \"How Google uses cookies\" https://policies.google.com/technologies/cookies?hl=en-IE&gl=IE. NON-BINDING: (5) Google Play Console \"Store listing experiments\" https://play.google.com/console/about/store-listing-experiments/ (developer-facing A/B-testing product page)", "(6) Google Play Help \"Try new Android apps before their official release\" https://support.google.com/googleplay/answer/7003180?hl=en (beta / early access / apps-in-development opt-in). NB: Google Play has no product-specific privacy policy", "it is governed by Google's cross-product Privacy Policy + ToS + Cookie notice plus the Play-specific Play ToS."], "access_date": "2026-07-15"}, {"service": "Snapchat", "genre": "social", "docs": ["BINDING (EU-facing): Privacy Policy (effective 7 Apr 2025) https://values.snap.com/privacy/privacy-policy", "EEA & UK Privacy Notice https://values.snap.com/privacy/privacy-policy/eea-uk-privacy-notice (en-GB variant: https://values.snap.com/en-GB/privacy/privacy-policy/eea-uk-privacy-notice )", "Terms of Service (effective 7 Apr 2025", "Snap Group Limited governs non-US users) https://snap.com/en-GB/terms", "Cookie Policy https://www.snap.com/cookie-policy", "per-purpose legal-basis table + right-to-object, help centre (referenced by the Privacy Policy for legal bases): https://help.snapchat.com/hc/en-us/articles/22534988598676-Learn-About-Snap-s-Data-Processing-and-How-to-Object . NON-BINDING (Snap first-party PR/engineering): Snap Engineering \"Inside Snap's Experimentation Platform\" https://eng.snap.com/snap-nvidia-gcp", "\"Machine Learning for Snapchat Ad Ranking\" https://eng.snap.com/machine-learning-snap-ad-ranking", "NVIDIA+Snap case study https://blogs.nvidia.com/blog/snap-accelerated-data-processing/ . Opt-in beta programme: https://www.snapchat.com/beta (iOS TestFlight / Android Google Play open beta)."], "access_date": "2026-07-15"}, {"service": "LinkedIn", "genre": "social", "docs": ["BINDING: https://www.linkedin.com/legal/privacy-policy (title \"LinkedIn Privacy Policy\"", "§2.6 \"Developing Services and Research\")", "https://www.linkedin.com/legal/user-agreement (title \"User Agreement | LinkedIn\"", "§3.6 \"Recommendations and Automated Processing\")", "https://www.linkedin.com/legal/cookie-policy (title \"Cookie Policy | LinkedIn\"", "section \"Analytics and research\"). HELP/OTHER: https://www.linkedin.com/help/linkedin/answer/a1338610 (\"Object to, or Limit or Restrict, Use of...\" data-processing objection form)", "https://www.linkedin.com/help/linkedin/answer/a1337820 (checked for legal-basis table -> actually about inferences, not the per-purpose table). LINKED-FROM-POLICY (now DEAD): https://engineering.linkedin.com/ab-testing/xlnt-platform-driving-ab-testing-linkedin (HTTP 404)", "https://engineering.linkedin.com/ab-testing/evolution-ab-testing-platform-linkedin (HTTP 404). EXCLUDED (advertiser tooling, not member experimentation): https://www.linkedin.com/help/lms/answer/a529753 A/B Testing."], "access_date": "2026-07-15"}, {"service": "Shein", "genre": "marketplace", "docs": ["BINDING (EU-facing, eur.shein.com, controller Infinite Styles Services Co., Ltd / Dublin): (1) Privacy Notice — https://eur.shein.com/Consumer-Privacy-Notice-s-101.html (EFFECTIVE DATE 9 April 2026)", "(2) Terms & Conditions = General Conditions of Use + General Conditions of Sale — https://eur.shein.com/Terms-and-Conditions-a-399.html (Version 1 July 2026)", "(3) Marketplace User Ranking Policy (DSA Art. 27 transparency, integral part of the T&Cs) — https://eur.shein.com/ranking-policy-a-1979.html. Cookie disclosure is contained within Privacy Notice Section 3 (the footer \"Cookies policy\" link opens the JS cookie-management modal, not a separate text document). NON-BINDING: no SHEIN-owned help/PR/engineering page disclosing experimentation was found."], "access_date": "2026-07-15"}, {"service": "Pinterest", "genre": "social", "docs": ["BINDING (read in full, live 2026-07-15): https://policy.pinterest.com/en/privacy-policy (eff. 2025-04-30", "primary) | https://policy.pinterest.com/en/terms-of-service | https://policy.pinterest.com/en/cookies. NON-BINDING (checked): https://www.pinterest.com/public-beta/ (opt-in beta programme) | Pinterest Engineering PR e.g. https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22 (explicit experiment language, not a user-disclosure doc). Data controller for EEA/CH/UK: Pinterest Europe Ltd. (Dublin) + Pinterest, Inc. joint controllers."], "access_date": "2026-07-15"}, {"service": "Pornhub", "genre": "adult", "docs": ["BINDING, EEA/UK/GDPR-facing (controller Aylo Freesites Ltd, Cyprus). Live URLs (blocked for direct fetch in this env", "read via Internet Archive Wayback verbatim): Privacy Notice (Last Modified Jan 30, 2026) https://www.pornhub.com/information/privacy — snapshot http://web.archive.org/web/20260702023921/https://www.pornhub.com/information/privacy", "Terms of Service (Last Modified Nov 19, 2025) https://www.pornhub.com/information/terms — snapshot http://web.archive.org/web/20260630121901/https://www.pornhub.com/information/terms", "Cookie Notice (Last Modified 5 Jan 2026) https://www.pornhub.com/information/cookie-notice — snapshot http://web.archive.org/web/20260630121251/https://www.pornhub.com/information/cookie-notice", "DSA Recommender-system transparency page (Last Modified Mar 11, 2024) https://www.pornhub.com/information/recommender — snapshot http://web.archive.org/web/20260602163932/https://www.pornhub.com/information/recommender . NON-BINDING checked (no experimentation disclosure found): Pornhub 'Insights' viewing-statistics blog + press", "no Aylo/Pornhub engineering blog or press release naming first-party A/B tests/experiments located via web search. NOTE: corporate aylo.com Privacy Notice/Terms (https://www.aylo.com/assets/files/aylo_privacy_policy.pdf", "aylo_terms_of_use.pdf) govern aylo.com only ('This Website uses only essential cookies') and were set aside as the wrong unit of analysis."], "access_date": "2026-07-15"}, {"service": "Temu", "genre": "marketplace", "docs": ["Privacy Policy (EEA/Switzerland, Last Updated June 9, 2026): https://www.temu.com/no-en/privacy-and-cookie-policy.html | Terms of Use (EEA, Effective Dec 14, 2025): https://www.temu.com/no-en/terms-of-use.html | Cookies and Similar Technologies Policy (EEA, Last Updated Aug 24, 2025): https://www.temu.com/no-en/cookie-and-similar-technologies-policy.html | Support Center/FAQ (non-binding): https://www.temu.com/support/c2/-in-f-55.html"], "access_date": "2026-07-15"}, {"service": "Instagram", "genre": "social", "docs": ["https://privacycenter.instagram.com/policy/ (Meta Privacy Policy, eff. 16-Dec-2025", "full text read via printable https://mbasic.facebook.com/privacy/policy/printable/version/25862970456621906/", "legal-basis section_id=7-WhatIsOurLegal ABSENT from nav in this vantage)", "https://help.instagram.com/581066165581870 (Instagram Terms of Use, en_GB)", "https://privacycenter.instagram.com/policies/cookies/ (Meta Cookies Policy, eff. 12-Dec-2023", "printable https://mbasic.facebook.com/privacy/policies/cookies/printable/ )", "https://transparency.meta.com/features/explaining-ranking/ig-feed/ (NON-binding Transparency Center, IG Feed ranking)"], "access_date": "2026-07-15"}, {"service": "Stripchat", "genre": "adult", "docs": ["https://stripchat.com/privacy (Privacy Policy)", "https://stripchat.com/terms (Terms of Use)", "https://stripchat.com/cookies-policy (Cookie Policy). Retrieved live 2026-07-15 via the r.jina.ai rendering proxy because stripchat.com is hard-blocked to WebFetch and the in-tool browser and the site is a client-rendered SPA (raw HTML / Wayback / archive.ph return only a shell or are themselves blocked). Same-operator corroboration: https://stripcash.company/privacy (Technius Ltd, Cyprus HE 349515)."], "access_date": "2026-07-15"}, {"service": "Wikipedia", "genre": "reference", "docs": ["BINDING: https://foundation.wikimedia.org/wiki/Policy:Privacy_policy (privacy policy)", "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use (terms of use)", "https://foundation.wikimedia.org/wiki/Policy:Cookie_statement (cookie statement)", "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/Frequently_asked_questions (privacy FAQ). NON-BINDING: https://wikitech.wikimedia.org/wiki/A/B_testing (technical)", "https://wikimediafoundation.org/wikipedia-experiments/ (programme/PR)."], "access_date": "2026-07-15"}, {"service": "WhatsApp", "genre": "messaging", "docs": ["BINDING: https://www.whatsapp.com/legal/privacy-policy-eea (EEA Privacy Policy, WhatsApp Ireland Ltd. — primary locus)", "https://www.whatsapp.com/legal/terms-of-service-eea (EEA Terms of Service)", "https://www.whatsapp.com/legal/cookies (Cookies notice). NON-BINDING/other: WhatsApp Beta opt-in via Google Play \"Become a beta tester\" (https://play.google.com/apps/testing/com.whatsapp/join) and Apple TestFlight", "first-party FAQ article for beta returned 404 at time of access."], "access_date": "2026-07-15"}, {"service": "XVideos", "genre": "adult", "docs": ["Privacy Policy: https://info.xvideos.com/legal/privacy | Privacy Notice (non-account visitors): https://info.xvideos.com/legal/privacynotice | Terms of Service: https://info.xvideos.com/legal/tos | Cookie Policy: https://info.xvideos.com/legal/cookiepolicy | EU P2B mirror of ToS: https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md . NB: info.xvideos.com auto-redirects to info.xvideos.net", "the .com URLs are the canonical internally-linked ones. /legal/cookies and /legal/dsa return 404 (correct slugs are /legal/cookiepolicy and, for DSA/recommender, ToS §9)."], "access_date": "2026-07-15"}, {"service": "TikTok", "genre": "social", "docs": ["BINDING (EU-facing):", "1) Privacy Policy (EEA/UK/CH), \"Last updated: 30 November 2025\". Canonical: https://www.tiktok.com/legal/page/eea/privacy-policy/en (live 302->/404 from my non-EEA/Brazil vantage). Read via Internet Archive 200-status snapshot: https://web.archive.org/web/20260713145902id_/https://www.tiktok.com/legal/page/eea/privacy-policy/en", "2) Terms of Service (EEA), \"Last updated: August 2025\". Canonical: https://www.tiktok.com/legal/page/eea/terms-of-service/en (live geo-gated). Read via: https://web.archive.org/web/20260710010832id_/https://www.tiktok.com/legal/page/eea/terms-of-service/en", "3) Cookies Policy (global/website), \"Last updated: 4 November 2024\". Live EN read directly: https://www.tiktok.com/legal/page/global/tiktok-website-cookies-policy/en (the older /global/cookie-policy/en path redirects here)", "NON-BINDING checked:", "4) Newsroom \"An update on our work to safeguard and diversify recommendations\": https://newsroom.tiktok.com/an-update-on-our-work-to-safeguard-and-diversify-recommendations", "\"How TikTok recommends videos #ForYou\": https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you", "5) Transparency/Safety \"Introduction to the TikTok recommendation system\": https://www.tiktok.com/safety/en/policies-and-engagement/recommendation-system", "6) Ads Manager \"About Split Testing\" (advertiser A/B tool): https://ads.tiktok.com/help/article/split-testing"], "access_date": "2026-07-15"}, {"service": "YouTube", "genre": "video", "docs": ["BINDING: (1) YouTube EEA/Ireland Terms of Service — https://www.youtube.com/t/terms?gl=IE&hl=en-GB (names \"Google Ireland Limited... Registered Number: 368047\"", "effective 6 Oct 2023). (1b, contrast) US ToS served without gl param — https://www.youtube.com/t/terms (Google LLC, eff. 5 Jan 2022). (2) Google Privacy Policy (applies to YouTube) — https://policies.google.com/privacy (effective 2 Apr 2026)", "European requirements / legitimate-interests enumeration surfaced via https://policies.google.com/privacy?gl=IE&hl=en-GB#europeanrequirements. (3) Google Cookie/technologies notice — https://policies.google.com/technologies/cookies. NON-BINDING: (4) How YouTube Works — https://www.youtube.com/howyoutubeworks/ and .../product-features/recommendations/. (5) YouTube Help Community \"YouTube test features and experiments\" — https://support.google.com/youtube/thread/18138167. (6) YouTube Help \"Test feature experiments at Youtube.com/new\" (Premium opt-in) — https://support.google.com/youtube/answer/9227818. (7) YouTube Help \"A/B test titles and thumbnails\" (creator tool) — https://support.google.com/youtube/answer/16391400."], "access_date": "2026-07-15"}, {"service": "XNXX", "genre": "adult", "docs": ["Accessed via Wayback Machine (live host info.xnxx.com blocked to WebFetch and to the browser safety filter). Privacy notice: https://info.xnxx.com/legal/privacy (snap 20260629052431). Terms of Service: https://info.xnxx.com/legal/tos (snap 20260629052431). Cookie policy: https://info.xnxx.com/legal/cookiepolicy (snap 20260307194703). DSA researcher data catalogue: https://info.xnxx.com/dsa-data-catalogue (snap 20260101231958)."], "access_date": "2026-07-15"}, {"service": "Zalando", "genre": "marketplace", "docs": ["BINDING (read in full): Privacy Notice EN v.09/2025 (DE market, 47pp) https://mosaic02.ztat.net/cnt/contentful-apps/uploads/6264a7fa-33a0-42b3-8021-da7a5fd85469.pdf", "General T&Cs summary (Zalando.se, 13pp) https://mosaic02.ztat.net/cnt/contentful-apps/uploads/b8944e13-77d3-4b20-8abf-04c3bfb51d9a.pdf . NON-BINDING (read): https://engineering.zalando.com/posts/2021/01/experimentation-platform-part1.html", "index https://engineering.zalando.com/tags/experimentation.html . ATTEMPTED but HTTP 403 (geo-blocked from US): https://en.zalando.de/zalando-privacy-policy/", "https://en.zalando.de/zalando-terms/", "https://accounts.zalando.com/terms-of-use . Landing (search): https://corporate.zalando.com/en/zalando-data-protection-statement"], "access_date": "2026-07-15"}, {"service": "X", "genre": "social", "docs": ["BINDING: (1) Privacy Policy — https://x.com/en/privacy (Effective Jan 15, 2026", "EU/EFTA/UK controller = X Internet Unlimited Company, Dublin). (2) Legal-bases annex \"Additional information about data processing\" — https://help.x.com/en/rules-and-policies/data-processing-legal-bases (per-purpose EU/EFTA/UK legal-basis table). (3) Cookies notice \"How cookies are used on X\" — https://help.x.com/en/rules-and-policies/x-cookies. (4) Terms of Service v21 — https://x.com/en/tos (Effective Jan 15, 2026", "served the \"outside EU/EFTA/UK\" version from my Brazil vantage — see notes). NON-BINDING: (5) \"About the X Experiments Program\" — https://help.x.com/en/rules-and-policies/x-beta-experiments-program. (6) \"About user research at X\" — https://help.x.com/en/rules-and-policies/x-user-research. (7) Help Center category \"Research and Experiments\" — https://help.x.com/en/rules-and-policies#research-and-experiments. (8) Engineering blog \"The what and why of product experimentation at Twitter\" — https://blog.x.com/engineering/en_us/a/2015/the-what-and-why-of-product-experimentation-at-twitter-0."], "access_date": "2026-07-15"}]};
+const KWTERMS = ["experiment","A/B","randomi[sz]e","test","trial","beta","control group","debrief","ethics","review board","IRB","risk assessment"];
+const LSK = s => "vlop-coder2::" + s;
+
+const FRAMING = ["service improvement","research","human-subjects research","social-good/community"];
+const BASIS = ["legitimate interest","consent","contract","not stated"];
+const WHERE = ["privacy policy","ToS/conditions","research notice separado","help centre","blog/PR/site de pesquisa"];
+const REG = ["","binding","non-binding","both"];
+const YN = ["","Yes","No"];
+const V5 = ["","none","GDPR-objection-only","cookie/ads-only","dedicated","opt-in"];
+
+/* ============================================================================
+   AJUDA CONTEXTUAL — transcrição de protocol/codebook-v2.md (congelado 04/jul).
+
+   REGRA DE FIDELIDADE: nada aqui é regra nova. Onde a v2 é vaga, a ajuda é
+   vaga — a vagueza é dado a ser medido pelo κ, não defeito a corrigir no meio
+   da coleta. Valor de opção que o codebook não glosa NÃO ganha verbete:
+   preferir a ausência de ajuda à fabricação de uma definição.
+
+   O segundo elemento de cada verbete é a PROCEDÊNCIA, renderizada no rodapé do
+   popover. "glosa" marca conectivo editorial, não transcrição — é o que se
+   audita primeiro ao procurar drift em relação ao instrumento congelado.
+   ========================================================================== */
+const VALHELP = {
+  "v1_code:0": ["Nenhum reconhecimento, nem de “melhorar”.", "§2 · V1"],
+  "v1_code:1": ["Só linguagem de “melhorar/aprimorar o serviço”; nem “testar”.", "§2 · V1"],
+  "v1_code:2": ["Reconhece testar usuários, mas não nomeia o método.", "§2 · V1"],
+  "v1_code:3": ["Nomeia experimento / teste A/B / randomização explicitamente.", "§2 · V1"],
+
+  "v1_register:binding":     ["Política de privacidade/notice, termos/condições de uso, aviso de cookies e anexo/tabela de bases legais. O conjunto autoritativo.", "§1"],
+  "v1_register:non-binding": ["Páginas de ajuda, blogs de engenharia, PR e sites corporativos de pesquisa. Entram na codificação, mas nunca como se fossem o contrato.", "§1"],
+  "v1_register:both":        ["O teto aparece nos dois registros.", "glosa"],
+
+  "v2_framing:research":              ["Pesquisa em sentido genérico.", "§2 · V2"],
+  "v2_framing:social-good/community": ["Captura linguagem de “bem-estar da comunidade”. Ecoa a justificativa do estudo de contágio emocional de 2014.", "§2 · V2"],
+
+  "v4_basis:not stated": ["Não declarada <b>para experimentação</b>; inferida da cláusula de melhoria.", "§2 · V4"],
+
+  "v4_region_gated:Yes": ["A tabela de bases por finalidade só carrega de IP/locale da UE.", "§2 · V4"],
+  "v4_region_gated:No":  ["A tabela carrega normalmente da sua vantagem de captura.", "glosa"],
+  "v4_region_gated:not-verifiable (vantage)": ["Não deu para verificar da sua vantagem — <b>diferente de “No”</b>. É excluído do pareamento no cálculo de concordância.", "instruções §4 · compute-agreement.py"],
+
+  "v5_optout:none":                ["Nenhum controle.", "glosa"],
+  "v5_optout:GDPR-objection-only": ["Só o direito genérico de objeção do Art. 21, sem controle específico de experimento.", "§2 · V5"],
+  "v5_optout:cookie/ads-only":     ["Banner existe, mas governa ads/medição, não experimentação.", "§2 · V5"],
+  "v5_optout:dedicated":           ["Opt-out específico de experimentação.", "§2 · V5"],
+  "v5_optout:opt-in":              ["Participação só por adesão.", "glosa"]
+};
+/* v9_register compartilha as definições de registro do §1 */
+["binding","non-binding","both"].forEach(v=>{
+  VALHELP["v9_register:"+v] = VALHELP["v1_register:"+v];
+});
+
+/* Popover de campo: a escada inteira de uma vez. O que confunde em V1 e V5 não
+   é cada degrau isolado, é a ordem entre eles. */
+const FIELDHELP = {
+  v1_code:         {title:"V1 — escada de reconhecimento", opts:["0","1","2","3"],
+                    note:"Codifique o nível de <b>teto</b>: o mais alto encontrado em qualquer registro.", src:"§2 · V1"},
+  v1_register:     {title:"Onde o teto vive", opts:REG, src:"§1"},
+  v9_register:     {title:"Registro agregado", opts:REG, src:"§1"},
+  v2_framing:      {title:"V2 — enquadramentos", opts:FRAMING,
+                    note:"Marcar <b>todos</b> que aparecem, com citação para cada. Co-ocorrência é comum: “research that improves our services” = os dois primeiros.", src:"§2 · V2"},
+  v4_basis:        {title:"V4 — bases legais", opts:BASIS, src:"§2 · V4"},
+  v4_region_gated: {title:"Tabela de bases geo-gated?", opts:["Yes","No","not-verifiable (vantage)"], src:"§2 · V4"},
+  v5_optout:       {title:"V5 — escada de opt-out", opts:V5,
+                    note:"<b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento.", src:"§2 · V5"},
+  v9_where:        {title:"V9 — onde divulgado",
+                    note:"Separar registro legal de URL/hosting.", src:"§2 · V9"}
+};
+
+/* Âncoras do piloto. Suprimidas quando nomeiam o serviço em tela — ver
+   docs de design: o .md é público, então o avaliador as alcança de qualquer
+   modo; o que a supressão evita é a ferramenta exibir a resposta no momento e
+   no lugar da decisão. A omissão é sempre anunciada, nunca silenciosa. */
+const META_SVC   = ["Facebook","Instagram","WhatsApp"];
+const GOOGLE_SVC = ["Google Search","Google Play","Google Maps","Google Shopping","YouTube"];
+const ANCHORS = {
+  v1: [
+    {svc:["Amazon Store"], html:"<b>1</b> — Amazon, no registro vinculante"},
+    {svc:META_SVC,   html:"<b>2</b> — Meta (“testing and troubleshooting new features”)"},
+    {svc:GOOGLE_SVC, html:"<b>3</b> — Google (“700,000 experiments”)"}
+  ],
+  v2: [
+    {svc:["Instagram","Facebook"], html:"<code>social-good/community</code> — Instagram (“bem-estar da comunidade”)"}
+  ]
+};
+
+/* Critério completo por variável (§2 do codebook v2, por extenso). */
+const CRIT = {
+  v1: {sum:"Critério completo + fronteira 2↔3", html:`
+    <p><b>Escada.</b> <code>0</code> nenhum reconhecimento, nem de “melhorar” · <code>1</code> só linguagem de “melhorar/aprimorar o serviço”; nem “testar” · <code>2</code> reconhece testar usuários, mas não nomeia o método · <code>3</code> nomeia experimento / teste A/B / randomização explicitamente.</p>
+    <p><b>Regra de fronteira (2 vs 3):</b> “test new features” sem menção a grupos/variantes/aleatorização = <b>2</b>. Qualquer menção a A/B, variantes servidas a usuários distintos, grupos de controle ou “experiments” em sentido experimental = <b>3</b>. <b>“Trial” de assinatura/período grátis não é experimentação</b> — falso positivo comum.</p>
+    <p>Codifique o nível de <b>teto</b> (o mais alto em qualquer registro) <b>e</b> onde esse teto vive. O achado central do estudo mora nessa combinação: teto 3 em registro não-vinculante significa “admite experimentar, mas só fora do contrato”. Registre em Notes o nível do registro vinculante sozinho quando ele diferir do teto.</p>`},
+  v2: {sum:"Critério completo", html:`
+    <p>Marcar <b>todos</b> os enquadramentos que aparecem, com citação para cada. Co-ocorrência é comum: “research that improves our services” = <code>service improvement</code> + <code>research</code>.</p>
+    <p><code>social-good/community</code> captura linguagem de “bem-estar da comunidade” — ecoa a justificativa do estudo de contágio emocional de 2014.</p>`},
+  v3: {sum:"Critério completo + falsos positivos", html:`
+    <ul>
+      <li><b>V3a</b> — nomeia atividades/superfícies testadas? (ex.: “features”, “layout”, “ranking”)</li>
+      <li><b>V3b</b> — nomeia <b>alvos</b> de experimento? Lista aberta: ranking, preço, mensagem/copy, afeto/emoção, fricção, defaults… <b>Distinguir alvo de experimento de mera personalização declarada:</b> recomendação algorítmica descrita como feature ≠ alvo de experimento.</li>
+      <li><b>V3c</b> — divulga algum experimento <b>específico/ativo</b>?</li>
+      <li><b>V3-pricing</b> — preço/personalização de preço nomeado como alvo? Cláusula de <b>erro de precificação (mispricing) não conta</b>. Se preço aparecer só em registro não-vinculante, marcar Yes e anotar o registro em Notes — a flag não tem campo próprio de registro na v2 (limitação conhecida, candidata a v3).</li>
+    </ul>`},
+  v4: {sum:"Critério completo + regra de link morto", html:`
+    <p>Multi-seleção. <code>not stated</code> = não declarada <b>para experimentação</b>; inferida da cláusula de melhoria.</p>
+    <p>Registrar também <b>qual finalidade declarada</b> você mapeou como cobrindo experimentação (ex.: “improve services”), e se a tabela de bases por finalidade só carrega de IP/locale da UE.</p>
+    <p><b>Atenção de vantagem:</b> leia os documentos do manifesto — mesmas URLs e datas da 1ª passada. Link morto ou conteúdo visivelmente mudado: <b>registrar e pular o campo</b>. Não substituir por versão diferente do documento; isso criaria divergência espúria.</p>`},
+  v5: {sum:"Critério completo + falso positivo clássico", html:`
+    <p><b>Escada:</b> <code>none</code> → <code>GDPR-objection-only</code> (só o direito genérico de objeção do Art. 21, sem controle específico de experimento) → <code>cookie/ads-only</code> (banner existe, mas governa ads/medição, não experimentação) → <code>dedicated</code> (opt-out específico de experimentação) → <code>opt-in</code>.</p>
+    <p><b>Escopo estrito à experimentação.</b> Controle de cookies de analytics não é opt-out de experimento. <b>Falso positivo clássico:</b> banner de consentimento parece opt-out mas rege publicidade.</p>`},
+  v6: {sum:"Critério completo", html:`
+    <p>TestFlight, Search Labs, canais beta etc.</p>
+    <p><b>Eixo ortogonal.</b> Inscreve voluntários em acesso antecipado a features; <b>não mitiga o V5</b> — os demais usuários continuam nos experimentos de rotina. <b>Nunca somar V6 com V5.</b></p>`},
+  v7: {sum:"Critério completo + falsos positivos", html:`
+    <p>Aviso <i>posterior</i> de que a pessoa participou de um experimento.</p>
+    <p><b>Excluir explicitamente</b> (falsos positivos vistos no piloto): aviso de processamento; aviso de decisão automatizada; aviso de mudança de serviço. Nenhum deles é debriefing.</p>
+    <p><b>Ausência tem dois sabores.</b> “No” substantivo — o documento trata do tema e nega/omite o mecanismo — é diferente de “não endereçado no registro”, em que o tema nunca é contemplado. Na dúvida, registre “No” e anote a distinção em Notes: não dá para distinguir “considerado e rejeitado” de “nunca pensado” só pelo texto.</p>`},
+  v8: {sum:"Critério completo + borderlines", html:`
+    <p>Menção, nos documentos ao usuário, a revisão ética, comitê/board, ou avaliação de risco <b>para experimentos</b>.</p>
+    <p>Linguagem borderline de “impacto” (ex.: “impact on you and others” atada a descontinuação de serviço) = <b>No com nota</b>.</p>
+    <p>Avaliações de risco sistêmico do DSA existem por obrigação regulatória, mas se não estão nos documentos ao consumidor <b>não viram Yes</b> — registrar como nota de gap regulatório-vs-documento.</p>
+    <p><b>Ausência tem dois sabores</b> — mesma regra do V7.</p>`},
+  v9: {sum:"Critério completo + registro ≠ hospedagem", html:`
+    <p>Multi-seleção de locais + registro agregado.</p>
+    <p><b>Registro ≠ hospedagem.</b> O que torna um documento vinculante é sua função legal, não a URL. O Privacy Notice da Amazon é servido sob URL de <code>/help/</code> e é vinculante; o “How Search Works” do Google é um microsite institucional e não é. Em caso de dúvida: <i>o documento se declara parte do acordo com o usuário?</i></p>`}
+};
+/* GLOSA: o guia do codificador, variável por variável, em linguagem direta.
+   Três partes por variável. `pergunta` é a pergunta que a variável responde;
+   `lembrete` é a linha que aparece em cada célula de trabalho; `html` é o guia
+   completo (o que procurar, como preencher cada campo, cuidados).
+   NÃO substitui o CRIT. O CRIT é transcrição fiel do codebook v2 congelado em
+   04/jul, e a passada 1 foi codificada contra ele; o `codebook --check` trava o
+   texto dele por hash. O guia explica as mesmas regras. Se uma frase daqui disser
+   coisa diferente do CRIT, quem está errado é o guia. */
+const GLOSA = {
+  v1: {
+    pergunta: "A plataforma admite que faz experimentos com os usuários? Com que clareza?",
+    lembrete: "Escolha o nível mais alto, de 0 a 3, que aparecer em qualquer documento, e diga em que tipo de documento ele está. Free trial não conta.",
+    html: `
+<p><b>O que procurar.</b> Frases em que a plataforma diz que testa coisas com as pessoas
+que usam o serviço. Elas vão de vagas ("usamos seus dados para melhorar nossos
+serviços") a explícitas ("fazemos testes A/B").</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Código (teto)</b>: o nível mais alto que você encontrar em qualquer documento do
+serviço. Se um documento chega ao 2 e outro ao 3, o código é 3.<ul>
+<li><code>0</code>: nenhum reconhecimento. Os documentos não falam nem em melhorar o serviço.</li>
+<li><code>1</code>: só fala em melhorar ou aprimorar o serviço, sem dizer que testa nada.</li>
+<li><code>2</code>: diz que testa coisas com os usuários, mas não diz como. Por exemplo,
+"para testar novos recursos" e nada além disso.</li>
+<li><code>3</code>: nomeia o método. Basta aparecer teste A/B, versões diferentes mostradas a
+pessoas diferentes, grupo de controle, randomização, ou a palavra experimento no sentido
+de teste com usuários.</li>
+</ul></li>
+<li><b>Registro do teto</b>: em que tipo de documento apareceu o nível que você escolheu.<ul>
+<li><code>binding</code>: documento vinculante (política de privacidade, termos de uso, aviso
+de cookies, tabela de bases legais).</li>
+<li><code>non-binding</code>: documento não vinculante (blog, central de ajuda, página de pesquisa).</li>
+<li><code>both</code>: o mesmo nível aparece nos dois tipos.</li>
+</ul></li>
+<li><b>Evidência</b>: a frase exata que justifica o nível, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>"Free trial" e período grátis de assinatura não são experimentação. É o falso positivo
+mais comum nesta variável.</li>
+<li>A dúvida mais frequente é entre 2 e 3. Se a frase diz que testa, mas não menciona
+grupos, versões ou aleatorização, é 2.</li>
+</ul>
+<p><b>Por que o registro importa.</b> O estudo quer saber se a plataforma admite
+experimentar no documento que a obriga. Nível 3 que só aparece no blog significa que ela
+admite em público, mas não no contrato. Se os documentos vinculantes, sozinhos, ficarem
+num nível abaixo do teto, escreva isso em Notas (por exemplo, "nos vinculantes, só
+nível 1").</p>`},
+  v2: {
+    pergunta: "Como a plataforma apresenta o que faz: como melhoria do serviço, como pesquisa, como bem-estar?",
+    lembrete: "Marque todos os enquadramentos que aparecerem, com uma citação para cada.",
+    html: `
+<p><b>O que procurar.</b> As palavras que a plataforma usa para apresentar o uso de dados
+para testar e desenvolver. A V1 pergunta se ela testa; esta pergunta como ela descreve
+isso.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Enquadramentos presentes</b>: marque todos que aparecem. É comum marcar mais de um.<ul>
+<li><code>service improvement</code>: melhoria do serviço ("para melhorar nossos produtos").</li>
+<li><code>research</code>: pesquisa em sentido genérico ("realizamos pesquisas").</li>
+<li><code>human-subjects research</code>: pesquisa com seres humanos, no sentido da ética em pesquisa.</li>
+<li><code>social-good/community</code>: bem-estar da comunidade ou bem social.</li>
+</ul></li>
+<li><b>Evidência</b>: uma citação para cada enquadramento que você marcar.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Uma frase pode ter dois enquadramentos. "Pesquisa que melhora nossos serviços" é
+<code>service improvement</code> e <code>research</code> ao mesmo tempo.</li>
+<li>Se aparecer um enquadramento que não está na lista, anote em Notas.</li>
+</ul>
+<p>A opção de bem-estar da comunidade existe por um motivo histórico: foi esse o tipo de
+justificativa usado no estudo de contágio emocional de 2014.</p>`},
+  v3: {
+    pergunta: "O quanto a plataforma detalha o que testa?",
+    lembrete: "Quatro perguntas separadas: o que é testado, quais alvos, se descreve um teste específico, e se o preço é alvo. Personalização não é alvo de teste.",
+    html: `
+<p><b>O que procurar.</b> O nível de detalhe com que a plataforma descreve os testes. São
+quatro perguntas separadas, e você pode responder sim a umas e não a outras.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>V3a, atividades ou superfícies nomeadas</b>: o texto diz <i>o que</i> é testado? Por
+exemplo, recursos, layout, ordem dos resultados. <code>Yes</code> ou <code>No</code>.</li>
+<li><b>V3b, alvos nomeados</b>: escreva os alvos de teste que o texto nomeia. A lista é
+aberta: ordem dos resultados, preço, mensagem, emoção, fricção, opções padrão.</li>
+<li><b>V3c, experimento específico ou ativo divulgado</b>: o texto descreve algum teste em
+particular, que está ou esteve acontecendo? <code>Yes</code> ou <code>No</code>.</li>
+<li><b>V3-pricing, preço nomeado como alvo</b>: o preço, ou a personalização do preço,
+aparece como alvo de teste? <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Evidência</b>: as frases que sustentam as respostas, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Alvo de teste não é personalização. "Recomendamos conteúdo com base no que você
+assiste" descreve uma funcionalidade, não um experimento.</li>
+<li>Cláusula sobre erro de preço (<i>mispricing</i>, quando um produto aparece com o preço
+errado) não conta como preço testado.</li>
+<li>Se o preço aparecer como alvo só em documento não vinculante, marque <code>Yes</code> e
+diga em Notas onde ele apareceu. Esta pergunta não tem campo próprio de registro.</li>
+</ul>`},
+  v4: {
+    pergunta: "Com que base legal a plataforma usa dados para testar?",
+    lembrete: "Ache a finalidade que cobre os testes (em geral, melhorar o serviço) e marque as bases declaradas para ela. Tabela ausente é not-verifiable, nunca No.",
+    html: `
+<p><b>O que procurar.</b> Pela lei europeia de proteção de dados (GDPR), a plataforma
+precisa declarar o fundamento legal de cada uso que faz dos dados. Essa declaração costuma
+vir numa tabela de bases legais, dentro da política de privacidade ou num anexo dela.</p>
+<p>Quase nenhuma plataforma lista experimentação como finalidade. Por isso o caminho é
+indireto: ache a finalidade declarada que cobre os testes (em geral algo como "melhorar
+nossos serviços") e veja que base a plataforma declara para ela.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Bases declaradas</b>: marque todas as bases declaradas para essa finalidade.<ul>
+<li><code>legitimate interest</code>: legítimo interesse. É a base que dispensa pedir
+permissão ao usuário; a plataforma só precisa fazer um teste interno de ponderação entre o
+interesse dela e o do usuário.</li>
+<li><code>consent</code>: consentimento. O usuário concordou de forma explícita.</li>
+<li><code>contract</code>: execução de contrato. O uso é necessário para prestar o serviço
+que o usuário contratou.</li>
+<li><code>not stated</code>: a plataforma não declara nenhuma base para experimentação, e a
+base só pode ser inferida da cláusula de melhoria do serviço.</li>
+</ul></li>
+<li><b>Finalidade mapeada como experimentação</b>: escreva qual finalidade declarada você
+entendeu como a que cobre os testes. Por exemplo, "melhorar nossos serviços".</li>
+<li><b>Tabela de bases geo-gated?</b><ul>
+<li><code>Yes</code>: a tabela de bases por finalidade só aparece para quem acessa da UE.</li>
+<li><code>No</code>: a tabela aparece normalmente nos documentos que você está lendo.</li>
+<li><code>not-verifiable (vantage)</code>: não foi possível verificar. É diferente de
+<code>No</code>.</li>
+</ul></li>
+<li><b>Evidência</b>: a linha da tabela, ou a frase, que liga a finalidade à base legal.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Os documentos deste notebook foram capturados de dentro da UE. Com eles dá para ver se
+a tabela está presente, mas não se ela some para quem acessa de fora. Se a tabela está nos
+documentos, a resposta pela definição é <code>No</code>. Se ela não está, marque
+<code>not-verifiable (vantage)</code>, nunca <code>No</code>.</li>
+<li>Se o documento de que você precisa estiver ilegível ou faltando, escreva isso na
+evidência e em Notas. Não procure outra versão na internet: ler um texto diferente do
+congelado cria uma divergência que não é sua.</li>
+</ul>`},
+  v5: {
+    pergunta: "O usuário pode ficar fora dos experimentos?",
+    lembrete: "Um nível, e só sobre experimentação. Banner de cookies que rege publicidade é cookie/ads-only, não dedicated.",
+    html: `
+<p><b>O que procurar.</b> Se o usuário tem algum jeito de ficar fora dos experimentos, e de
+que tipo. A pergunta é só sobre experimentação: controle sobre publicidade ou sobre
+cookies de medição não conta como saída de experimento.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Nível</b>: escolha um. Os níveis estão em ordem, do nenhum controle até a
+participação só por adesão.<ul>
+<li><code>none</code>: nenhum controle.</li>
+<li><code>GDPR-objection-only</code>: só o direito genérico de se opor ao uso dos dados,
+previsto no Art. 21 do GDPR. Esse direito vale para qualquer uso baseado em legítimo
+interesse; não existe um controle específico para experimentos.</li>
+<li><code>cookie/ads-only</code>: existe um banner ou painel de consentimento, mas ele
+controla publicidade e medição, não experimentação.</li>
+<li><code>dedicated</code>: existe uma opção específica para sair dos experimentos.</li>
+<li><code>opt-in</code>: a pessoa só participa de experimentos se aderir.</li>
+</ul></li>
+<li><b>Evidência</b>: a frase que descreve o controle, com o nome do documento.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>O falso positivo clássico é o banner de cookies. Ele parece uma forma de sair, mas rege
+publicidade e medição. Isso é <code>cookie/ads-only</code>, não <code>dedicated</code>.</li>
+<li>Desligar cookies de analytics não é sair de um experimento.</li>
+</ul>`},
+  v6: {
+    pergunta: "Existe um programa em que o usuário se inscreve para testar novidades antes dos outros?",
+    lembrete: "Beta por adesão é diferente da V5: não é saída dos experimentos, e as duas variáveis nunca se somam.",
+    html: `
+<p><b>O que procurar.</b> Programas em que o usuário se inscreve, por vontade própria, para
+testar novidades antes dos outros. Exemplos: TestFlight, Search Labs, canais beta.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Existe programa opt-in?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Qual</b>: o nome do programa e como ele funciona, em uma linha.</li>
+</ul>
+<p><b>Cuidado com.</b> Um programa beta não é uma saída dos experimentos. Quem se inscreve
+ganha acesso antecipado; todos os outros usuários continuam nos testes de rotina. Por isso
+esta variável é separada da V5, e as duas nunca se somam.</p>`},
+  v7: {
+    pergunta: "A plataforma avisa, depois, que a pessoa participou de um experimento?",
+    lembrete: "Aviso de tratamento de dados, de decisão automatizada ou de mudança no serviço não é debriefing. Se for No, diga qual dos dois casos.",
+    html: `
+<p><b>O que procurar.</b> Debriefing no sentido da ética em pesquisa: um aviso, depois do
+fato, de que a pessoa participou de um experimento.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Debriefing existe?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Evidência / justificativa do No</b>: se for <code>Yes</code>, a frase e o documento.
+Se for <code>No</code>, diga qual dos dois casos você encontrou e aponte o log de
+palavras-chave, que mostra o que foi procurado.</li>
+</ul>
+<p><b>Os dois casos de No.</b> O documento pode tratar do assunto e não oferecer o aviso,
+ou o assunto pode nunca aparecer. Pelo texto não dá para saber se a plataforma considerou o
+debriefing e descartou, ou se nunca pensou nele. Por isso basta registrar qual dos dois
+casos é, na evidência ou em Notas.</p>
+<p><b>Cuidado com.</b> Três avisos parecem debriefing e não são. Os três apareceram como
+falso positivo no piloto:</p>
+<ul>
+<li>aviso de que seus dados são tratados;</li>
+<li>aviso de que uma decisão automatizada foi tomada sobre você;</li>
+<li>aviso de que o serviço mudou.</li>
+</ul>`},
+  v8: {
+    pergunta: "Os documentos ao usuário mencionam revisão ética, comitê ou avaliação de risco de experimentos?",
+    lembrete: "Linguagem vaga de impacto é No com nota. Avaliação de risco do DSA que não está nos documentos ao usuário também é No.",
+    html: `
+<p><b>O que procurar.</b> Alguma menção, nos documentos voltados ao usuário, a revisão
+ética, comitê de ética ou avaliação de risco <i>de experimentos</i>.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Menção a ética/revisão/risco para experimentos?</b> <code>Yes</code> ou <code>No</code>.</li>
+<li><b>Nota</b>: casos de fronteira, e diferenças entre o que a lei exige e o que o
+documento diz.</li>
+</ul>
+<p><b>Cuidado com.</b></p>
+<ul>
+<li>Linguagem vaga sobre "impacto" (por exemplo, "impacto sobre você e outras pessoas"
+ligado ao encerramento de um serviço) é <code>No</code>, com nota.</li>
+<li>O Digital Services Act (Arts. 34 e 35) obriga as grandes plataformas a avaliar riscos
+sistêmicos. Essas avaliações existem por obrigação legal, mas não são documentos ao
+usuário. Se a avaliação de risco não aparece nos documentos ao usuário, a resposta é
+<code>No</code>. Anote como diferença entre a obrigação regulatória e o que o documento diz.</li>
+<li>"Code of Ethics" no menu ou no rodapé é código de conduta da empresa, não revisão ética
+de experimento. Avaliação de risco antifraude, no pagamento, também não conta. A busca por
+palavra-chave mostra esses trechos com aviso.</li>
+<li>Os dois casos de No da V7 valem aqui também.</li>
+</ul>`},
+  v9: {
+    pergunta: "Em que tipos de documento a plataforma fala de experimentação?",
+    lembrete: "Marque todos os locais. Vinculante se decide pela função do documento, não pelo endereço da página.",
+    html: `
+<p><b>O que procurar.</b> Os tipos de documento em que a plataforma fala de experimentação.</p>
+<p><b>Como preencher.</b></p>
+<ul>
+<li><b>Locais</b>: marque todos os tipos de documento onde a divulgação aparece.<ul>
+<li><code>privacy policy</code>: política de privacidade.</li>
+<li><code>ToS/conditions</code>: termos de uso ou condições.</li>
+<li><code>research notice separado</code>: um aviso próprio sobre pesquisa, separado da política.</li>
+<li><code>help centre</code>: central de ajuda.</li>
+<li><code>blog/PR/site de pesquisa</code>: blog, notícia ou site institucional de pesquisa.</li>
+</ul></li>
+<li><b>Registro agregado</b>: no conjunto, a divulgação está em documento vinculante
+(<code>binding</code>), não vinculante (<code>non-binding</code>) ou nos dois (<code>both</code>)?</li>
+<li><b>Evidência / observações</b>: onde está cada uma, e qualquer observação.</li>
+</ul>
+<p><b>Cuidado com.</b> O que torna um documento vinculante é a função legal dele, não o
+endereço da página. Uma política de privacidade publicada dentro da central de ajuda
+continua vinculante. Um site institucional que explica como o produto funciona não é. Na
+dúvida, pergunte: o documento se declara parte do acordo com o usuário?</p>`},
+  kw: {
+    pergunta: "O que a busca por palavra-chave encontrou, depois da sua triagem?",
+    lembrete: "O log já vem com a contagem bruta. Corrija os números, tirando o que você descartou como falso positivo.",
+    html: `
+<p><b>O que é.</b> Este passo registra o que a busca por palavra-chave encontrou, depois da
+sua triagem. Não há nada novo para procurar.</p>
+<p><b>Como preencher.</b> O campo <b>Log</b> já vem preenchido com a contagem bruta de cada
+termo, documento por documento, no formato <code>termo:número</code>. Corrija os números:
+tire as ocorrências que você descartou como falso positivo e deixe só as que têm sentido de
+experimentação.</p>
+<p><b>Por que é obrigatório.</b> O log torna cada No verificável. Sem ele, "procurei e não
+achei" e "não procurei" ficam iguais no dado.</p>`},
+};
+
+let current = DATA.order[0];
+
+function load(s){ try{ return JSON.parse(localStorage.getItem(LSK(s))) || {} }catch(e){ return {} } }
+function save(s, rec){ rec._ts = Date.now();
+  localStorage.setItem(LSK(s), JSON.stringify(rec));
+  document.getElementById("globalsave").textContent = "salvo " + new Date().toLocaleTimeString();
+  paintRail(); Sync.schedule(); }
+
+/* ---------- sync (opcional: ativa só quando /api/state existe, i.e. no Vercel) ----------
+   Fonte da verdade local = localStorage; o servidor recebe o estado completo (debounce).
+   No load, merge por-serviço pelo timestamp _ts (o mais novo vence). Sem API (artifact,
+   file://), degrada silenciosamente para "somente local". */
+const Sync = {
+  on:false, timer:null, busy:false, dirty:false,
+  chip(t, tip){ const e=document.getElementById("syncstate"); e.textContent=t; e.title=tip||t; },
+  allRecords(){ const out={};
+    DATA.order.forEach(s=>{ const r=load(s); if(Object.keys(r).length) out[s]=r; });
+    return out; },
+  async init(){
+    try{
+      const r = await fetch("/api/state", {method:"GET"});
+      if(!r.ok) throw 0;
+      const server = (await r.json()).records || {};
+      let newer=0;
+      for(const s of Object.keys(server)){
+        if(!DATA.order.includes(s)) continue;
+        const loc = load(s);
+        if((server[s]._ts||0) > (loc._ts||0)){
+          localStorage.setItem(LSK(s), JSON.stringify(server[s])); newer++; }
+      }
+      this.on = true;
+      this.chip(newer? `sincronizado (${newer} do servidor)` : "sincronizado",
+                "progresso salvo também no repositório do projeto");
+      paintRail();
+      if(!document.getElementById("tab-coding").hidden) render();
+    }catch(e){ this.on=false; this.chip("somente local",
+      "sem servidor de sincronização — use Exportar JSON como backup"); }
+  },
+  schedule(){ if(!this.on) return; this.dirty=true;
+    clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(), 2500); },
+  async push(opts){
+    if(!this.on || this.busy) { if(this.busy) this.dirty=true; return; }
+    this.busy=true; this.dirty=false; this.chip("salvando no servidor…");
+    try{
+      const r = await fetch("/api/state", {method:"PUT",
+        headers:{"content-type":"application/json"},
+        keepalive: !!(opts&&opts.keepalive),
+        body: JSON.stringify({records:this.allRecords()})});
+      if(!r.ok) throw 0;
+      this.chip("sincronizado " + new Date().toLocaleTimeString());
+    }catch(e){ this.chip("offline — salvo localmente",
+      "não consegui gravar no servidor; seu progresso está salvo neste navegador"); }
+    this.busy=false;
+    if(this.dirty) this.schedule();
+  }
+};
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden && Sync.dirty) Sync.push({keepalive:true}); });
+Sync.init();
+
+function filledCount(rec){
+  const core = ["v1_code","v1_register","v2_framing","v3_activities","v3_specific","v3_pricing",
+                "v4_basis","v5_optout","v6_optin_beta","v7_debrief","v8_ethics","v9_where","v9_register"];
+  return core.filter(k => { const v = rec[k];
+    return Array.isArray(v) ? v.length>0 : (v!==undefined && v!=="" && v!==null); }).length;
+}
+
+function esc(t){ return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])) }
+/* ---------- corpus congelado ----------
+   Base de onde o corpus é servido. Com valor, os documentos abrem num clique
+   daqui; vazio, o avaliador lê da pasta do zip. Injetado junto com o mapa por
+   analysis/inject-frozen.py --base-url. */
+const CORPUS_BASE = "https://experimented-without-consent-corpus.vercel.app/";
+
+/* Mapa url -> {f: arquivo, c: caracteres}, injetado por analysis/inject-frozen.py
+   a partir do manifesto. Vazio = instrumento sem corpus, e tudo volta a ser link
+   ao vivo, que é o comportamento anterior. */
+const FROZEN = {"https://www.booking.com/content/privacy.html":{"f":"text/booking-com/001-content-privacy-html.txt","c":69221},"https://www.booking.com/content/privacy.en-gb.html":{"f":"text/booking-com/002-content-privacy-en-gb-html.txt","c":69221},"https://www.booking.com/content/terms.html":{"f":"text/booking-com/003-content-terms-html.txt","c":171188},"https://policies.google.com/technologies/product-privacy?hl=en":{"f":"text/google-search-google-ireland-ltd-dsa-vlose/011-technologies-product-privacy.txt","c":5532},"https://support.google.com/websearch/answer/13572013":{"f":"text/google-search-google-ireland-ltd-dsa-vlose/013-websearch-answer-13572013.txt","c":6169},"https://policies.google.com/privacy?hl=en&gl=IE":{"f":"text/google-maps/015-privacy.txt","c":89981},"https://policies.google.com/terms?hl=en&gl=IE":{"f":"text/google-maps/016-terms.txt","c":36174},"https://policies.google.com/technologies/cookies?hl=en&gl=IE":{"f":"text/google-maps/017-technologies-cookies.txt","c":14289},"https://www.google.com/help/terms_maps/?hl=en":{"f":"text/google-maps/018-help-terms-maps.txt","c":5659},"https://support.google.com/maps/answer/7006449?hl=en-GB":{"f":"text/google-maps/019-maps-answer-7006449.txt","c":2857},"https://blog.google/products/maps/google-maps-generative-ai-local-guides/":{"f":"text/google-maps/020-products-maps-google-maps-generative-ai-.txt","c":7414},"https://www.apple.com/legal/privacy/en-ww/":{"f":"text/app-store/021-legal-privacy-en-ww.txt","c":29704},"https://www.apple.com/legal/privacy/data/en/app-store/":{"f":"text/app-store/022-legal-privacy-data-en-app-store.txt","c":19738},"https://www.apple.com/legal/internet-services/itunes/ie/terms.html":{"f":"text/app-store/023-legal-internet-services-itunes-ie-terms-.txt","c":60370},"https://www.apple.com/legal/privacy/en-ww/cookies/":{"f":"text/app-store/024-legal-privacy-en-ww-cookies.txt","c":4137},"https://developer.apple.com/app-store/product-page-optimization/":{"f":"text/app-store/025-app-store-product-page-optimization.txt","c":10672},"https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/overview-of-product-page-optimization/":{"f":"text/app-store/026-help-app-store-connect-create-product-pa.txt","c":28542},"https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/configure-test-treatments/":{"f":"text/app-store/027-help-app-store-connect-create-product-pa.txt","c":29458},"https://developer.apple.com/testflight/":{"f":"text/app-store/028-testflight.txt","c":8329},"https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress201909171350_82407.html":{"f":"text/aliexpress/029-legal-agreement-terms-suit-bu1-aliexpres.txt","c":72890},"https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress202204182115_66077.html":{"f":"text/aliexpress/030-legal-agreement-terms-suit-bu1-aliexpres.txt","c":109147},"https://terms.alicdn.com/legal-agreement/terms/c_platform_service_agreement/20240401172006520/20240401172006520.html":{"f":"text/aliexpress/031-legal-agreement-terms-c-platform-service.txt","c":15730},"https://www.aliexpress.com/p/transparencycenter/policies.html":{"f":"text/aliexpress/032-p-transparencycenter-policies-html.txt","c":1160},"https://www.aliexpress.com/p/transparencycenter/dsa.html":{"f":"text/aliexpress/033-p-transparencycenter-dsa-html.txt","c":1160},"https://cdn.contract.alibaba.com/terms/EU_EE_UK_platform_service_agreement/20250514112355975/20250514112355975.html?lng=en":{"f":"text/aliexpress/034-terms-eu-ee-uk-platform-service-agreemen.txt","c":64908},"https://www.microsoft.com/en-gb/servicesagreement/":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/035-en-gb-servicesagreement.txt","c":121376},"https://www.microsoft.com/en-gb/privacy/privacystatement":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/036-en-gb-privacy-privacystatement.txt","c":213640},"https://support.microsoft.com/en-us/bing/about-microsoft-privacy-and-security-policy":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/037-en-us-bing-about-microsoft-privacy-and-s.txt","c":3621},"https://support.microsoft.com/topic/how-bing-delivers-search-results-d18fc815-ac37-4723-bc67-9229ce3eb6a3":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/038-topic-how-bing-delivers-search-results-d.txt","c":48551},"https://blogs.bing.com/search-quality-insights/June-2013/Experimentation-and-Continuous-Improvement-at-Bing/":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/039-search-quality-insights-june-2013-experi.txt","c":10883},"https://blogs.bing.com/search-quality-insights/August-2013/Large-Scale-Experimentation-at-Bing":{"f":"text/bing-provider-microsoft-ireland-operations-limited-dsa-vlose/040-search-quality-insights-august-2013-larg.txt","c":7651},"https://techcrunch.com/2021/04/22/facebook-launches-a-series-tests-to-inform-future-changes-to-its-news-feed-algorithms/":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/047-2021-04-22-facebook-launches-a-series-te.txt","c":8184},"https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/048-en-gp-help-customer-display-html.txt","c":38346},"https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=TcxwSYJNmpQYGgNWkX":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/049-en-gp-help-customer-display-html.txt","c":21643},"https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GVASXV5UZ64R4Y25":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/050-en-gp-help-customer-display-html.txt","c":8583},"https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=201909000":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/051-en-gp-help-customer-display-html.txt","c":57323},"https://www.amazon.science/blog/the-science-of-price-experiments-in-the-amazon-store":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/052-blog-the-science-of-price-experiments-in.txt","c":47188},"https://www.amazon.science/tag/a-b-testing":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/054-tag-a-b-testing.txt","c":40483},"https://policies.google.com/privacy?hl=en":{"f":"text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/055-privacy.txt","c":89981},"https://policies.google.com/terms?hl=en":{"f":"text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/056-terms.txt","c":36439},"https://business.safety.google/privacy/google-services/shopping/":{"f":"text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/057-privacy-google-services-shopping.txt","c":3568},"https://policies.google.com/technologies/cookies?hl=en":{"f":"text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/058-technologies-cookies.txt","c":14289},"https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/":{"f":"text/google-shopping-provider-google-ireland-ltd-dsa-type-vlop/059-search-howsearchworks-how-search-works-r.txt","c":6327},"https://play.google.com/intl/en-US/about/play-terms/index.html":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/060-intl-en-us-about-play-terms-index-html.txt","c":24720},"https://policies.google.com/privacy?hl=en-IE&gl=IE":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/061-privacy.txt","c":90678},"https://policies.google.com/terms?hl=en-IE&gl=IE":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/062-terms.txt","c":36308},"https://policies.google.com/technologies/cookies?hl=en-IE&gl=IE":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/063-technologies-cookies.txt","c":14380},"https://play.google.com/console/about/store-listing-experiments/":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/064-console-about-store-listing-experiments.txt","c":6905},"https://support.google.com/googleplay/answer/7003180?hl=en":{"f":"text/google-play-google-ireland-ltd-dsa-vlop/065-googleplay-answer-7003180.txt","c":5031},"https://values.snap.com/privacy/privacy-policy":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/066-privacy-privacy-policy.txt","c":36991},"https://values.snap.com/privacy/privacy-policy/eea-uk-privacy-notice":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/067-privacy-privacy-policy-eea-uk-privacy-no.txt","c":11268},"https://values.snap.com/en-GB/privacy/privacy-policy/eea-uk-privacy-notice":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/068-en-gb-privacy-privacy-policy-eea-uk-priv.txt","c":11268},"https://snap.com/en-GB/terms":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/069-en-gb-terms.txt","c":99108},"https://www.snap.com/cookie-policy":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/070-cookie-policy.txt","c":6377},"https://help.snapchat.com/hc/en-us/articles/22534988598676-Learn-About-Snap-s-Data-Processing-and-How-to-Object":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/071-hc-en-us-articles-22534988598676-learn-a.txt","c":26102},"https://eng.snap.com/snap-nvidia-gcp":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/072-snap-nvidia-gcp.txt","c":15748},"https://eng.snap.com/machine-learning-snap-ad-ranking":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/073-machine-learning-snap-ad-ranking.txt","c":19074},"https://blogs.nvidia.com/blog/snap-accelerated-data-processing/":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/074-blog-snap-accelerated-data-processing.txt","c":5685},"https://www.snapchat.com/beta":{"f":"text/snapchat-provider-snap-b-v-dsa-vlop/075-beta.txt","c":3649},"https://www.linkedin.com/legal/privacy-policy":{"f":"text/linkedin/076-legal-privacy-policy.txt","c":43895},"https://www.linkedin.com/legal/user-agreement":{"f":"text/linkedin/077-legal-user-agreement.txt","c":34467},"https://www.linkedin.com/legal/cookie-policy":{"f":"text/linkedin/078-legal-cookie-policy.txt","c":12150},"https://www.linkedin.com/help/linkedin/answer/a1338610":{"f":"text/linkedin/079-help-linkedin-answer-a1338610.txt","c":2172},"https://www.linkedin.com/help/linkedin/answer/a1337820":{"f":"text/linkedin/080-help-linkedin-answer-a1337820.txt","c":3060},"https://www.linkedin.com/help/lms/answer/a529753":{"f":"text/linkedin/083-help-lms-answer-a529753.txt","c":5316},"https://www.pornhub.com/information/privacy":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/092-information-privacy.txt","c":45324},"http://web.archive.org/web/20260702023921/https://www.pornhub.com/information/privacy":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/093-web-20260702023921-https-www-pornhub-com.txt","c":45496},"https://www.pornhub.com/information/terms":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/094-information-terms.txt","c":111023},"http://web.archive.org/web/20260630121901/https://www.pornhub.com/information/terms":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/095-web-20260630121901-https-www-pornhub-com.txt","c":110956},"https://www.pornhub.com/information/cookie-notice":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/096-information-cookie-notice.txt","c":34242},"http://web.archive.org/web/20260630121251/https://www.pornhub.com/information/cookie-notice":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/097-web-20260630121251-https-www-pornhub-com.txt","c":34503},"https://www.pornhub.com/information/recommender":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/098-information-recommender.txt","c":14750},"http://web.archive.org/web/20260602163932/https://www.pornhub.com/information/recommender":{"f":"text/pornhub-provider-aylo-freesites-ltd-dsa-type-vlop/099-web-20260602163932-https-www-pornhub-com.txt","c":14702},"https://stripcash.company/privacy":{"f":"text/stripchat/114-privacy.txt","c":38258},"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy":{"f":"text/wikipedia/115-wiki-policy-privacy-policy.txt","c":54842},"https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use":{"f":"text/wikipedia/116-wiki-policy-terms-of-use.txt","c":52654},"https://foundation.wikimedia.org/wiki/Policy:Cookie_statement":{"f":"text/wikipedia/117-wiki-policy-cookie-statement.txt","c":15159},"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/Frequently_asked_questions":{"f":"text/wikipedia/118-wiki-policy-privacy-policy-frequently-as.txt","c":26562},"https://wikitech.wikimedia.org/wiki/A/B_testing":{"f":"text/wikipedia/119-wiki-a-b-testing.txt","c":4599},"https://wikimediafoundation.org/wikipedia-experiments/":{"f":"text/wikipedia/120-wikipedia-experiments.txt","c":3871},"https://play.google.com/apps/testing/com.whatsapp/join":{"f":"text/whatsapp/124-apps-testing-com-whatsapp-join.txt","c":1048},"https://info.xvideos.com/legal/privacy":{"f":"text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/125-legal-privacy.txt","c":43183},"https://info.xvideos.com/legal/privacynotice":{"f":"text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/126-legal-privacynotice.txt","c":20360},"https://info.xvideos.com/legal/tos":{"f":"text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/127-legal-tos.txt","c":69258},"https://info.xvideos.com/legal/cookiepolicy":{"f":"text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/128-legal-cookiepolicy.txt","c":4736},"https://www.youtube.com/t/terms?gl=IE&hl=en-GB":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/139-t-terms.txt","c":28606},"https://www.youtube.com/t/terms":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/140-t-terms.txt","c":29032},"https://policies.google.com/privacy":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/141-privacy.txt","c":89981},"https://policies.google.com/privacy?gl=IE&hl=en-GB#europeanrequirements":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/142-privacy.txt","c":90678},"https://policies.google.com/technologies/cookies":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/143-technologies-cookies.txt","c":14289},"https://www.youtube.com/howyoutubeworks/":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/144-howyoutubeworks.txt","c":3197},"https://support.google.com/youtube/answer/9227818":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/146-youtube-answer-9227818.txt","c":4916},"https://support.google.com/youtube/answer/16391400":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/147-youtube-answer-16391400.txt","c":12040},"https://info.xnxx.com/legal/privacy":{"f":"text/xnxx/148-legal-privacy.txt","c":28632},"https://info.xnxx.com/legal/tos":{"f":"text/xnxx/149-legal-tos.txt","c":69614},"https://info.xnxx.com/legal/cookiepolicy":{"f":"text/xnxx/150-legal-cookiepolicy.txt","c":5576},"https://info.xnxx.com/dsa-data-catalogue":{"f":"text/xnxx/151-dsa-data-catalogue.txt","c":4692},"https://x.com/en/privacy":{"f":"text/x/160-en-privacy.txt","c":38505},"https://x.com/en/tos":{"f":"text/x/163-en-tos.txt","c":63893},"https://www.facebook.com/privacy/policy/":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/041-privacy-policy.txt","c":107895},"https://mbasic.facebook.com/privacy/policy/printable/?locale=en_GB":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/042-privacy-policy-printable.txt","c":196346},"https://www.facebook.com/legal/terms":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/043-legal-terms.txt","c":35267},"https://www.facebook.com/terms.php?locale=en_GB":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/044-terms-php.txt","c":35267},"https://www.facebook.com/policies/cookies/":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/045-policies-cookies.txt","c":3973},"https://www.amazon.science/publications/science-of-price-experimentation-at-amazon":{"f":"text/amazon-store-provider-amazon-eu-s-r-l-dsa-type-vlop/053-publications-science-of-price-experiment.txt","c":37628},"https://mbasic.facebook.com/privacy/policy/printable/version/25862970456621906/":{"f":"text/instagram/106-privacy-policy-printable-version-2586297.txt","c":193942},"https://privacycenter.instagram.com/policies/cookies/":{"f":"text/instagram/108-policies-cookies.txt","c":3973},"https://mbasic.facebook.com/privacy/policies/cookies/printable/":{"f":"text/instagram/109-privacy-policies-cookies-printable.txt","c":17087},"https://stripchat.com/privacy":{"f":"text/stripchat/111-privacy.txt","c":45571},"https://stripchat.com/terms":{"f":"text/stripchat/112-terms.txt","c":55506},"https://stripchat.com/cookies-policy":{"f":"text/stripchat/113-cookies-policy.txt","c":15781},"https://www.whatsapp.com/legal/privacy-policy-eea":{"f":"text/whatsapp/121-legal-privacy-policy-eea.txt","c":103364},"https://www.whatsapp.com/legal/terms-of-service-eea":{"f":"text/whatsapp/122-legal-terms-of-service-eea.txt","c":25421},"https://www.whatsapp.com/legal/cookies":{"f":"text/whatsapp/123-legal-cookies.txt","c":4160},"https://blog.x.com/engineering/en_us/a/2015/the-what-and-why-of-product-experimentation-at-twitter-0":{"f":"text/x/manual-engineering-en-us-a-2015-the-what-and-wh.txt","c":13200},"https://eur.shein.com/Consumer-Privacy-Notice-s-101.html":{"f":"text/shein/manual-consumer-privacy-notice-s-101-html.txt","c":52011},"https://eur.shein.com/Terms-and-Conditions-a-399.html":{"f":"text/shein/manual-terms-and-conditions-a-399-html.txt","c":100766},"https://eur.shein.com/ranking-policy-a-1979.html":{"f":"text/shein/manual-ranking-policy-a-1979-html.txt","c":12737},"https://help.x.com/en/rules-and-policies/data-processing-legal-bases":{"f":"text/x/manual-en-rules-and-policies-data-processing-le.txt","c":36281},"https://help.x.com/en/rules-and-policies#research-and-experiments":{"f":"text/x/manual-en-rules-and-policies.txt","c":6192},"https://help.x.com/en/rules-and-policies/x-beta-experiments-program":{"f":"text/x/manual-en-rules-and-policies-x-beta-experiments.txt","c":11947},"https://help.x.com/en/rules-and-policies/x-cookies":{"f":"text/x/manual-en-rules-and-policies-x-cookies.txt","c":54455},"https://help.x.com/en/rules-and-policies/x-user-research":{"f":"text/x/manual-en-rules-and-policies-x-user-research.txt","c":3981},"https://www.temu.com/no-en/cookie-and-similar-technologies-policy.html":{"f":"text/temu-whaleco-technology-limited-dsa-vlop/manual-no-en-cookie-and-similar-technologies-po.txt","c":12726},"https://www.temu.com/no-en/privacy-and-cookie-policy.html":{"f":"text/temu-whaleco-technology-limited-dsa-vlop/manual-no-en-privacy-and-cookie-policy-html.txt","c":58016},"https://www.temu.com/no-en/terms-of-use.html":{"f":"text/temu-whaleco-technology-limited-dsa-vlop/manual-no-en-terms-of-use-html.txt","c":47188},"https://www.temu.com/support/c2/-in-f-55.html":{"f":"text/temu-whaleco-technology-limited-dsa-vlop/manual-support-c2-in-f-55-html.txt","c":2785},"https://policy.pinterest.com/en/privacy-policy":{"f":"text/pinterest/001-en-privacy-policy.txt","c":48779},"https://policy.pinterest.com/en/terms-of-service":{"f":"text/pinterest/002-en-terms-of-service.txt","c":30088},"https://policy.pinterest.com/en/cookies":{"f":"text/pinterest/003-en-cookies.txt","c":7290},"https://www.pinterest.com/public-beta/":{"f":"text/pinterest/004-public-beta.txt","c":1791},"https://mosaic02.ztat.net/cnt/contentful-apps/uploads/6264a7fa-33a0-42b3-8021-da7a5fd85469.pdf":{"f":"text/zalando/001-cnt-contentful-apps-uploads-6264a7fa-33a.txt","c":137245},"https://mosaic02.ztat.net/cnt/contentful-apps/uploads/b8944e13-77d3-4b20-8abf-04c3bfb51d9a.pdf":{"f":"text/zalando/002-cnt-contentful-apps-uploads-b8944e13-77d.txt","c":32704},"https://engineering.zalando.com/posts/2021/01/experimentation-platform-part1.html":{"f":"text/zalando/003-posts-2021-01-experimentation-platform-p.txt","c":12520},"https://engineering.zalando.com/tags/experimentation.html":{"f":"text/zalando/004-tags-experimentation-html.txt","c":1005},"https://corporate.zalando.com/en/zalando-data-protection-statement":{"f":"text/zalando/008-en-zalando-data-protection-statement.txt","c":42945},"https://www.tiktok.com/legal/page/eea/privacy-policy/en":{"f":"text/tiktok/001-legal-page-eea-privacy-policy-en.txt","c":46768},"https://www.tiktok.com/legal/page/eea/terms-of-service/en":{"f":"text/tiktok/003-legal-page-eea-terms-of-service-en.txt","c":28401},"https://www.tiktok.com/legal/page/global/tiktok-website-cookies-policy/en":{"f":"text/tiktok/005-legal-page-global-tiktok-website-cookies.txt","c":10273},"https://newsroom.tiktok.com/an-update-on-our-work-to-safeguard-and-diversify-recommendations":{"f":"text/tiktok/006-an-update-on-our-work-to-safeguard-and-d.txt","c":5681},"https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you":{"f":"text/tiktok/007-en-us-how-tiktok-recommends-videos-for-y.txt","c":10030},"https://ads.tiktok.com/help/article/split-testing":{"f":"text/tiktok/009-help-article-split-testing.txt","c":1854},"https://accounts.zalando.com/terms-of-use":{"f":"text/zalando/manual-terms-of-use.txt","c":16042},"https://en.zalando.de/zalando-privacy-policy/":{"f":"text/zalando/manual-zalando-privacy-policy.txt","c":133437},"https://en.zalando.de/zalando-terms/":{"f":"text/zalando/manual-zalando-terms.txt","c":35744},"https://help.instagram.com/581066165581870":{"f":"text/instagram/manual-581066165581870.txt","c":26188},"https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22":{"f":"text/pinterest/manual-pinterest-engineering-scalable-a-b-exper.txt","c":11360},"https://privacycenter.instagram.com/policy/":{"f":"text/instagram/manual-policy.txt","c":108301},"https://support.google.com/youtube/thread/18138167":{"f":"text/youtube-provider-google-ireland-limited-dsa-type-vlop/manual-youtube-thread-18138167.txt","c":18479},"https://transparency.meta.com/features/explaining-ranking/ig-feed/":{"f":"text/instagram/manual-features-explaining-ranking-ig-feed.txt","c":13096},"https://www.facebook.com/business/help/1738164643098669":{"f":"text/facebook-meta-platforms-ireland-limited-dsa-vlop/manual-business-help-1738164643098669.txt","c":5033},"https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md":{"f":"text/xvideos-webgroup-czech-republic-a-s-dsa-vlop/manual-p2b-contrib-versions-blob-main-xvideos-t.txt","c":72760}};
+
+/* Onde há cópia congelada, a URL deixa de ser alvo de clique e vira metadado — a
+   citação verbatim precisa dela, mas quem o avaliador abre é o arquivo do corpus.
+   Ler a página ao vivo reintroduz a deriva que o congelamento existe para
+   eliminar: se os dois passes leem versões diferentes do mesmo documento, a
+   discordância entre eles deixa de ser discordância de codificação, e depois não
+   há como separar as duas. */
+/* Casa as URLs no texto CRU e escapa os pedaços depois. Escapar antes, como era
+   feito, quebra toda URL com query: o & vira &amp; e o regex, que excluía `;`,
+   parava no meio — `?hl=en&gl=IE` virava href `?hl=en&amp` com `;gl=IE` solto
+   fora do link. Passava despercebido porque ainda parecia um link; com o corpus
+   congelado passaria a errar a busca no mapa em silêncio, em 8 documentos. */
+function linkify(t){
+  const re = /https?:\/\/[^\s"<>]+/g;
+  let out = "", last = 0, m;
+  while((m = re.exec(t)) !== null){
+    let u = m[0].replace(/[.,;:!]+$/, "");   /* pontuação final é da frase */
+    /* parêntese só sai se estiver desequilibrado, senão uma URL que termina
+       legitimamente em ")" perde o último caractere. */
+    while(/\)$/.test(u) && u.split(")").length > u.split("(").length) u = u.slice(0, -1);
+    re.lastIndex = m.index + u.length;
+    out += esc(t.slice(last, m.index));
+    last = re.lastIndex;
+    const f = FROZEN[u];
+    /* Com CORPUS_BASE o arquivo abre no navegador, num clique. Sem ele, o chip
+       é só o nome e o avaliador procura na pasta que descompactou — os dois
+       modos existem porque o corpus pode ser servido online ou entregue em zip,
+       e o mapa é o mesmo nos dois casos. */
+    out += f
+      ? `<span class="frozenurl">${esc(u)}</span> ` + (CORPUS_BASE
+          ? `<a class="frozen" href="${esc(CORPUS_BASE + f.f)}" target="_blank" rel="noopener"
+               title="abre o documento congelado — não a página ao vivo"
+               >${esc(f.f.split("/").pop())} <i>${f.c.toLocaleString("pt-BR")} car.</i></a>`
+          : `<span class="frozen"
+               title="abra este arquivo do corpus congelado, não a página ao vivo"
+               >${esc(f.f)} <i>${f.c.toLocaleString("pt-BR")} car.</i></span>`)
+      : `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`;
+  }
+  return out + esc(t.slice(last));
+}
+
+/* ---------- ajuda contextual ----------
+   Estado de UI (details aberto/fechado) numa chave FORA dos registros por
+   serviço: `_ui` não está em DATA.order, então nem o export nem o Sync o
+   enxergam, e o JSON entregue continua sendo só codificação. */
+const UIK = LSK("_ui");
+function uiGet(){ try{ return JSON.parse(localStorage.getItem(UIK)) || {} }catch(e){ return {} } }
+function uiPut(k,v){ const o = uiGet(); o[k]=v; localStorage.setItem(UIK, JSON.stringify(o)); }
+
+function srcLine(s){ return s==="glosa"
+  ? `<span class="hpsrc">glosa do instrumento — este conectivo não consta do codebook</span>`
+  : `<span class="hpsrc">codebook v2 · ${esc(s)}</span>`; }
+
+/* O `title` carrega o texto da ajuda em texto plano, não só o rótulo: é a
+   descrição acessível do botão, o tooltip nativo no hover, e o fallback em
+   navegador sem `popover`. Sem isso, quem usa leitor de tela não alcança as
+   regras — e elas são a razão de o botão existir. */
+function helpText(hk){
+  const d = document.createElement("div");
+  d.innerHTML = helpHTML(hk);
+  /* textContent cru cola termo e definição ("noneNenhum controle."); a escada
+     só é legível — falada ou em tooltip — com pontuação explícita. O † vira
+     "(glosa)" em palavras, e a nota de rodapé que o explicava sai. */
+  d.querySelectorAll("sup").forEach(e => e.replaceWith(" (glosa)"));
+  d.querySelectorAll(".glosanote").forEach(e => e.remove());
+  d.querySelectorAll("h4").forEach(e => e.append(" — "));
+  d.querySelectorAll("dt").forEach(e => e.append(": "));
+  d.querySelectorAll("dd").forEach(e => e.append(" · "));
+  d.querySelectorAll("p").forEach(e => e.append(" "));
+  return (d.textContent || "").replace(/\s+/g," ").replace(/\s+:/g,":").trim();
+}
+function hbtn(hk,lbl){ return `<button type="button" class="ihelp" data-hk="${esc(hk)}"` +
+  ` aria-expanded="false" aria-label="${esc(lbl)}" title="${esc(helpText(hk))}">ⓘ</button>`; }
+/* ⓘ de campo só existe onde o codebook tem o que dizer sobre o campo inteiro */
+function helpBtn(key){ return FIELDHELP[key] ? hbtn("f:"+key, "Ajuda: "+FIELDHELP[key].title) : ""; }
+/* ⓘ de valor só existe onde o codebook glosa aquele valor — ver regra de fidelidade */
+function valHelpBtn(key,v){ return VALHELP[key+":"+v] ? hbtn("v:"+key+":"+v, "Definição de "+v) : ""; }
+
+function helpHTML(hk){
+  if(hk.slice(0,2)==="f:"){
+    const k = hk.slice(2), f = FIELDHELP[k]; if(!f) return "";
+    let body = "", glosa = false;
+    if(f.opts){
+      const rows = f.opts.filter(v=>v!=="" && VALHELP[k+":"+v])
+        .map(v=>{ const e = VALHELP[k+":"+v];
+          if(e[1]==="glosa") glosa = true;
+          return `<dt>${esc(v)}${e[1]==="glosa"?"<sup>†</sup>":""}</dt><dd>${e[0]}</dd>`; }).join("");
+      if(rows) body += `<dl>${rows}</dl>`;
+      /* um degrau conectivo dentro da escada precisa se declarar: senão o leitor
+         não distingue o que é o codebook do que é a ferramenta */
+      if(glosa) body += `<p class="glosanote">† glosa do instrumento — este degrau não é glosado pelo codebook</p>`;
+    }
+    if(f.note) body += `<p>${f.note}</p>`;
+    return `<h4>${esc(f.title)}</h4>${body}${srcLine(f.src)}`;
+  }
+  const rest = hk.slice(2), e = VALHELP[rest]; if(!e) return "";
+  return `<h4>${esc(rest.slice(rest.indexOf(":")+1))}</h4><p>${e[0]}</p>${srcLine(e[1])}`;
+}
+
+/* definição do valor SELECIONADO, em linha, sem exigir clique — é a peça que
+   não depende de o avaliador ter a curiosidade de abrir o popover */
+function selHint(key,val){
+  const e = val && VALHELP[key+":"+val];
+  return e ? `<b>${esc(val)}</b> — ${e[0]}` : "";
+}
+
+function anchorsHTML(v){
+  const list = ANCHORS[v]; if(!list) return "";
+  const shown = [], hidden = [];
+  list.forEach(a => (a.svc.indexOf(current) >= 0 ? hidden : shown).push(a));
+  let h = `<div class="anchors"><div class="ahead">Âncoras do piloto</div>`;
+  if(shown.length) h += `<ul>${shown.map(a=>`<li>${a.html}</li>`).join("")}</ul>`;
+  if(hidden.length) h += `<div class="suppressed">${hidden.length>1?"Âncoras foram":"Uma âncora foi"} <b>omitida</b> aqui porque nomeia o serviço que você está codificando agora. Está na aba <b>Codebook</b>, se quiser consultá-la deliberadamente — o que o instrumento evita é pôr a resposta no seu campo de visão durante a decisão.</div>`;
+  return h + `</div>`;
+}
+
+function crit(v){
+  const c = CRIT[v]; if(!c) return "";
+  /* Glosa antes do critério: é ela que se lê. O texto do codebook vem depois,
+     rotulado, porque é ele que vale — e é transcrição congelada, não editável. */
+  const g = GLOSA[v] ? `<div class="glosa">${GLOSA[v].html}</div>` +
+    `<div class="critfonte">texto exato do codebook v2, congelado em 04/07/2026</div>` : "";
+  return `<details class="crit" data-crit="${v}"${uiGet()["crit_"+v]?" open":""}>` +
+    `<summary>${esc(c.sum)}</summary><div class="critbody">${g}${c.html}${anchorsHTML(v)}</div></details>`;
+}
+
+/* popover nativo: light-dismiss, camada superior (não é cortado pelo overflow
+   da trilha) e semântica acessível de graça. Posição por JS — CSS anchor
+   positioning ainda não roda no Firefox. Sem suporte, degrada para `title`. */
+const HAS_POPOVER = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
+let hpEl = null;
+function hpNode(){
+  if(hpEl) return hpEl;
+  hpEl = document.createElement("div");
+  hpEl.className = "hp";
+  if(HAS_POPOVER) hpEl.setAttribute("popover","auto"); else hpEl.hidden = true;
+  document.body.appendChild(hpEl);
+  return hpEl;
+}
+function closeHelp(){
+  document.querySelectorAll('.ihelp[aria-expanded="true"]')
+    .forEach(b=>b.setAttribute("aria-expanded","false"));
+  if(!hpEl) return;
+  if(HAS_POPOVER){ try{ hpEl.hidePopover() }catch(e){} } else hpEl.hidden = true;
+}
+function openHelp(btn){
+  const html = helpHTML(btn.dataset.hk); if(!html) return;
+  closeHelp();
+  btn.setAttribute("aria-expanded","true");
+  const el = hpNode();
+  el.innerHTML = html;
+  if(HAS_POPOVER){ try{ el.hidePopover() }catch(e){} el.showPopover(); } else el.hidden = false;
+  el.style.position = "absolute"; el.style.margin = "0";
+  const r = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+  let left = Math.max(10, Math.min(r.left, document.documentElement.clientWidth - w - 10));
+  let top  = r.bottom + 6;
+  if(top + h > window.innerHeight - 8 && r.top - h - 6 > 0) top = r.top - h - 6;
+  el.style.left = (left + window.scrollX) + "px";
+  el.style.top  = (top  + window.scrollY) + "px";
+}
+document.addEventListener("click", e=>{
+  const b = e.target.closest && e.target.closest(".ihelp");
+  if(b){ e.preventDefault(); e.stopPropagation(); openHelp(b); return; }
+  if(!HAS_POPOVER && hpEl && !hpEl.hidden && !(e.target.closest && e.target.closest(".hp"))) closeHelp();
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeHelp(); });
+window.addEventListener("resize", closeHelp);
+
+/* ---------- rail ---------- */
+function paintRail(){
+  const nDone = DATA.order.filter(s=>load(s).done).length;
+  document.getElementById("progresschip").textContent = nDone + "/26 concluídos";
+  const rail = document.getElementById("rail");
+  rail.querySelectorAll(".svc").forEach(e=>e.remove());
+  DATA.order.forEach((s,i)=>{
+    const rec = load(s), n = filledCount(rec);
+    const st = rec.done ? "done" : (n>0 ? "partial" : "");
+    const b = document.createElement("button");
+    b.className = "svc"; b.setAttribute("aria-current", s===current);
+    b.innerHTML = `<span class="n">${i+1}</span> ${esc(s)} <span class="state ${st}" title="${rec.done?"concluído":(n>0?n+" campos":"não iniciado")}"></span>`;
+    b.onclick = ()=>{ current=s; render(); };
+    rail.appendChild(b);
+  });
+}
+
+/* ---------- field builders (bind to record) ---------- */
+function fSelect(rec,key,label,opts,extra){
+  const id = "f_"+key;
+  const o = opts.map(v=>`<option value="${esc(v)}" ${rec[key]===v?"selected":""}>${v===""?"—":esc(v)}</option>`).join("");
+  /* não dá para pendurar tooltip dentro de <option> (o menu é desenhado pelo
+     SO): o ⓘ do rótulo abre a escada inteira, e a definição do valor escolhido
+     aparece em linha, logo abaixo do campo. */
+  const hinted = opts.some(v => VALHELP[key+":"+v]);
+  return `<div class="f"><label for="${id}">${label}${helpBtn(key)}</label>
+    <select id="${id}" data-k="${key}">${o}</select>
+    ${hinted?`<div class="selhint" data-hint="${key}">${selHint(key,rec[key])}</div>`:""}${extra||""}</div>`;
+}
+function fChecks(rec,key,label,opts){
+  const cur = rec[key]||[];
+  /* aqui cada valor É um elemento real, então ganha ⓘ próprio — fora do
+     <label>, para o clique na ajuda não marcar a caixa */
+  return `<div class="f"><label>${label}${helpBtn(key)}</label><div class="opts">`+
+    opts.map(v=>`<span class="opt"><label><input type="checkbox" data-kc="${key}" value="${esc(v)}" ${cur.includes(v)?"checked":""}> ${esc(v)}</label>${valHelpBtn(key,v)}</span>`).join("")+
+    `</div></div>`;
+}
+function fText(rec,key,label,ph,mono,rows){
+  return `<div class="f"><label for="f_${key}">${label}</label>
+    <textarea id="f_${key}" data-k="${key}" ${mono?'class="mono"':''} ${rows?`style="min-height:${rows}px"`:""}
+      placeholder="${esc(ph||"")}">${esc(rec[key]||"")}</textarea></div>`;
+}
+function fLine(rec,key,label,ph){
+  return `<div class="f"><label for="f_${key}">${label}</label>
+    <input type="text" id="f_${key}" data-k="${key}" value="${esc(rec[key]||"")}" placeholder="${esc(ph||"")}"></div>`;
+}
+
+/* ---------- main panel ---------- */
+function render(){
+  const svc = DATA.services.find(x=>x.service===current);
+  const rec = load(current);
+  const p = document.getElementById("panel");
+  const docsRead = rec.docs_read||[];
+  p.innerHTML = `
+  <div class="svc-head">
+    <h2>${esc(svc.service)}</h2>
+    <span class="chip">${esc(svc.genre)}</span>
+    <span class="chip">${DATA.order.indexOf(current)+1} de 26</span>
+  </div>
+
+  <details class="docs" open>
+    <summary>Documentos do manifesto (1ª passada) — marque os que você leu</summary>
+    <div class="doclist">
+      ${svc.docs.map((d,i)=>`<label class="doc"><input type="checkbox" data-doc="${i}" ${docsRead.includes(i)?"checked":""}><span class="txt">${linkify(d)}</span></label>`).join("")}
+    </div>
+    ${Object.keys(FROZEN).length ? `<div class="corpusnote">
+      Onde aparece <span class="frozen">arquivo.txt</span>, <b>leia o arquivo do corpus
+      congelado</b>, não a página ao vivo. O corpus foi capturado de vantagem da UE e é
+      o mesmo texto sobre o qual a 1ª passada foi codificada; abrir a página hoje pode
+      trazer outra versão, e a discordância entre passes deixaria de ser atribuível à
+      codificação. A URL riscada fica só como procedência, para a citação.
+      <br>A busca por palavra-chave (KW) também roda no arquivo: em texto plano o
+      Ctrl-F conta certo, o que na página não acontece quando parte do conteúdo só
+      existe depois do JavaScript.
+    </div>` : ""}
+    <div class="accessdate">Data de acesso da 1ª passada: <b>${esc(svc.access_date||"?")}</b> — se um documento não tiver arquivo congelado, use o link e registre abaixo; se o arquivo parecer incompleto ou não corresponder à URL, registre e pule o campo afetado.</div>
+    <div style="padding:0 14px 14px">${fText(rec,"access_notes","Problemas de acesso (links mortos, conteúdo alterado)","nenhum")}</div>
+  </details>
+
+  <div class="vcard"><h3><span class="vid">V1</span> Reconhecimento de experimentação</h3>
+    <p class="rule">0 = nada · 1 = só "melhorar" · 2 = <b>testa usuários</b>, método não nomeado · 3 = <b>experimento/A-B explícito</b>. Codifique o teto e onde ele vive. "Free trial" não conta.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v1_code","Código (teto)",["","0","1","2","3"])}
+      ${fSelect(rec,"v1_register","Registro do teto",REG)}
+    </div>
+    ${fText(rec,"v1_evidence","Evidência (citação verbatim + documento)","“...” — Privacy Policy, §x")}
+    ${crit("v1")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V2</span> Enquadramento</h3>
+    <p class="rule">Marque <b>todos</b> que aparecem, com citação para cada. "Research that improves our services" = os dois primeiros.</p>
+    ${fChecks(rec,"v2_framing","Enquadramentos presentes",FRAMING)}
+    ${fText(rec,"v2_evidence","Evidência (uma citação por enquadramento)")}
+    ${crit("v2")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V3</span> Especificidade</h3>
+    <p class="rule">Alvo <i>de experimento</i> ≠ personalização descrita como feature. Preço: cláusula de "mispricing" <b>não</b> conta como alvo.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v3_activities","V3a — atividades/superfícies nomeadas?",YN)}
+      ${fSelect(rec,"v3_specific","V3c — experimento específico/ativo divulgado?",YN)}
+      ${fSelect(rec,"v3_pricing","V3-pricing — preço nomeado como alvo?",YN)}
+      ${fLine(rec,"v3_targets","V3b — alvos nomeados","ranking, preço, mensagem, afeto…")}
+    </div>
+    ${fText(rec,"v3_evidence","Evidência")}
+    ${crit("v3")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V4</span> Base legal</h3>
+    <p class="rule">"Not stated" = nenhuma base declarada <b>para experimentação</b> (inferida da cláusula de melhoria). Se a tabela de bases não aparecer da sua vantagem (Brasil), marque <b>não-verificável</b> — não "No".</p>
+    ${fChecks(rec,"v4_basis","Bases declaradas (multi)",BASIS)}
+    <div class="grid2">
+      ${fLine(rec,"v4_mapped_purpose","Finalidade mapeada como experimentação","ex.: improve services")}
+      ${fSelect(rec,"v4_region_gated","Tabela de bases geo-gated?",["","Yes","No","not-verifiable (vantage)"])}
+    </div>
+    ${fText(rec,"v4_evidence","Evidência")}
+    ${crit("v4")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V5</span> Opt-out de experimentação</h3>
+    <p class="rule">Escada. <b>Escopo estrito à experimentação</b> — banner de cookies que rege ads/medição = "cookie/ads-only", não "dedicated".</p>
+    ${fSelect(rec,"v5_optout","Nível",V5)}
+    ${fText(rec,"v5_evidence","Evidência")}
+    ${crit("v5")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V6</span> Opt-in beta/teste</h3>
+    <p class="rule">Eixo ortogonal — <b>não mitiga o V5</b>.</p>
+    <div class="grid2">
+      ${fSelect(rec,"v6_optin_beta","Existe programa opt-in?",YN)}
+      ${fLine(rec,"v6_which","Qual (nome + como funciona)","ex.: Search Labs; TestFlight")}
+    </div>
+    ${crit("v6")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V7</span> Debriefing</h3>
+    <p class="rule"><b>Excluir:</b> aviso de processamento, decisão automatizada, mudança de serviço — nenhum é debriefing.</p>
+    ${fSelect(rec,"v7_debrief","Debriefing existe?",YN)}
+    ${fText(rec,"v7_evidence","Evidência / justificativa do No (aponte o log)")}
+    ${crit("v7")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V8</span> Ética / revisão / risco</h3>
+    <p class="rule">Linguagem borderline de "impacto" = No com nota. Risk assessment do DSA (regulador) não vira Yes.</p>
+    ${fSelect(rec,"v8_ethics","Menção a ética/revisão/risco para experimentos?",YN)}
+    ${fText(rec,"v8_note","Nota (borderlines, gap regulatório)")}
+    ${crit("v8")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">V9</span> Onde divulgado</h3>
+    <p class="rule">Separe <span class="reg-binding">registro legal</span> de URL/hosting — binding servido em URL de help continua binding.</p>
+    ${fChecks(rec,"v9_where","Locais (multi)",WHERE)}
+    ${fSelect(rec,"v9_register","Registro agregado",REG)}
+    ${fText(rec,"v9_evidence","Evidência / observações")}
+    ${crit("v9")}
+  </div>
+
+  <div class="vcard"><h3><span class="vid">KW</span> Log de palavras-chave (obrigatório)</h3>
+    <p class="rule">Por documento, hits de cada termo (triados — só sentido experimental). É o que torna cada "No" auditável.</p>
+    <div class="kwchips">${KWTERMS.map(t=>`<code>${esc(t)}</code>`).join("")}</div>
+    ${fText(rec,"keyword_log","Log","PP: experiment:0 / A-B:0 / test:2 (1 excluído, 'contest')\nToS: …",true,110)}
+  </div>
+
+  <div class="vcard"><h3>Notes</h3>
+    ${fText(rec,"notes","Dúvidas de regra, borderlines, variância intra-plataforma","")}
+  </div>
+
+  <div class="done-row">
+    <input type="checkbox" id="donechk" ${rec.done?"checked":""}>
+    <label for="donechk">Marcar serviço como concluído</label>
+    <span class="savestate">${filledCount(rec)}/13 campos centrais preenchidos</span>
+  </div>`;
+
+  /* bind */
+  p.querySelectorAll("[data-k]").forEach(el=>{
+    el.addEventListener("input", ()=>{ const r=load(current); r[el.dataset.k]=el.value; save(current,r);
+      const hint = p.querySelector(`[data-hint="${el.dataset.k}"]`);
+      if(hint) hint.innerHTML = selHint(el.dataset.k, el.value); });
+  });
+  /* estado dos critérios sobrevive à troca de serviço: quem abriu V5 uma vez
+     provavelmente quer V5 aberto nos próximos 20 */
+  p.querySelectorAll("details.crit").forEach(el=>{
+    el.addEventListener("toggle", ()=> uiPut("crit_"+el.dataset.crit, el.open));
+  });
+  p.querySelectorAll("[data-kc]").forEach(el=>{
+    el.addEventListener("change", ()=>{ const r=load(current); const k=el.dataset.kc;
+      const set=new Set(r[k]||[]); el.checked?set.add(el.value):set.delete(el.value);
+      r[k]=[...set]; save(current,r); });
+  });
+  p.querySelectorAll("[data-doc]").forEach(el=>{
+    el.addEventListener("change", ()=>{ const r=load(current); const i=+el.dataset.doc;
+      const set=new Set(r.docs_read||[]); el.checked?set.add(i):set.delete(i);
+      r.docs_read=[...set].sort((a,b)=>a-b); save(current,r); });
+  });
+  document.getElementById("donechk").addEventListener("change", e=>{
+    const r=load(current); r.done=e.target.checked; save(current,r); render(); });
+  paintRail();
+  window.scrollTo({top:0});
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.onclick = ()=>{ document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected", x===b));
+    ["howto","codebook","coding"].forEach(t=>{
+      document.getElementById("tab-"+t).hidden = (b.dataset.tab!==t); });
+    if(b.dataset.tab==="coding") render(); };
+});
+
+/* ---------- export / import ---------- */
+document.getElementById("exportbtn").onclick = ()=>{
+  const out = [];
+  DATA.order.forEach(s=>{
+    const rec = load(s);
+    if(Object.keys(rec).length===0) return;
+    const svc = DATA.services.find(x=>x.service===s);
+    out.push(Object.assign({service:s, coder:"coder2",
+      coded_at:new Date().toISOString().slice(0,10),
+      docs_manifest_read:(rec.docs_read||[]).map(i=>svc.docs[i])}, rec));
+  });
+  const blob = new Blob([JSON.stringify(out,null,1)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "coded-data-coder2.json"; a.click();
+};
+document.getElementById("importbtn").onclick = ()=>document.getElementById("importfile").click();
+document.getElementById("importfile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  f.text().then(t=>{ const arr = JSON.parse(t); let n=0;
+    arr.forEach(rec=>{ if(rec.service && DATA.order.includes(rec.service)){
+      localStorage.setItem(LSK(rec.service), JSON.stringify(rec)); n++; } });
+    alert(n+" serviços importados."); paintRail(); render(); });
+});
+
+paintRail();
+</script>

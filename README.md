@@ -35,21 +35,24 @@ five services gate their per-purpose legal-basis tables to EU traffic.
 ## What is here
 
 ```
-index.html                      coding instrument for the second coder (single-file app)
-api/state.js                    serverless persistence (GitHub Contents API)
+index.html, assistente/         the second coder's guided page (HTML and JS, no build step)
+api/state.mjs, server/          serverless persistence (GitHub Contents API), keyed, per service
+instrument/index.html           the original single-file instrument (kept; not deployed)
 protocol/codebook-v2.md         the frozen instrument, in full
 protocol/sampling-frame.md      the 26 designated services + selection rule
 notebooks/01-keyword-sweep      the §3 keyword protocol, run over the frozen corpus
 notebooks/02-llm-recall-sweep   recall check: what the keyword list misses
 notebooks/03-coding-flow        the second pass, one variable at a time
-notebooks/04-revisao-assistida  the second pass with evidence pre-located, one cell per service
 analysis/patterns.py            the twelve §3 terms — single source for every notebook
 analysis/codebook.py            the codebook, read from the instrument (not re-transcribed)
 analysis/coding_flow.py         linear coding flow: one variable at a time, evidence gated
 analysis/revisao.py             assisted review: the model locates, the coder decides
 analysis/build-md-corpus.py     frozen corpus → Markdown, standardised folder and file names
-analysis/publicar-corpus.py     publishes the Markdown corpus and the notebook runtime
-analysis/gerar-notebook-revisao.py  regenerates notebook 04 from the roster
+analysis/publicar-corpus.py     publishes the Markdown corpus and assistente/ (codebook, keyword floor, copilot)
+analysis/exportar-codebook.py   the codebook as JSON for the page
+analysis/exportar-piso.py       the deterministic keyword floor, one file per service
+analysis/copiloto.py            the copilot: one frozen code suggestion per variable, prompt published
+analysis/pre-entrega.py         end-to-end check of what the second coder will actually touch
 analysis/compute-agreement.py   inter-coder agreement
 analysis/freeze-sources.py      capture, hash and archive the audited documents
 analysis/snapshot-progress.py   progress snapshot — metadata only, never codes
@@ -57,14 +60,20 @@ analysis/nb-clean.py            keeps notebook output out of the repository
 .github/workflows/              the daily snapshot job
 ```
 
-### The coding instrument
+### The second coder's page
 
-`index.html` is a self-contained application (no build step, no dependencies)
-that presents the codebook, the document manifest per service, and the nine
-coding variables, and exports a JSON record set. It is deployed as a static site;
-progress is saved to the browser and, where the persistence function is
-configured, committed to a data branch of this repository — which yields a
-timestamped audit trail of when each coding was entered.
+`index.html` plus `assistente/` is a guided page (HTML and JavaScript, no build
+step). It takes the coder through one service at a time and, inside it, one
+variable per screen: the question in plain language, the evidence (a
+deterministic keyword floor and the model's frozen verbatim citations), the
+fields, and a copilot suggestion behind a button. Every answer is saved to
+`/api/state`, which commits it to a data branch of this repository, so each
+coding carries a timestamp. The link carries a key in its fragment; a second key
+opens a rehearsal mode that writes to a separate file.
+
+The copilot is not a live model call. `analysis/copiloto.py` ran once per
+service, over the frozen text only, and its prompt and outputs are published at
+the corpus site under `assistente/copiloto/` (see `assistente/copiloto.html`).
 
 The instrument is deliberately **blind**: it contains no codes from pass 1. It
 does reproduce the three pilot anchors that the frozen codebook itself carries
@@ -153,9 +162,9 @@ python3 analysis/publicar-corpus.py --frozen <paper>/audit/frozen \
                                     --destino ../experimented-without-consent-corpus
 ```
 
-`lib/index.html` is a copy of the instrument, because `codebook.py` reads the
-codebook out of the instrument instead of transcribing it again. It is not the
-corpus site's own `index.html`, which lists the documents and is left alone.
+`codebook.py` reads the codebook out of `instrument/index.html` instead of
+transcribing it again; `exportar-codebook.py` turns it into the JSON the page
+reads. The corpus site's own `index.html`, which lists the documents, is left alone.
 
 #### Notebook output does not enter the repository
 
@@ -267,7 +276,7 @@ exists to establish. They are added at release, together with the frozen dataset
 3. Capture each service's EU-facing documents **from an EU IP**. This matters:
    several services serve their per-purpose legal-basis tables only to EU
    traffic, so auditing from elsewhere silently under-codes that variable.
-4. Code with `index.html`, or with any tool that produces the same fields.
+4. Code with the page (`index.html`), or with any tool that produces the same fields.
 5. Compare passes with `analysis/compute-agreement.py`.
 
 Every code carries a verbatim quotation, its document, and its URL; every code of
@@ -283,7 +292,7 @@ the manifest can be swapped for a different roster.
 
 ## Licence
 
-Code (`index.html`, `api/`, `analysis/`) — MIT, see `LICENSE`.
+Code (`index.html`, `assistente/`, `api/`, `server/`, `analysis/`) — MIT, see `LICENSE`.
 Protocol, codebook and data — CC BY 4.0, see `LICENSE-DATA`.
 
 ## Citation

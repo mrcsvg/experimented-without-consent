@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Injeta o mapa do corpus congelado no instrumento.
 
-    python3 inject-frozen.py --manifest <frozen>/manifest.json --html index.html
+    python3 inject-frozen.py --manifest <frozen>/manifest.json --html instrument/index.html
 
 O `index.html` é single-file por desenho — sem build, sem dependência — então o
 mapa `const FROZEN` entra por substituição de linha em vez de virar um fetch.
@@ -27,7 +27,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--manifest", required=True)
-    ap.add_argument("--html", default="index.html")
+    ap.add_argument("--html", default="instrument/index.html")
     ap.add_argument("--min-text", type=int, default=1000)
     ap.add_argument("--base-url", default=None,
                     help="onde o corpus é servido, ex.: https://corpus-....vercel.app/ "
