@@ -36,7 +36,7 @@ five services gate their per-purpose legal-basis tables to EU traffic.
 
 ```
 index.html, assistente/         the second coder's guided page (HTML and JS, no build step)
-api/state.js, server/           serverless persistence (GitHub Contents API), keyed, per service
+api/state.mjs, server/          serverless persistence (GitHub Contents API), keyed, per service
 instrument/index.html           the original single-file instrument (kept; not deployed)
 protocol/codebook-v2.md         the frozen instrument, in full
 protocol/sampling-frame.md      the 26 designated services + selection rule

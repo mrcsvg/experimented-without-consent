@@ -1,5 +1,5 @@
 // Servidor local para o teste de tela: serve os arquivos da raiz e monta a
-// mesma função api/state.js em /api/state, como a Vercel faz em produção.
+// mesma função api/state.mjs em /api/state, como a Vercel faz em produção.
 //
 //   node server/dev.mjs            # http://localhost:3000
 //   PORT=3100 node server/dev.mjs
@@ -21,7 +21,7 @@ if (fs.existsSync(env)) {
     if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^"(.*)"$/, "$1");
   }
 }
-const { default: state } = await import("../api/state.js");
+const { default: state } = await import("../api/state.mjs");
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -30,7 +30,7 @@ const MIME = {
   ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon",
 };
 
-// O `res` que api/state.js espera é o da Vercel: status().json() e setHeader().
+// O `res` que api/state.mjs espera é o da Vercel: status().json() e setHeader().
 function respostaVercel(res) {
   return {
     status(c) { res.statusCode = c; return this; },
