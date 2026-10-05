@@ -2,7 +2,7 @@
  "records": {
   "Wikipedia": {
    "v1_evidence": "Nenhum dos 33 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "_ts": 1791158755034,
+   "_ts": 1791159607912,
    "v1_code": "0",
    "v1_register": "",
    "docs_tipo": {
@@ -28,16 +28,15 @@
     },
     "wikipedia/06-wikipedia-experiments.md": {
      "tipo": "blog/PR/site de pesquisa",
-     "registro": "non-binding"
+     "registro": "binding",
+     "virado": true
     }
    },
    "notas": {},
    "extras": {},
    "override": {},
    "comentarios": {},
-   "confirmadas": {
-    "DOCS": true
-   },
+   "confirmadas": {},
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v3_activities": "No",
@@ -67,5 +66,5 @@
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-05T00:05:55.034Z"
+ "saved_at": "2026-10-05T00:20:07.912Z"
 }
