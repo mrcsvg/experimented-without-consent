@@ -2,7 +2,7 @@
  "records": {
   "Wikipedia": {
    "v1_evidence": "Nenhum dos 33 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "_ts": 1791158752901,
+   "_ts": 1791158755034,
    "v1_code": "0",
    "v1_register": "",
    "docs_tipo": {
@@ -35,7 +35,9 @@
    "extras": {},
    "override": {},
    "comentarios": {},
-   "confirmadas": {},
+   "confirmadas": {
+    "DOCS": true
+   },
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v3_activities": "No",
@@ -65,5 +67,5 @@
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-05T00:05:52.901Z"
+ "saved_at": "2026-10-05T00:05:55.034Z"
 }
