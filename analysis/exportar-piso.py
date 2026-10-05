@@ -17,6 +17,14 @@ O QUE NÃO ENTRA: a etiqueta `role` dos documentos. Ela vem da passada 1
 (`freeze-sources.py cmd_inventory`), e a página não a mostra por decisão de
 03/10/2026. O self-test afirma que a palavra não aparece no arquivo.
 
+O QUE ENTRA DESDE 04/10/2026: o tipo e o registro de cada documento, lidos de
+`analysis/tipos-doc.json`. O tipo de um documento (política de privacidade,
+termos de uso, aviso de pesquisa separado, central de ajuda, blog) é atributo
+do corpus, decidido uma vez, à mão, antes da codificação; não é julgamento do
+codificador. A página calcula o registro do teto (V1) e os locais (V9) a partir
+dele e não pergunta nada sobre documentos. Documento sem tipo no arquivo
+interrompe a exportação: melhor não publicar do que publicar sem.
+
 Sem dependências externas: só a biblioteca padrão.
 """
 from __future__ import annotations
@@ -33,6 +41,37 @@ import codebook as C  # noqa: E402
 import revisao as R  # noqa: E402
 
 TITULO_MAX = 120
+TIPOS_DOC_ARQ = Path(__file__).with_name("tipos-doc.json")
+
+
+def _exportar_codebook():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("exportar_codebook", Path(__file__).with_name("exportar-codebook.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def tipos_doc(arquivo: Path = TIPOS_DOC_ARQ) -> dict[str, dict]:
+    """{file: {tipo, registro}} de analysis/tipos-doc.json.
+
+    O tipo tem de ser um dos cinco de TIPOS_DOC (exportar-codebook.py); o
+    registro, quando o arquivo não diz, é o padrão do tipo. Tipo desconhecido
+    ou registro inválido interrompem: o arquivo é curado à mão e um erro de
+    digitação não pode virar metadado publicado.
+    """
+    dados = json.loads(arquivo.read_text(encoding="utf-8"))
+    validos = {t["valor"]: t["registro"] for t in _exportar_codebook().TIPOS_DOC}
+    saida = {}
+    for file, d in (dados.get("documentos") or {}).items():
+        tipo = (d or {}).get("tipo")
+        if tipo not in validos:
+            raise ValueError(f"{arquivo.name}: {file}: tipo inválido {tipo!r} (válidos: {sorted(validos)})")
+        registro = d.get("registro") or validos[tipo]
+        if registro not in ("binding", "non-binding"):
+            raise ValueError(f"{arquivo.name}: {file}: registro inválido {registro!r}")
+        saida[file] = {"tipo": tipo, "registro": registro}
+    return saida
 
 
 def titulo_do(texto: str | None) -> str:
@@ -44,19 +83,25 @@ def titulo_do(texto: str | None) -> str:
     return ""
 
 
-def exportar_um(servico: str, corpus) -> dict:
+def exportar_um(servico: str, corpus, tipos: dict[str, dict] | None = None) -> dict:
     docs = corpus.docs(servico)
     dossie = R.varredura(servico, corpus)
     por_arquivo = {d["file"]: d for d in dossie}
     por_variavel = R.piso(servico, corpus, dossie=dossie)
     n_do = {d["file"]: d["n"] for d in docs}
+    if tipos is None:
+        tipos = tipos_doc()
 
     saida_docs = []
     for d in docs:
         v = por_arquivo.get(d["file"])
+        if d["file"] not in tipos:
+            raise KeyError(f"{servico}: {d['file']} sem tipo em {TIPOS_DOC_ARQ.name}; rode analysis/tipos-doc.py --check")
         saida_docs.append({
             "n": d["n"], "file": d["file"], "url": d["url"], "chars": d["chars"],
             "titulo": titulo_do(corpus.texto(d)),
+            "tipo": tipos[d["file"]]["tipo"],
+            "registro": tipos[d["file"]]["registro"],
             "counts": dict(v["counts"]) if v else {},
             "log_line": v["log_line"] if v else "",
             "quarentena": v is None,
@@ -84,8 +129,9 @@ def exportar_um(servico: str, corpus) -> dict:
 def escrever_todos(corpus, destino: Path) -> list[dict]:
     destino.mkdir(parents=True, exist_ok=True)
     indice = []
+    tipos = tipos_doc()
     for servico in C.SERVICOS:
-        d = exportar_um(servico, corpus)
+        d = exportar_um(servico, corpus, tipos=tipos)
         texto = json.dumps(d, ensure_ascii=False, indent=1) + "\n"
         alvo = destino / f"{d['slug']}.json"
         alvo.write_text(texto, encoding="utf-8")
@@ -110,12 +156,15 @@ def _self_test(corpus) -> int:
             falhas.append(desc)
 
     variaveis_do_piso = {v for vs in R.TERMO_PARA_VARIAVEL.values() for v in vs}
+    tipos_validos = {t["valor"]: t["registro"] for t in _exportar_codebook().TIPOS_DOC}
     for servico in ("Wikipedia", "Zalando"):
         d = exportar_um(servico, corpus)
         bruto = json.dumps(d, ensure_ascii=False)
         checar(f"{servico}: mesmo número de documentos que o índice do corpus",
                len(d["docs"]) == len(corpus.docs(servico)))
         checar(f"{servico}: nenhuma etiqueta role no arquivo", '"role"' not in bruto)
+        checar(f"{servico}: todo documento traz tipo (um dos cinco) e registro (binding ou non-binding)",
+               all(x.get("tipo") in tipos_validos and x.get("registro") in ("binding", "non-binding") for x in d["docs"]))
         checar(f"{servico}: hits só nas variáveis que o piso endereça",
                set(d["por_variavel"]) <= variaveis_do_piso)
         ns = {x["n"] for x in d["docs"]}
@@ -132,8 +181,31 @@ def _self_test(corpus) -> int:
     checar("título é encurtado em 120 caracteres", len(titulo_do("x" * 300)) <= TITULO_MAX)
     checar("título ignora linhas vazias", titulo_do("\n\n  Privacy  Policy \n") == "Privacy Policy")
 
+    # tipos-doc.json: cobre o corpus inteiro, sem sobras, e recusa o que não é um dos cinco tipos.
+    todos = {d["file"] for s in C.SERVICOS for d in corpus.docs(s)}
+    tipos = tipos_doc()
+    checar("tipos-doc.json cobre exatamente os documentos do corpus (nenhum a mais, nenhum a menos)",
+           set(tipos) == todos, )
+    checar("tipos-doc.json: 157 documentos", len(tipos) == 157)
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:
+        arq = Path(tmp) / "tipos.json"
+        arq.write_text(json.dumps({"documentos": {"a.md": {"tipo": "help centre"},
+                                                   "b.md": {"tipo": "help centre", "registro": "binding"}}}), encoding="utf-8")
+        t = tipos_doc(arq)
+        checar("sem registro no arquivo, vale o padrão do tipo", t["a.md"] == {"tipo": "help centre", "registro": "non-binding"})
+        checar("registro explícito no arquivo vence o padrão (registro não é hospedagem)", t["b.md"]["registro"] == "binding")
+        arq.write_text(json.dumps({"documentos": {"a.md": {"tipo": "cookie banner"}}}), encoding="utf-8")
+        try:
+            tipos_doc(arq)
+            checar("tipo fora dos cinco é recusado", False)
+        except ValueError:
+            checar("tipo fora dos cinco é recusado", True)
+        try:
+            exportar_um("Wikipedia", corpus, tipos={})
+            checar("documento sem tipo interrompe a exportação", False)
+        except KeyError:
+            checar("documento sem tipo interrompe a exportação", True)
         idx = escrever_todos(corpus, Path(tmp))
         checar("26 arquivos escritos, com índice", len(idx) == 26 and (Path(tmp) / "index.json").exists())
         checar("nenhum role em nenhum dos 26",

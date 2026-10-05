@@ -143,8 +143,8 @@ def pagina_no_repositorio(p: Placar) -> None:
              all(x in vi for x in ("analysis/", "instrument/", "notebooks/", "docs/")))
     p.checar("o instrumento antigo continua no repositório, fora da raiz",
              (RAIZ / "instrument" / "index.html").exists())
-    p.checar("a página calcula a resposta das notas (derivar) e tem o passo dos documentos",
-             "derivar(" in app and "renderDocs" in app and "aplicarNotas" in app)
+    p.checar("a página calcula a resposta das notas (derivar) e não pergunta o tipo dos documentos",
+             "derivar(" in app and "aplicarNotas" in app and "renderDocs" not in app and "docs_tipo" not in app)
     p.checar("os notebooks do Colab saíram",
              not (RAIZ / "notebooks" / "04-revisao-assistida.ipynb").exists()
              and not (RAIZ / "analysis" / "gerar-notebook-revisao.py").exists())
@@ -239,6 +239,9 @@ def caminho_do_codificador(p: Placar, completo: bool) -> None:
              any(h["flag"] for h in piso["por_variavel"].get("V8", [])) and '"role"' not in json.dumps(piso))
     p.checar("piso traz o log sugerido, uma linha por documento",
              len(piso["log_sugerido"].splitlines()) == len([d for d in piso["docs"] if d["log_line"]]))
+    p.checar("piso: todo documento traz tipo (um dos cinco do codebook) e registro, metadado do corpus",
+             all(d.get("tipo") in {t["valor"] for t in cb.get("tipos_doc", [])} and d.get("registro") in ("binding", "non-binding")
+                 for d in piso["docs"]))
     p.checar("citações do Zalando: só frase, documento e localização",
              all(set(c) <= {"doc", "file", "onde", "role", "verbatim"} for lista in sug["citacoes"].values() for c in lista)
              and "sugestao" not in json.dumps(sug))
@@ -354,8 +357,8 @@ for (const [i, nome] of ["Pinterest", "Booking.com"].entries()) {
   const piso = JSON.parse(readFileSync(`${corpus}/assistente/piso/${slug}.json`, "utf8"));
   const sug = JSON.parse(readFileSync(`${corpus}/sugestoes/${slug}.json`, "utf8"));
   const d = { docs: piso.docs, piso, citacoes: sug.citacoes || {} };
-  const reg = { service: nome, _ts: 1000 + i, docs_tipo: {}, notas: {}, extras: { v4_region_gated: "No", v3_targets: "x", v4_mapped_purpose: "x" }, override: {}, comentarios: {}, confirmadas: {}, keyword_log: "x" };
-  for (const doc of piso.docs) reg.docs_tipo[doc.file] = { tipo: cb.tipos_doc[doc.n % 5].valor, registro: cb.tipos_doc[doc.n % 5].registro };
+  // O tipo de cada documento vem do piso (metadado do corpus), não do registro.
+  const reg = { service: nome, _ts: 1000 + i, notas: {}, extras: { v4_region_gated: "No", v3_targets: "x", v4_mapped_purpose: "x" }, override: {}, comentarios: {}, confirmadas: {}, keyword_log: "x" };
   for (const vid of Object.keys(cb.notas)) {
     reg.notas[vid] = {};
     const spec = cb.notas[vid];

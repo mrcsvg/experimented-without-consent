@@ -6,19 +6,22 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   idDoHit, trechosDaVariavel, registroPadrao, derivar, faltandoEtapa, etapas,
-  fechadas, progressoEtapas, primeiraEtapaIncompleta, aplicarNotas, aplicarTipos, faltando,
+  fechadas, progressoEtapas, primeiraEtapaIncompleta, aplicarNotas, faltando,
 } from "./core.mjs";
+import * as core from "./core.mjs";
 
 const fx = JSON.parse(readFileSync(new URL("./test/portao.json", import.meta.url), "utf8"));
 const CB = { servicos: fx.servicos, variaveis: fx.variaveis, notas: fx.notas, tipos_doc: fx.tipos_doc, extras: fx.extras };
 const porVid = Object.fromEntries(CB.variaveis.map((v) => [v.vid, v]));
 
-// Um serviço de brinquedo: dois documentos, alguns trechos.
+// Um serviço de brinquedo: dois documentos, alguns trechos. O tipo e o
+// registro de cada documento são metadado do corpus (decisão de 04/10/2026):
+// chegam em d.docs, nunca do registro do codificador.
 const HIT1 = { termo: "experiment", kwic: "…we may experiment with features…", flag: null, file: "s/01.md", n: 1, total_no_doc: 2 };
 const HIT8 = { termo: "ethics", kwic: "…Our Code of Ethics…", flag: "falso positivo comum", file: "s/02.md", n: 2, total_no_doc: 1 };
 const D = {
-  docs: [{ n: 1, file: "s/01.md", titulo: "Privacy Policy", url: "https://s/privacy" },
-         { n: 2, file: "s/02.md", titulo: "Engineering Blog", url: "https://s/blog" }],
+  docs: [{ n: 1, file: "s/01.md", titulo: "Privacy Policy", url: "https://s/privacy", tipo: "privacy policy", registro: "binding" },
+         { n: 2, file: "s/02.md", titulo: "Engineering Blog", url: "https://s/blog", tipo: "blog/PR/site de pesquisa", registro: "non-binding" }],
   piso: { por_variavel: { V1: [HIT1], V3: [HIT1], V8: [HIT8] } },
   citacoes: {
     V1: [{ doc: 2, file: "s/02.md", onde: "§1", verbatim: "we run A/B tests" }],
@@ -29,10 +32,9 @@ const D = {
   },
 };
 const ID_HIT1 = idDoHit(HIT1);
-const DOCS_OK = { "s/01.md": { tipo: "privacy policy", registro: "binding" }, "s/02.md": { tipo: "blog/PR/site de pesquisa", registro: "non-binding" } };
 
 function reg(extra = {}) {
-  return { docs_tipo: DOCS_OK, notas: {}, extras: {}, override: {}, comentarios: {}, confirmadas: {}, ...extra };
+  return { notas: {}, extras: {}, override: {}, comentarios: {}, confirmadas: {}, ...extra };
 }
 
 test("idDoHit é estável, curto e muda com o trecho", () => {
@@ -154,12 +156,29 @@ test("comentário da variável entra na evidência; keyword_log e notes passam d
   assert.equal(c.notes, "nota geral");
 });
 
-test("trava: documentos antes de tudo", () => {
-  assert.deepEqual(etapas(CB)[0], "DOCS");
-  const semTipo = reg({ docs_tipo: { "s/01.md": { tipo: "privacy policy", registro: "binding" } } });
-  assert.deepEqual(faltandoEtapa(CB, "DOCS", semTipo, D), [["s/02.md", "tipo do documento"]]);
-  assert.deepEqual(faltandoEtapa(CB, "V1", semTipo, D), [["DOCS", "classifique os documentos antes"]]);
-  assert.deepEqual(faltandoEtapa(CB, "DOCS", reg(), D), []);
+test("o tipo do documento é metadado do corpus: não há passo de documentos", () => {
+  assert.deepEqual(etapas(CB), ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "KW"]);
+  assert.equal(core.DOCS, undefined, "a constante do passo saiu");
+  assert.equal(core.aplicarTipos, undefined, "a aplicação de tipos pelo copiloto saiu");
+  const notas = { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } } };
+  // Um registro antigo com docs_tipo (versão B de 04/10 à tarde) não manda mais:
+  // o teto está no blog, e o blog é não vinculante no corpus.
+  const antigo = reg({ notas, docs_tipo: { "s/02.md": { tipo: "privacy policy", registro: "binding" } } });
+  assert.equal(derivar(CB, antigo, D).campos.v1_register, "non-binding");
+  // Sem registro explícito no corpus, vale o padrão do tipo.
+  const semRegistro = { ...D, docs: D.docs.map(({ registro, ...doc }) => doc) };
+  const x = derivar(CB, reg({ notas }), semRegistro);
+  assert.equal(x.campos.v1_register, "non-binding");
+  assert.match(x.campos.v1_evidence, /Nível do registro vinculante sozinho: 2/);
+  assert.deepEqual(derivar(CB, reg({ notas }), semRegistro).campos.v9_where, ["privacy policy", "blog/PR/site de pesquisa"]);
+  // Corpus sem tipo (não deve acontecer): calcula sem quebrar, com registro vazio.
+  const semTipo = { ...D, docs: D.docs.map(({ tipo, registro, ...doc }) => doc) };
+  const y = derivar(CB, reg({ notas }), semTipo);
+  assert.equal(y.campos.v1_code, "3");
+  assert.equal(y.campos.v1_register, "");
+  assert.deepEqual(y.campos.v9_where, []);
+  // A trava da V1 não pede mais os documentos.
+  assert.deepEqual(faltandoEtapa(CB, "V1", { notas: {} }, D), [["trechos", "2 trechos sem nota"]]);
 });
 
 test("trava: trechos sem nota, extras e ausência confirmada", () => {
@@ -177,19 +196,20 @@ test("trava: trechos sem nota, extras e ausência confirmada", () => {
   assert.deepEqual(faltandoEtapa(CB, "KW", reg(), D), [["keyword_log", "log de palavras-chave"]]);
 });
 
-test("fechadas exige confirmação; progresso conta 11 etapas; retoma na primeira aberta", () => {
+test("fechadas exige confirmação; progresso conta 10 etapas; retoma na primeira aberta", () => {
+  // Uma confirmação DOCS gravada pela versão anterior é ignorada.
   const r = reg({ notas: { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } } }, confirmadas: { DOCS: true } });
   const f = fechadas(CB, r, D);
-  assert.equal(f.DOCS, true);
+  assert.equal(f.DOCS, undefined);
   assert.equal(f.V1, false, "sem o clique em Confirmar não fecha");
   r.confirmadas.V1 = true;
   assert.equal(fechadas(CB, r, D).V1, true);
-  assert.deepEqual(progressoEtapas(CB, r, D), { feitas: 2, total: 11 });
-  assert.equal(primeiraEtapaIncompleta(CB, r, D), 2);
+  assert.deepEqual(progressoEtapas(CB, r, D), { feitas: 1, total: 10 });
+  assert.equal(primeiraEtapaIncompleta(CB, r, D), 1);
   assert.equal(primeiraEtapaIncompleta(CB, reg(), D), 0);
 });
 
-test("aplicarNotas preenche só o que não tem nota; aplicarTipos só o que não tem tipo", () => {
+test("aplicarNotas preenche só o que não tem nota", () => {
   const r = reg({ notas: { V1: { [ID_HIT1]: { nota: "1" } } } });
   const sug = { notas: { [ID_HIT1]: "3", "c:V1-1": "3" }, extras: {} };
   const novo = aplicarNotas(r, "V1", sug, trechosDaVariavel("V1", D, r));
@@ -200,10 +220,6 @@ test("aplicarNotas preenche só o que não tem nota; aplicarTipos só o que não
   const n4 = aplicarNotas(r4, "V4", { notas: {}, extras: { v4_mapped_purpose: "outra", v4_region_gated: "No" } }, []);
   assert.equal(n4.extras.v4_mapped_purpose, "já escrito");
   assert.equal(n4.extras.v4_region_gated, "No");
-  const semDocs = reg({ docs_tipo: { "s/01.md": { tipo: "ToS/conditions", registro: "binding" } } });
-  const t = aplicarTipos(CB, semDocs, { 1: "privacy policy", 2: "help centre" }, D.docs);
-  assert.equal(t.docs_tipo["s/01.md"].tipo, "ToS/conditions");
-  assert.deepEqual(t.docs_tipo["s/02.md"], { tipo: "help centre", registro: "non-binding" });
 });
 
 test("compatibilidade: um registro derivado completo passa na trava antiga de cada variável", () => {
@@ -227,8 +243,8 @@ test("compatibilidade: um registro derivado completo passa na trava antiga de ca
 test("progresso por confirmação: conta etapas confirmadas; próximo serviço dá a volta", async () => {
   const { progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao } = await import("./core.mjs");
   const todas = Object.fromEntries(etapas(CB).map((e) => [e, true]));
-  assert.deepEqual(progressoConfirmado(CB, {}), { feitas: 0, total: 11 });
-  assert.deepEqual(progressoConfirmado(CB, { confirmadas: { DOCS: true, V1: true } }), { feitas: 2, total: 11 });
+  assert.deepEqual(progressoConfirmado(CB, {}), { feitas: 0, total: 10 });
+  assert.deepEqual(progressoConfirmado(CB, { confirmadas: { DOCS: true, V1: true } }), { feitas: 1, total: 10 }, "DOCS antigo não conta");
   assert.equal(concluidoConfirmado(CB, { confirmadas: todas }), true);
   const cb = { ...CB, servicos: ["A", "B", "C"] };
   assert.equal(proximoServicoPorConfirmacao(cb, { A: { confirmadas: todas } }, null), "B");

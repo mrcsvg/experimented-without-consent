@@ -1,0 +1,2206 @@
+{
+ "o_que_e": "Tipo de cada documento do corpus congelado: metadado do corpus, decidido à mão (decisão de 04/10/2026). O exportar-piso.py publica `tipo` e `registro` por documento; a página do 2º codificador lê de lá e não pergunta.",
+ "rascunho_em": "2026-10-05",
+ "conferido_em": null,
+ "registro": "sai do tipo (exportar-codebook.py: TIPOS_DOC); para fugir ao padrão, declare `registro` no documento",
+ "documentos": {
+  "aliexpress/01-terms-suit-bu1-aliexpress-aliexpress201909171350-824.md": {
+   "servico": "AliExpress",
+   "n": 1,
+   "titulo": "AliExpress.com Privacy Policy",
+   "url": "https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress201909171350_82407.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "aliexpress/02-terms-suit-bu1-aliexpress-aliexpress202204182115-660.md": {
+   "servico": "AliExpress",
+   "n": 2,
+   "titulo": "AliExpress.com Terms of Use",
+   "url": "https://terms.alicdn.com/legal-agreement/terms/suit_bu1_aliexpress/suit_bu1_aliexpress202204182115_66077.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "aliexpress/03-terms-c-platform-service-agreement-20240401172006520.md": {
+   "servico": "AliExpress",
+   "n": 3,
+   "titulo": "AliExpress Cookie Notice",
+   "url": "https://terms.alicdn.com/legal-agreement/terms/c_platform_service_agreement/20240401172006520/20240401172006520.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "aliexpress/04-p-transparencycenter.md": {
+   "servico": "AliExpress",
+   "n": 4,
+   "titulo": "Supporto",
+   "url": "https://www.aliexpress.com/p/transparencycenter/policies.html",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "aliexpress/05-p-transparencycenter-dsa.md": {
+   "servico": "AliExpress",
+   "n": 5,
+   "titulo": "Supporto",
+   "url": "https://www.aliexpress.com/p/transparencycenter/dsa.html",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "aliexpress/06-terms-eu-ee-uk-platform-service-agreement-2025051411.md": {
+   "servico": "AliExpress",
+   "n": 6,
+   "titulo": "EN / AliExpress.com Terms and Conditions for Platform Transactions by EU/EEA/UK Consumers",
+   "url": "https://cdn.contract.alibaba.com/terms/EU_EE_UK_platform_service_agreement/20250514112355975/20250514112355975.html?lng=en",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "amazon-store/01-help-customer-display.md": {
+   "servico": "Amazon Store",
+   "n": 1,
+   "titulo": "Amazon.de Privacy Notice - Amazon Customer Service",
+   "url": "https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "amazon-store/02-help-customer-display-2.md": {
+   "servico": "Amazon Store",
+   "n": 2,
+   "titulo": "Amazon Europe Data Use Purposes, Data Categories and Legal Bases - Amazon Customer Service",
+   "url": "https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=TcxwSYJNmpQYGgNWkX",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "amazon-store/03-help-customer-display-3.md": {
+   "servico": "Amazon Store",
+   "n": 3,
+   "titulo": "Cookies - Amazon Customer Service",
+   "url": "https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=GVASXV5UZ64R4Y25",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "amazon-store/04-help-customer-display-4.md": {
+   "servico": "Amazon Store",
+   "n": 4,
+   "titulo": "Amazon.de Conditions of Use and Sale - Amazon Customer Service",
+   "url": "https://www.amazon.de/-/en/gp/help/customer/display.html?nodeId=201909000",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "amazon-store/05-tag-a-b-testing.md": {
+   "servico": "Amazon Store",
+   "n": 5,
+   "titulo": "A/B testing - Amazon Science",
+   "url": "https://www.amazon.science/tag/a-b-testing",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "amazon-store/06-blog-the-science-of-price-experiments-in-amazon-stor.md": {
+   "servico": "Amazon Store",
+   "n": 6,
+   "titulo": "The science of price experiments in the Amazon Store - Amazon Science",
+   "url": "https://www.amazon.science/blog/the-science-of-price-experiments-in-the-amazon-store",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "amazon-store/07-publications-science-of-price-experimentation-at-ama.md": {
+   "servico": "Amazon Store",
+   "n": 7,
+   "titulo": "Science of price experimentation at Amazon - Amazon Science",
+   "url": "https://www.amazon.science/publications/science-of-price-experimentation-at-amazon",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "app-store/01-privacy-ww.md": {
+   "servico": "App Store",
+   "n": 1,
+   "titulo": "Legal - Apple Privacy Policy - Apple",
+   "url": "https://www.apple.com/legal/privacy/en-ww/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "app-store/02-data-app-store.md": {
+   "servico": "App Store",
+   "n": 2,
+   "titulo": "Legal - App Store & Privacy- Apple",
+   "url": "https://www.apple.com/legal/privacy/data/en/app-store/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "app-store/03-itunes-ie-terms.md": {
+   "servico": "App Store",
+   "n": 3,
+   "titulo": "Legal - Apple Media Services - Apple",
+   "url": "https://www.apple.com/legal/internet-services/itunes/ie/terms.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "app-store/04-privacy-ww-cookies.md": {
+   "servico": "App Store",
+   "n": 4,
+   "titulo": "Legal - Use of Cookies - Apple",
+   "url": "https://www.apple.com/legal/privacy/en-ww/cookies/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "app-store/05-app-store-connect-create-product-optimization-tests.md": {
+   "servico": "App Store",
+   "n": 5,
+   "titulo": "Overview of product page optimization - Create product page optimization tests - App Store Connect - Help - Apple Devel…",
+   "url": "https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/overview-of-product-page-optimization/",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "app-store/06-app-store-connect-create-product-optimization-tests-6.md": {
+   "servico": "App Store",
+   "n": 6,
+   "titulo": "Configure test treatments - Create product page optimization tests - App Store Connect - Help - Apple Developer",
+   "url": "https://developer.apple.com/help/app-store-connect/create-product-page-optimization-tests/configure-test-treatments/",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "app-store/07-testflight.md": {
+   "servico": "App Store",
+   "n": 7,
+   "titulo": "TestFlight - Apple Developer",
+   "url": "https://developer.apple.com/testflight/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "app-store/08-app-store-product-optimization.md": {
+   "servico": "App Store",
+   "n": 8,
+   "titulo": "Product Page Optimization - App Store - Apple Developer",
+   "url": "https://developer.apple.com/app-store/product-page-optimization/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "bing/01-gb-servicesagreement.md": {
+   "servico": "Bing",
+   "n": 1,
+   "titulo": "Microsoft Services Agreement",
+   "url": "https://www.microsoft.com/en-gb/servicesagreement/",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "bing/02-gb-privacy-privacystatement.md": {
+   "servico": "Bing",
+   "n": 2,
+   "titulo": "Microsoft Privacy Statement – Microsoft privacy",
+   "url": "https://www.microsoft.com/en-gb/privacy/privacystatement",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "bing/03-us-bing-about-microsoft-privacy-and-security-policy.md": {
+   "servico": "Bing",
+   "n": 3,
+   "titulo": "About Microsoft privacy and security policy | Microsoft Support",
+   "url": "https://support.microsoft.com/en-us/bing/about-microsoft-privacy-and-security-policy",
+   "tipo": "help centre",
+   "conferir": true,
+   "motivo": "url diz privacy policy; copiloto diz help centre",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "bing/04-search-quality-insights-june-2013-experimentation-an.md": {
+   "servico": "Bing",
+   "n": 4,
+   "titulo": "Experimentation and Continuous Improvement at Bing | Search Quality...",
+   "url": "https://blogs.bing.com/search-quality-insights/June-2013/Experimentation-and-Continuous-Improvement-at-Bing/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "bing/05-search-quality-insights-august-2013-large-scale-expe.md": {
+   "servico": "Bing",
+   "n": 5,
+   "titulo": "Large Scale Experimentation at Bing | Search Quality Insights",
+   "url": "https://blogs.bing.com/search-quality-insights/August-2013/Large-Scale-Experimentation-at-Bing",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "bing/06-topic-how-bing-delivers-search-results-d18fc815-ac37.md": {
+   "servico": "Bing",
+   "n": 6,
+   "titulo": "How Bing delivers search results | Microsoft Support",
+   "url": "https://support.microsoft.com/topic/how-bing-delivers-search-results-d18fc815-ac37-4723-bc67-9229ce3eb6a3",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "booking-com/01-content-privacy.md": {
+   "servico": "Booking.com",
+   "n": 1,
+   "titulo": "Booking.com:",
+   "url": "https://www.booking.com/content/privacy.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "booking-com/02-content-privacy-gb.md": {
+   "servico": "Booking.com",
+   "n": 2,
+   "titulo": "Booking.com:",
+   "url": "https://www.booking.com/content/privacy.en-gb.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "booking-com/03-content-terms.md": {
+   "servico": "Booking.com",
+   "n": 3,
+   "titulo": "Booking.com:",
+   "url": "https://www.booking.com/content/terms.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "facebook/01-privacy-policy.md": {
+   "servico": "Facebook",
+   "n": 1,
+   "titulo": "Meta Privacy Policy – How Meta collects and uses user data",
+   "url": "https://www.facebook.com/privacy/policy/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "facebook/02-privacy-policy-printable.md": {
+   "servico": "Facebook",
+   "n": 2,
+   "titulo": "Meta Privacy Policy – How Meta collects and uses user data",
+   "url": "https://mbasic.facebook.com/privacy/policy/printable/?locale=en_GB",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "facebook/03-terms.md": {
+   "servico": "Facebook",
+   "n": 3,
+   "titulo": "Meta Terms of Service",
+   "url": "https://www.facebook.com/legal/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "facebook/04-terms-4.md": {
+   "servico": "Facebook",
+   "n": 4,
+   "titulo": "Meta Terms of Service",
+   "url": "https://www.facebook.com/terms.php?locale=en_GB",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "facebook/05-cookies.md": {
+   "servico": "Facebook",
+   "n": 5,
+   "titulo": "Meta Cookies Policy",
+   "url": "https://www.facebook.com/policies/cookies/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "facebook/06-04-22-facebook-launches-a-series-tests-to-inform-fut.md": {
+   "servico": "Facebook",
+   "n": 6,
+   "titulo": "Facebook launches a series tests to inform future changes to its News Feed algorithms | TechCrunch",
+   "url": "https://techcrunch.com/2021/04/22/facebook-launches-a-series-tests-to-inform-future-changes-to-its-news-feed-algorithms/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "facebook/07-business-help.md": {
+   "servico": "Facebook",
+   "n": 7,
+   "titulo": "About A/B testing | Meta Business Help Centre",
+   "url": "https://www.facebook.com/business/help/1738164643098669",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "google-maps/01-privacy.md": {
+   "servico": "Google Maps",
+   "n": 1,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?hl=en&gl=IE",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "google-maps/02-terms.md": {
+   "servico": "Google Maps",
+   "n": 2,
+   "titulo": "Google Terms of Service – Privacy & Terms – Google",
+   "url": "https://policies.google.com/terms?hl=en&gl=IE",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "resolvido em 05/10: o título 'Privacy & Terms' é o cabeçalho do site; o documento é o Google Terms of Service",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "google-maps/03-technologies-cookies.md": {
+   "servico": "Google Maps",
+   "n": 3,
+   "titulo": "How Google uses cookies – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/cookies?hl=en&gl=IE",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "google-maps/04-help-terms-maps.md": {
+   "servico": "Google Maps",
+   "n": 4,
+   "titulo": "Google Maps Additional Terms of Service – Google",
+   "url": "https://www.google.com/help/terms_maps/?hl=en",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "google-maps/05-products-maps-google-generative-ai-local-guides.md": {
+   "servico": "Google Maps",
+   "n": 5,
+   "titulo": "Google Maps: New Generative AI feature coming to Local Guides",
+   "url": "https://blog.google/products/maps/google-maps-generative-ai-local-guides/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "google-maps/06-maps-answer.md": {
+   "servico": "Google Maps",
+   "n": 6,
+   "titulo": "Beta test the Google Maps app on Android - Google Maps Help Skip to main content",
+   "url": "https://support.google.com/maps/answer/7006449?hl=en-GB",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "google-play/01-about-play-terms.md": {
+   "servico": "Google Play",
+   "n": 1,
+   "titulo": "Google Play Terms of Service",
+   "url": "https://play.google.com/intl/en-US/about/play-terms/index.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "google-play/02-privacy.md": {
+   "servico": "Google Play",
+   "n": 2,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?hl=en-IE&gl=IE",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "google-play/03-terms.md": {
+   "servico": "Google Play",
+   "n": 3,
+   "titulo": "Google Terms of Service – Privacy & Terms – Google",
+   "url": "https://policies.google.com/terms?hl=en-IE&gl=IE",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "resolvido em 05/10: o título 'Privacy & Terms' é o cabeçalho do site; o documento é o Google Terms of Service",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "google-play/04-technologies-cookies.md": {
+   "servico": "Google Play",
+   "n": 4,
+   "titulo": "How Google uses cookies – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/cookies?hl=en-IE&gl=IE",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "google-play/05-googleplay-answer.md": {
+   "servico": "Google Play",
+   "n": 5,
+   "titulo": "Try new Android apps before their official release - Google Play Help Skip to main content",
+   "url": "https://support.google.com/googleplay/answer/7003180?hl=en",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "google-play/06-console-about-store-listing-experiments.md": {
+   "servico": "Google Play",
+   "n": 6,
+   "titulo": "Store listing experiments | Google Play Console",
+   "url": "https://play.google.com/console/about/store-listing-experiments/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "google-search/01-privacy.md": {
+   "servico": "Google Search",
+   "n": 1,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?hl=en-IE&gl=IE",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "google-search/02-privacy-2.md": {
+   "servico": "Google Search",
+   "n": 2,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?hl=en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "google-search/03-terms.md": {
+   "servico": "Google Search",
+   "n": 3,
+   "titulo": "Google Terms of Service – Privacy & Terms – Google",
+   "url": "https://policies.google.com/terms?hl=en",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "resolvido em 05/10: o título 'Privacy & Terms' é o cabeçalho do site; o documento é o Google Terms of Service",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "google-search/04-technologies-product-privacy.md": {
+   "servico": "Google Search",
+   "n": 4,
+   "titulo": "Google Product Privacy Guide – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/product-privacy?hl=en",
+   "tipo": "help centre",
+   "conferir": true,
+   "motivo": "url diz privacy policy; copiloto diz help centre",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "google-search/05-technologies-cookies.md": {
+   "servico": "Google Search",
+   "n": 5,
+   "titulo": "How Google uses cookies – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/cookies?hl=en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "google-search/06-websearch-answer.md": {
+   "servico": "Google Search",
+   "n": 6,
+   "titulo": "Try experiments in Labs - Computer - Google Search Help Skip to main content",
+   "url": "https://support.google.com/websearch/answer/13572013",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "google-search/07-howsearchworks-how-search-works-rigorous-testing.md": {
+   "servico": "Google Search",
+   "n": 7,
+   "titulo": "Search Engine Testing & Evaluation - Google Search",
+   "url": "https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "google-shopping/01-privacy.md": {
+   "servico": "Google Shopping",
+   "n": 1,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?hl=en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "google-shopping/02-terms.md": {
+   "servico": "Google Shopping",
+   "n": 2,
+   "titulo": "Google Terms of Service – Privacy & Terms – Google",
+   "url": "https://policies.google.com/terms?hl=en",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "resolvido em 05/10: o título 'Privacy & Terms' é o cabeçalho do site; o documento é o Google Terms of Service",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "google-shopping/03-privacy-google-services-shopping.md": {
+   "servico": "Google Shopping",
+   "n": 3,
+   "titulo": "Business Data Responsibility",
+   "url": "https://business.safety.google/privacy/google-services/shopping/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "google-shopping/04-technologies-cookies.md": {
+   "servico": "Google Shopping",
+   "n": 4,
+   "titulo": "How Google uses cookies – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/cookies?hl=en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "google-shopping/05-howsearchworks-how-search-works-rigorous-testing.md": {
+   "servico": "Google Shopping",
+   "n": 5,
+   "titulo": "Search Engine Testing & Evaluation - Google Search",
+   "url": "https://www.google.com/search/howsearchworks/how-search-works/rigorous-testing/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "instagram/01-policy-printable-version.md": {
+   "servico": "Instagram",
+   "n": 1,
+   "titulo": "Meta Privacy Policy – How Meta collects and uses user data",
+   "url": "https://mbasic.facebook.com/privacy/policy/printable/version/25862970456621906/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "instagram/02-cookies.md": {
+   "servico": "Instagram",
+   "n": 2,
+   "titulo": "Meta Cookies Policy",
+   "url": "https://privacycenter.instagram.com/policies/cookies/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "instagram/03-cookies-printable.md": {
+   "servico": "Instagram",
+   "n": 3,
+   "titulo": "Meta Cookies Policy",
+   "url": "https://mbasic.facebook.com/privacy/policies/cookies/printable/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "instagram/04-help-instagram-com.md": {
+   "servico": "Instagram",
+   "n": 4,
+   "titulo": "Terms of Use | Instagram Help Centre",
+   "url": "https://help.instagram.com/581066165581870",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "instagram/05-features-explaining-ranking-ig-feed.md": {
+   "servico": "Instagram",
+   "n": 5,
+   "titulo": "Instagram Feed",
+   "url": "https://transparency.meta.com/features/explaining-ranking/ig-feed/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "instagram/06-policy.md": {
+   "servico": "Instagram",
+   "n": 6,
+   "titulo": "Meta Privacy Policy – How Meta collects and uses user data | Privacy Centre | Manage your privacy on Facebook, Instagra…",
+   "url": "https://privacycenter.instagram.com/policy/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "linkedin/01-privacy-policy.md": {
+   "servico": "LinkedIn",
+   "n": 1,
+   "titulo": "LinkedIn Privacy Policy",
+   "url": "https://www.linkedin.com/legal/privacy-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "linkedin/02-user-agreement.md": {
+   "servico": "LinkedIn",
+   "n": 2,
+   "titulo": "User Agreement | LinkedIn",
+   "url": "https://www.linkedin.com/legal/user-agreement",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "linkedin/03-cookie-policy.md": {
+   "servico": "LinkedIn",
+   "n": 3,
+   "titulo": "Cookie Policy | LinkedIn",
+   "url": "https://www.linkedin.com/legal/cookie-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "linkedin/04-help-linkedin-answer.md": {
+   "servico": "LinkedIn",
+   "n": 4,
+   "titulo": "Data Processing Restriction and Objection | LinkedIn Help",
+   "url": "https://www.linkedin.com/help/linkedin/answer/a1338610",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "linkedin/05-help-linkedin-answer-5.md": {
+   "servico": "LinkedIn",
+   "n": 5,
+   "titulo": "Inferences we make about you | LinkedIn Help",
+   "url": "https://www.linkedin.com/help/linkedin/answer/a1337820",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "linkedin/06-lms-answer-a529753.md": {
+   "servico": "LinkedIn",
+   "n": 6,
+   "titulo": "A/B Testing | Marketing Solutions Help",
+   "url": "https://www.linkedin.com/help/lms/answer/a529753",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "pinterest/01-privacy-policy.md": {
+   "servico": "Pinterest",
+   "n": 1,
+   "titulo": "Privacy Policy | Pinterest Policy",
+   "url": "https://policy.pinterest.com/en/privacy-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "pinterest/02-terms-of-service.md": {
+   "servico": "Pinterest",
+   "n": 2,
+   "titulo": "Terms of Service | Pinterest Policy",
+   "url": "https://policy.pinterest.com/en/terms-of-service",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "pinterest/03-cookies.md": {
+   "servico": "Pinterest",
+   "n": 3,
+   "titulo": "Cookies | Pinterest Policy",
+   "url": "https://policy.pinterest.com/en/cookies",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "pinterest/04-public-beta.md": {
+   "servico": "Pinterest",
+   "n": 4,
+   "titulo": "Pinterest",
+   "url": "https://www.pinterest.com/public-beta/",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "pinterest/05-pinterest-engineering-scalable-a-b-experiments-at-1e.md": {
+   "servico": "Pinterest",
+   "n": 5,
+   "titulo": "Scalable A/B experiments at Pinterest | by Pinterest Engineering | Pinterest Engineering Blog | Medium Medium",
+   "url": "https://medium.com/pinterest-engineering/scalable-a-b-experiments-at-pinterest-1e28ddb7d22",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "pornhub/01-information-privacy.md": {
+   "servico": "Pornhub",
+   "n": 1,
+   "titulo": "Privacy Notice | Pornhub.com",
+   "url": "https://www.pornhub.com/information/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "pornhub/02-pornhub-information-privacy.md": {
+   "servico": "Pornhub",
+   "n": 2,
+   "titulo": "Privacy Notice | Pornhub.com",
+   "url": "http://web.archive.org/web/20260702023921/https://www.pornhub.com/information/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "pornhub/03-information-terms.md": {
+   "servico": "Pornhub",
+   "n": 3,
+   "titulo": "Terms Of Service | Pornhub.com",
+   "url": "https://www.pornhub.com/information/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "pornhub/04-pornhub-information-terms.md": {
+   "servico": "Pornhub",
+   "n": 4,
+   "titulo": "Terms Of Service | Pornhub.com",
+   "url": "http://web.archive.org/web/20260630121901/https://www.pornhub.com/information/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "pornhub/05-information-cookie-notice.md": {
+   "servico": "Pornhub",
+   "n": 5,
+   "titulo": "Cookie Notice | Pornhub.com",
+   "url": "https://www.pornhub.com/information/cookie-notice",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "pornhub/06-pornhub-information-cookie-notice.md": {
+   "servico": "Pornhub",
+   "n": 6,
+   "titulo": "Cookie Notice | Pornhub.com",
+   "url": "http://web.archive.org/web/20260630121251/https://www.pornhub.com/information/cookie-notice",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "pornhub/07-information-recommender.md": {
+   "servico": "Pornhub",
+   "n": 7,
+   "titulo": "Recommender System Guidelines",
+   "url": "https://www.pornhub.com/information/recommender",
+   "tipo": "ToS/conditions",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "pornhub/08-pornhub-information-recommender.md": {
+   "servico": "Pornhub",
+   "n": 8,
+   "titulo": "Recommender System Guidelines",
+   "url": "http://web.archive.org/web/20260602163932/https://www.pornhub.com/information/recommender",
+   "tipo": "ToS/conditions",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "shein/01-consumer-privacy-notice-s-101.md": {
+   "servico": "Shein",
+   "n": 1,
+   "titulo": "Aviso de Privacidade | SHEIN EUR",
+   "url": "https://eur.shein.com/Consumer-Privacy-Notice-s-101.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "shein/02-ranking-policy-a-1979.md": {
+   "servico": "Shein",
+   "n": 2,
+   "titulo": "POLÍTICA DE CLASSIFICAÇÃO DE UTILIZADORES DO MARKETPLACE DA SHEIN | SHEIN EUR",
+   "url": "https://eur.shein.com/ranking-policy-a-1979.html",
+   "tipo": "ToS/conditions",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "shein/03-terms-and-conditions-a-399.md": {
+   "servico": "Shein",
+   "n": 3,
+   "titulo": "TERMOS E CONDIÇÕES | SHEIN EUR",
+   "url": "https://eur.shein.com/Terms-and-Conditions-a-399.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "snapchat/01-privacy-policy.md": {
+   "servico": "Snapchat",
+   "n": 1,
+   "titulo": "Privacy Policy | Snapchat Privacy",
+   "url": "https://values.snap.com/privacy/privacy-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "snapchat/02-privacy-policy-eea-uk-notice.md": {
+   "servico": "Snapchat",
+   "n": 2,
+   "titulo": "Privacy Policy - Data Policy | Snapchat Privacy",
+   "url": "https://values.snap.com/privacy/privacy-policy/eea-uk-privacy-notice",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "snapchat/03-privacy-policy-eea-uk-notice-3.md": {
+   "servico": "Snapchat",
+   "n": 3,
+   "titulo": "Privacy Policy - Data Policy | Snapchat Privacy",
+   "url": "https://values.snap.com/en-GB/privacy/privacy-policy/eea-uk-privacy-notice",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "snapchat/04-gb-terms.md": {
+   "servico": "Snapchat",
+   "n": 4,
+   "titulo": "Terms of Service",
+   "url": "https://snap.com/en-GB/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "snapchat/05-cookie-policy.md": {
+   "servico": "Snapchat",
+   "n": 5,
+   "titulo": "We are Snap Inc.",
+   "url": "https://www.snap.com/cookie-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "snapchat/06-us-articles-22534988598676-learn-about-snap-s-data-p.md": {
+   "servico": "Snapchat",
+   "n": 6,
+   "titulo": "Learn About Snap’s Data Processing and How to Object – Snapchat Support",
+   "url": "https://help.snapchat.com/hc/en-us/articles/22534988598676-Learn-About-Snap-s-Data-Processing-and-How-to-Object",
+   "tipo": "privacy policy",
+   "conferir": true,
+   "motivo": "url diz help centre; copiloto diz privacy policy",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "snapchat/07-machine-learning-snap-ad-ranking.md": {
+   "servico": "Snapchat",
+   "n": 7,
+   "titulo": "Machine Learning for Snapchat Ad Ranking",
+   "url": "https://eng.snap.com/machine-learning-snap-ad-ranking",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "snapchat/08-blog-snap-accelerated-data-processing.md": {
+   "servico": "Snapchat",
+   "n": 8,
+   "titulo": "Open Libraries for Accelerated Data Processing Boost A/B Testing for Snap | NVIDIA Blog",
+   "url": "https://blogs.nvidia.com/blog/snap-accelerated-data-processing/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "snapchat/09-beta.md": {
+   "servico": "Snapchat",
+   "n": 9,
+   "titulo": "Snapchat Beta",
+   "url": "https://www.snapchat.com/beta",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "snapchat/10-snap-nvidia-gcp.md": {
+   "servico": "Snapchat",
+   "n": 10,
+   "titulo": "Inside Snap's Experimentation Platform: Leveraging NVIDIA GPUs for Accelerated Data Processing",
+   "url": "https://eng.snap.com/snap-nvidia-gcp",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "stripchat/01-privacy.md": {
+   "servico": "Stripchat",
+   "n": 1,
+   "titulo": "Privacy policy | Stripchat",
+   "url": "https://stripchat.com/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "stripchat/02-terms.md": {
+   "servico": "Stripchat",
+   "n": 2,
+   "titulo": "Terms and Conditions | Stripchat",
+   "url": "https://stripchat.com/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "stripchat/03-cookies-policy.md": {
+   "servico": "Stripchat",
+   "n": 3,
+   "titulo": "Cookies - Privacy Policy | Stripchat — Live Sex Video Chats",
+   "url": "https://stripchat.com/cookies-policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "stripchat/04-privacy-4.md": {
+   "servico": "Stripchat",
+   "n": 4,
+   "titulo": "Privacy Policy - stripcash.company",
+   "url": "https://stripcash.company/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "temu/01-no-cookie-and-similar-technologies-policy.md": {
+   "servico": "Temu",
+   "n": 1,
+   "titulo": "Temu | Cookies and Similar Technologies Policy",
+   "url": "https://www.temu.com/no-en/cookie-and-similar-technologies-policy.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "temu/02-no-privacy-and-cookie-policy.md": {
+   "servico": "Temu",
+   "n": 2,
+   "titulo": "Temu | Privacy Policy",
+   "url": "https://www.temu.com/no-en/privacy-and-cookie-policy.html",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "temu/03-no-terms-of-use.md": {
+   "servico": "Temu",
+   "n": 3,
+   "titulo": "Temu | Terms of use",
+   "url": "https://www.temu.com/no-en/terms-of-use.html",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "temu/04-support-c2-doc-in-f-55.md": {
+   "servico": "Temu",
+   "n": 4,
+   "titulo": "Temu | Support center & FAQ",
+   "url": "https://www.temu.com/support/c2/-in-f-55.html",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": "non-binding"
+   }
+  },
+  "tiktok/01-eea-privacy-policy.md": {
+   "servico": "TikTok",
+   "n": 1,
+   "titulo": "Privacy Policy | TikTok",
+   "url": "https://www.tiktok.com/legal/page/eea/privacy-policy/en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "tiktok/02-eea-terms-of-service.md": {
+   "servico": "TikTok",
+   "n": 2,
+   "titulo": "Terms of Service | TikTok",
+   "url": "https://www.tiktok.com/legal/page/eea/terms-of-service/en",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "tiktok/03-global-tiktok-website-cookies-policy.md": {
+   "servico": "TikTok",
+   "n": 3,
+   "titulo": "TikTok Cookies Policy | TikTok",
+   "url": "https://www.tiktok.com/legal/page/global/tiktok-website-cookies-policy/en",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "tiktok/04-us-how-tiktok-recommends-videos-for-you.md": {
+   "servico": "TikTok",
+   "n": 4,
+   "titulo": "How TikTok recommends videos #ForYou - Newsroom | TikTok",
+   "url": "https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "tiktok/05-help-article-split-testing.md": {
+   "servico": "TikTok",
+   "n": 5,
+   "titulo": "About Split Testing | TikTok Ads Manager",
+   "url": "https://ads.tiktok.com/help/article/split-testing",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "tiktok/06-an-update-on-our-work-to-safeguard-and-diversify-rec.md": {
+   "servico": "TikTok",
+   "n": 6,
+   "titulo": "An update on our work to safeguard and diversify recommendations - Newsroom | TikTok",
+   "url": "https://newsroom.tiktok.com/an-update-on-our-work-to-safeguard-and-diversify-recommendations",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "whatsapp/01-privacy-policy-eea.md": {
+   "servico": "WhatsApp",
+   "n": 1,
+   "titulo": "Privacy Policy - EEA",
+   "url": "https://www.whatsapp.com/legal/privacy-policy-eea",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "whatsapp/02-terms-of-service-eea.md": {
+   "servico": "WhatsApp",
+   "n": 2,
+   "titulo": "Terms of Service - EEA",
+   "url": "https://www.whatsapp.com/legal/terms-of-service-eea",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "whatsapp/03-cookies.md": {
+   "servico": "WhatsApp",
+   "n": 3,
+   "titulo": "Cookies",
+   "url": "https://www.whatsapp.com/legal/cookies",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "whatsapp/04-testing-whatsapp-join.md": {
+   "servico": "WhatsApp",
+   "n": 4,
+   "titulo": "Sign in - Google Accounts",
+   "url": "https://play.google.com/apps/testing/com.whatsapp/join",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "wikipedia/01-wiki-policy-privacy-policy.md": {
+   "servico": "Wikipedia",
+   "n": 1,
+   "titulo": "Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki",
+   "url": "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "wikipedia/02-wiki-policy-terms-of-use.md": {
+   "servico": "Wikipedia",
+   "n": 2,
+   "titulo": "Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki",
+   "url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "wikipedia/03-wiki-policy-cookie-statement.md": {
+   "servico": "Wikipedia",
+   "n": 3,
+   "titulo": "Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki",
+   "url": "https://foundation.wikimedia.org/wiki/Policy:Cookie_statement",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "wikipedia/04-wiki-policy-privacy-policy-frequently-asked-question.md": {
+   "servico": "Wikipedia",
+   "n": 4,
+   "titulo": "Policy:Privacy policy/Frequently asked questions - Wikimedia Foundation Governance Wiki",
+   "url": "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/Frequently_asked_questions",
+   "tipo": "help centre",
+   "conferir": true,
+   "motivo": "url diz privacy policy; copiloto diz help centre",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "wikipedia/05-wiki-a-b-testing.md": {
+   "servico": "Wikipedia",
+   "n": 5,
+   "titulo": "A/B testing - Wikitech",
+   "url": "https://wikitech.wikimedia.org/wiki/A/B_testing",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "wikipedia/06-wikipedia-experiments.md": {
+   "servico": "Wikipedia",
+   "n": 6,
+   "titulo": "Wikipedia experiments – Wikimedia Foundation",
+   "url": "https://wikimediafoundation.org/wikipedia-experiments/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "x/01-privacy.md": {
+   "servico": "X",
+   "n": 1,
+   "titulo": "X Privacy Policy",
+   "url": "https://x.com/en/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "x/02-tos.md": {
+   "servico": "X",
+   "n": 2,
+   "titulo": "X Terms of Service",
+   "url": "https://x.com/en/tos",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "x/03-rules-and-data-processing-bases.md": {
+   "servico": "X",
+   "n": 3,
+   "titulo": "More information on X's data processing | X Help",
+   "url": "https://help.x.com/en/rules-and-policies/data-processing-legal-bases",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "x/04-rules-and-x-cookies.md": {
+   "servico": "X",
+   "n": 4,
+   "titulo": "How cookies are used on X | X Help",
+   "url": "https://help.x.com/en/rules-and-policies/x-cookies",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "x/05-rules-and.md": {
+   "servico": "X",
+   "n": 5,
+   "titulo": "Rules and policies",
+   "url": "https://help.x.com/en/rules-and-policies#research-and-experiments",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "x/06-a-2015-the-what-and-why-of-product-experimentation-a.md": {
+   "servico": "X",
+   "n": 6,
+   "titulo": "The what and why of product experimentation at Twitter",
+   "url": "https://blog.x.com/engineering/en_us/a/2015/the-what-and-why-of-product-experimentation-at-twitter-0",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "x/07-rules-and-x-beta-experiments-program.md": {
+   "servico": "X",
+   "n": 7,
+   "titulo": "Welcome to the X experiments program | X Help",
+   "url": "https://help.x.com/en/rules-and-policies/x-beta-experiments-program",
+   "tipo": "ToS/conditions",
+   "conferir": true,
+   "motivo": "url diz help centre; copiloto diz ToS/conditions; a captura diz non-binding",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "ToS/conditions",
+    "captura": "non-binding"
+   }
+  },
+  "x/08-rules-and-x-user-research.md": {
+   "servico": "X",
+   "n": 8,
+   "titulo": "User research conducted by X | X Help",
+   "url": "https://help.x.com/en/rules-and-policies/x-user-research",
+   "tipo": "research notice separado",
+   "conferir": true,
+   "motivo": "url diz help centre; copiloto diz research notice separado",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "research notice separado",
+    "captura": "non-binding"
+   }
+  },
+  "xnxx/01-privacy.md": {
+   "servico": "XNXX",
+   "n": 1,
+   "titulo": "Privacy policy - XNXX.COM",
+   "url": "https://info.xnxx.com/legal/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "xnxx/02-tos.md": {
+   "servico": "XNXX",
+   "n": 2,
+   "titulo": "XNXX Terms of service - XNXX.COM",
+   "url": "https://info.xnxx.com/legal/tos",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "xnxx/03-cookiepolicy.md": {
+   "servico": "XNXX",
+   "n": 3,
+   "titulo": "Cookie policy - XNXX.COM",
+   "url": "https://info.xnxx.com/legal/cookiepolicy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "xnxx/04-dsa-data-catalogue.md": {
+   "servico": "XNXX",
+   "n": 4,
+   "titulo": "DSA Data Catalogue - XNXX.COM",
+   "url": "https://info.xnxx.com/dsa-data-catalogue",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": true,
+   "motivo": "só o copiloto fala; sem etiqueta da captura",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": null
+   }
+  },
+  "xvideos/01-privacy.md": {
+   "servico": "XVideos",
+   "n": 1,
+   "titulo": "Privacy policy - Xvideos.com",
+   "url": "https://info.xvideos.com/legal/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "xvideos/02-privacynotice.md": {
+   "servico": "XVideos",
+   "n": 2,
+   "titulo": "Privacy notice - Xvideos.com",
+   "url": "https://info.xvideos.com/legal/privacynotice",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "xvideos/03-tos.md": {
+   "servico": "XVideos",
+   "n": 3,
+   "titulo": "XVideos Terms of service - Xvideos.com",
+   "url": "https://info.xvideos.com/legal/tos",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "xvideos/04-cookiepolicy.md": {
+   "servico": "XVideos",
+   "n": 4,
+   "titulo": "Cookie policy - Xvideos.com",
+   "url": "https://info.xvideos.com/legal/cookiepolicy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "xvideos/05-main-xvideos-terms-20of-20service-md.md": {
+   "servico": "XVideos",
+   "n": 5,
+   "titulo": "Xvideos/Terms of Service.md · main · Digital Services / contrib-versions · GitLab",
+   "url": "https://code.europa.eu/p2b/contrib-versions/-/blob/main/Xvideos/Terms%20of%20Service.md",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "youtube/01-t-terms.md": {
+   "servico": "YouTube",
+   "n": 1,
+   "titulo": "Terms of Service",
+   "url": "https://www.youtube.com/t/terms?gl=IE&hl=en-GB",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": "binding"
+   }
+  },
+  "youtube/02-t-terms-2.md": {
+   "servico": "YouTube",
+   "n": 2,
+   "titulo": "Terms of Service",
+   "url": "https://www.youtube.com/t/terms",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "youtube/03-privacy.md": {
+   "servico": "YouTube",
+   "n": 3,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "youtube/04-privacy-4.md": {
+   "servico": "YouTube",
+   "n": 4,
+   "titulo": "Privacy Policy – Privacy & Terms – Google",
+   "url": "https://policies.google.com/privacy?gl=IE&hl=en-GB#europeanrequirements",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "youtube/05-technologies-cookies.md": {
+   "servico": "YouTube",
+   "n": 5,
+   "titulo": "How Google uses cookies – Privacy & Terms – Google",
+   "url": "https://policies.google.com/technologies/cookies",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "youtube/06-youtube-answer.md": {
+   "servico": "YouTube",
+   "n": 6,
+   "titulo": "Test feature experiments at Youtube.com/new - Computer - YouTube Help Skip to main content",
+   "url": "https://support.google.com/youtube/answer/9227818",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "youtube/07-youtube-answer-7.md": {
+   "servico": "YouTube",
+   "n": 7,
+   "titulo": "A/B test titles & thumbnails - YouTube Help Skip to main content",
+   "url": "https://support.google.com/youtube/answer/16391400",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "youtube/08-youtube-thread.md": {
+   "servico": "YouTube",
+   "n": 8,
+   "titulo": "YouTube test features and experiments - YouTube Community Skip to main content",
+   "url": "https://support.google.com/youtube/thread/18138167",
+   "tipo": "help centre",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "help centre",
+    "copiloto": "help centre",
+    "captura": null
+   }
+  },
+  "youtube/09-howyoutubeworks.md": {
+   "servico": "YouTube",
+   "n": 9,
+   "titulo": "Come funziona YouTube: dare a tutti uno spazio per esprimersi",
+   "url": "https://www.youtube.com/howyoutubeworks/",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "só o copiloto fala; a captura corrobora o registro",
+   "sinais": {
+    "url": null,
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "zalando/01-contentful-apps-uploads-6264a7fa-33a0-42b3-8021-da7a.md": {
+   "servico": "Zalando",
+   "n": 1,
+   "titulo": "Zalando Privacy Notice As at: 09/2025",
+   "url": "https://mosaic02.ztat.net/cnt/contentful-apps/uploads/6264a7fa-33a0-42b3-8021-da7a5fd85469.pdf",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": "binding"
+   }
+  },
+  "zalando/02-contentful-apps-uploads-b8944e13-77d3-4b20-8abf-04c3.md": {
+   "servico": "Zalando",
+   "n": 2,
+   "titulo": "Summary of our general terms and condi�ons",
+   "url": "https://mosaic02.ztat.net/cnt/contentful-apps/uploads/b8944e13-77d3-4b20-8abf-04c3bfb51d9a.pdf",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "zalando/03-zalando-data-protection-statement.md": {
+   "servico": "Zalando",
+   "n": 3,
+   "titulo": "Zalando: Zalando Privacy Notice | Zalando Corporate",
+   "url": "https://corporate.zalando.com/en/zalando-data-protection-statement",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "zalando/04-terms-of-use.md": {
+   "servico": "Zalando",
+   "n": 4,
+   "titulo": "Zalando",
+   "url": "https://accounts.zalando.com/terms-of-use",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "zalando/05-zalando-privacy-policy.md": {
+   "servico": "Zalando",
+   "n": 5,
+   "titulo": "Zalando",
+   "url": "https://en.zalando.de/zalando-privacy-policy/",
+   "tipo": "privacy policy",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "privacy policy",
+    "copiloto": "privacy policy",
+    "captura": null
+   }
+  },
+  "zalando/06-zalando-terms.md": {
+   "servico": "Zalando",
+   "n": 6,
+   "titulo": "Terms & Conditions | Zalando",
+   "url": "https://en.zalando.de/zalando-terms/",
+   "tipo": "ToS/conditions",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "ToS/conditions",
+    "copiloto": "ToS/conditions",
+    "captura": null
+   }
+  },
+  "zalando/07-2021-01-experimentation-platform-part1.md": {
+   "servico": "Zalando",
+   "n": 7,
+   "titulo": "Experimentation Platform at Zalando: Part 1 - Evolution",
+   "url": "https://engineering.zalando.com/posts/2021/01/experimentation-platform-part1.html",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  },
+  "zalando/08-tags-experimentation.md": {
+   "servico": "Zalando",
+   "n": 8,
+   "titulo": "Zalando Engineering Blog - Experimentation",
+   "url": "https://engineering.zalando.com/tags/experimentation.html",
+   "tipo": "blog/PR/site de pesquisa",
+   "conferir": false,
+   "motivo": "url e copiloto concordam",
+   "sinais": {
+    "url": "blog/PR/site de pesquisa",
+    "copiloto": "blog/PR/site de pesquisa",
+    "captura": "non-binding"
+   }
+  }
+ }
+}

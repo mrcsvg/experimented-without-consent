@@ -50,7 +50,9 @@ analysis/revisao.py             assisted review: the model locates, the coder de
 analysis/build-md-corpus.py     frozen corpus → Markdown, standardised folder and file names
 analysis/publicar-corpus.py     publishes the Markdown corpus and assistente/ (codebook, keyword floor, copilot)
 analysis/exportar-codebook.py   the codebook as JSON for the page
-analysis/exportar-piso.py       the deterministic keyword floor, one file per service
+analysis/exportar-piso.py       the deterministic keyword floor, one file per service, with each document's type
+analysis/tipos-doc.json         the type and register of each of the 157 documents (corpus metadata, decided by hand)
+analysis/tipos-doc.py           drafts that file from URL, copilot and capture signals; checks it against the corpus
 analysis/copiloto.py            the copilot: one frozen code suggestion per variable, prompt published
 analysis/pre-entrega.py         end-to-end check of what the second coder will actually touch
 analysis/compute-agreement.py   inter-coder agreement
@@ -63,12 +65,16 @@ analysis/nb-clean.py            keeps notebook output out of the repository
 ### The second coder's page
 
 `index.html` plus `assistente/` is a guided page (HTML and JavaScript, no build
-step). It takes the coder through one service at a time: first the type of
-each document (which decides its register), then one variable per screen. The
-coder rates every excerpt (a deterministic keyword floor plus the model's frozen
-verbatim citations) and the variable's answer is computed from those ratings by
-the frozen codebook's rule, with a manual override and a comment; a copilot
-suggestion per excerpt sits behind a button. Every answer is saved to
+step). It takes the coder through one service at a time, one variable per
+screen. The coder rates every excerpt (a deterministic keyword floor plus the
+model's frozen verbatim citations) and the variable's answer is computed from
+those ratings by the frozen codebook's rule, with a manual override and a
+comment; a copilot suggestion per excerpt sits behind a button. The type of each
+document (privacy policy, terms, separate research notice, help centre, blog)
+is corpus metadata, fixed once in `analysis/tipos-doc.json` before coding and
+shown next to every excerpt; it decides the document's register (binding or
+not) and is not a coder judgement, so the register of the V1 ceiling and the
+V9 locations are computed from it. Every answer is saved to
 `/api/state`, which commits it to a data branch of this repository, so each
 coding carries a timestamp. The link carries a key in its fragment; a second key
 opens a rehearsal mode that writes to a separate file.

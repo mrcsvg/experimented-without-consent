@@ -34,19 +34,23 @@ import revisao as R  # noqa: E402
 CONGELADO_EM = "2026-07-04"
 
 # As regras que valem para as dez variáveis, ditas uma vez antes delas. Texto
-# próprio da página: aqui não há notebook, painel nem etiqueta de tipo de
-# documento (a página não mostra a etiqueta, por decisão de 03/10/2026).
+# próprio da página: aqui não há notebook nem painel, e a etiqueta `role` da
+# passada 1 continua fora (decisão de 03/10/2026). O tipo de cada documento é
+# metadado do corpus (analysis/tipos-doc.json, decisão de 04/10/2026): a página
+# o mostra ao lado de cada trecho e não pergunta nada sobre documentos.
 REGRAS_GERAIS = [
     ("Codifique só pelo que está escrito",
      "nos documentos congelados desta página. O que você sabe da plataforma por "
      "outras fontes não entra."),
-    ("Evidência é a frase exata",
-     "copiada do documento, com o nome do documento de onde ela veio. O botão "
-     "\"usar como evidência\" faz isso por você."),
-    ("Vinculante ou não vinculante se decide pela função do documento.",
+    ("Evidência são os trechos que você marcou.",
+     "A página monta a evidência de cada variável com os trechos marcados, a nota "
+     "e o comentário de cada um, e o nome do documento de onde vieram. Você não "
+     "digita evidência."),
+    ("Vinculante ou não vinculante já vem decidido para cada documento.",
      "Política de privacidade, termos de uso, aviso de cookies e tabela de bases "
      "legais são vinculantes. Blog, central de ajuda e páginas de pesquisa não são. "
-     "Na dúvida, pergunte se o documento se declara parte do acordo com o usuário."),
+     "O tipo de cada documento aparece ao lado de cada trecho; se achar que um "
+     "está errado, anote em Notas."),
     ("No tem dois casos.",
      "O documento pode tratar do assunto e não oferecer o mecanismo, ou o assunto "
      "pode nunca aparecer. Nos dois casos a resposta é No; diga na evidência qual "
@@ -94,7 +98,9 @@ NOTAS = {
 }
 
 # Tipos de documento, na ordem das opções de v9_where, com o registro padrão.
-# O codificador pode virar o registro: "registro não é hospedagem".
+# O tipo de cada documento está em analysis/tipos-doc.json (metadado do corpus,
+# decisão de 04/10/2026); um registro diferente do padrão se declara lá
+# ("registro não é hospedagem"). A página não pergunta.
 TIPOS_DOC = [
     {"valor": "privacy policy", "rotulo": "política de privacidade (inclui aviso de cookies e tabela de bases legais)", "registro": "binding"},
     {"valor": "ToS/conditions", "rotulo": "termos de uso", "registro": "binding"},

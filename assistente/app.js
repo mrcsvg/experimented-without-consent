@@ -6,9 +6,9 @@
 // cada trecho e a resposta de cada variável é calculada do critério congelado.
 import {
   derivar, faltandoEtapa, etapas, fechadas, progressoEtapas, primeiraEtapaIncompleta,
-  trechosDaVariavel, aplicarNotas, aplicarTipos, registroPadrao,
+  trechosDaVariavel, aplicarNotas, registroPadrao,
   progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao,
-  logSugerido, chaveDoLink, mesclar, NAO_E_ISSO, DOCS,
+  logSugerido, chaveDoLink, mesclar, NAO_E_ISSO,
 } from "./core.mjs";
 
 // Em localhost, ?corpus=... aponta para uma cópia local do site do corpus
@@ -18,7 +18,7 @@ const CORPUS = (location.hostname === "localhost" && new URLSearchParams(locatio
 const LS = { records: "ewc.records", abertura: "ewc.abertura", chave: "ewc.chave" };
 const ATRASOS = [5000, 10000, 20000, 30000];
 const DEBOUNCE = 1200;
-const SUB = { docs_tipo: {}, notas: {}, extras: {}, override: {}, comentarios: {}, confirmadas: {} };
+const SUB = { notas: {}, extras: {}, override: {}, comentarios: {}, confirmadas: {} };
 
 const E = {
   chave: null, modo: null, codebook: null, indice: null,
@@ -205,7 +205,7 @@ function telaErro(msg) {
 
 const ABERTURA = `
 <h1>Segunda codificação</h1>
-<p class="suave">Prof. Marcelo Maia · 26 serviços · 11 etapas por serviço</p>
+<p class="suave">Prof. Marcelo Maia · 26 serviços · 10 etapas por serviço</p>
 
 <h2>O que o estudo mede</h2>
 <p>Plataformas online testam coisas nos seus usuários todos os dias. Elas mudam o que aparece no topo da lista, o texto de uma notificação, a posição de um botão, e medem o efeito comparando grupos de pessoas. Isso se chama experimentação comportamental e é rotina da indústria.</p>
@@ -221,8 +221,8 @@ const ABERTURA = `
 <p><b>Esta página não mostra o que a primeira passada codificou, nem os resultados do estudo.</b> Se você soubesse o que se espera encontrar, sua leitura deixaria de ser uma segunda medição.</p>
 
 <h2>O que você faz</h2>
-<p>A página leva você por um serviço de cada vez. O primeiro passo é dizer <b>que tipo de documento</b> é cada um: política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog. O tipo decide se o documento obriga a plataforma ou não, e você pode corrigir isso à mão.</p>
-<p>Depois vêm as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não é isso" quando o trecho fala de outra coisa. Pode comentar qualquer trecho.</p>
+<p>A página leva você por um serviço de cada vez: as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. O tipo de cada documento (política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog) já vem dado com o corpus e aparece ao lado de cada trecho. O tipo decide se o documento obriga a plataforma ou não. Se achar que um tipo está errado, anote em Notas.</p>
+<p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não é isso" quando o trecho fala de outra coisa. Pode comentar qualquer trecho.</p>
 <p>A <b>resposta da variável é calculada das suas notas</b>, pela regra do codebook: o nível mais alto na V1, a união nas de múltipla escolha, o degrau mais alto na V5, qualquer trecho nas de Sim/Não, os tipos dos documentos na V9. A caixa "Resposta calculada" mostra o resultado. Se discordar do cálculo, "corrigir à mão" abre os campos. Há um comentário por variável. Quando estiver satisfeito, <b>Confirmar e seguir</b>.</p>
 <p>Em cada tela há o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem daria de nota a cada trecho, e <b>aplicar sugestão</b> preenche só os trechos que você ainda não julgou. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
 <p>Pode parar a qualquer momento e fechar a página. Quando voltar, ela abre onde você parou. O botão <b>Voltar</b> deixa rever o que já confirmou.</p>
@@ -292,14 +292,18 @@ function render(manterScroll = false) {
   const lista = etapas(E.codebook);
   if (E.i >= lista.length) return renderResumo();
   const etapa = lista[E.i];
-  if (etapa === DOCS) return renderDocs(manterScroll);
   if (etapa === "KW") return renderKW();
   return renderVariavel(etapa, manterScroll);
 }
 
 // ---------------------------------------------------------------- cabeçalho
 
-const rotuloEtapa = (e) => (e === DOCS ? "Docs" : e);
+const rotuloEtapa = (e) => e;
+
+// Tipo e registro de um documento: metadado do corpus (d.docs), nunca do codificador.
+const rotuloTipo = (cb, valor) => ((cb.tipos_doc || []).find((t) => t.valor === valor) || {}).rotulo || valor || "";
+const rotuloTipoCurto = (cb, valor) => rotuloTipo(cb, valor).replace(/\s*\(.*\)$/, "");
+const registroDoDoc = (cb, doc) => (doc && doc.tipo && (doc.registro || registroPadrao(cb, doc.tipo))) || null;
 
 function cabecalhoServico(d) {
   const cb = E.codebook;
@@ -356,7 +360,6 @@ function mostrarFalta(pend, etapa) {
   if (!caixa) return;
   const nomes = pend.map(([chave, motivo]) => {
     if (chave === "trechos") return `<li><b>Trechos:</b> ${esc(motivo)}. Dê uma nota a cada um, ou use "marcar os restantes como não é isso".</li>`;
-    if (chave === DOCS) return `<li><b>Documentos:</b> ${esc(motivo)}.</li>`;
     if (chave === "confirmar") return `<li>${esc(motivo)}: clique de novo em Confirmar.</li>`;
     if (chave === "keyword_log") return `<li><b>Log de palavras-chave:</b> não pode ficar vazio.</li>`;
     const v = E.codebook.variaveis.find((x) => x.vid === etapa);
@@ -393,75 +396,6 @@ function voltarEtapa() {
   E.corrigindo = false;
   E.avisoConflito = false;
   render();
-}
-
-// ------------------------------------------------------------ passo: documentos
-
-function renderDocs(manterScroll) {
-  const cb = E.codebook;
-  const d = E.cache.get(E.servico);
-  const reg = registro(E.servico);
-  const sug = d.copiloto ? d.copiloto.documentos || {} : null;
-  const rotuloTipo = (valor) => ((cb.tipos_doc || []).find((t) => t.valor === valor) || {}).rotulo || valor;
-  const itens = d.docs.map((x) => {
-    const atual = reg.docs_tipo[x.file] || {};
-    const botoes = (cb.tipos_doc || []).map((t) => `<button class="nota ${atual.tipo === t.valor ? "marcado" : ""}" data-tipo="${esc(t.valor)}" data-file="${esc(x.file)}">${esc(t.rotulo)}</button>`).join("");
-    const sugerido = E.copilotoAberto && sug && sug[String(x.n)] ? `<span class="sug">copiloto: ${esc(rotuloTipo(sug[String(x.n)].tipo))}</span>` : "";
-    const registroHtml = atual.tipo
-      ? `<div class="registro">registro: <b>${atual.registro === "binding" ? "vinculante" : "não vinculante"}</b>
-          ${atual.virado ? `<span class="suave pequeno">(virado à mão)</span>` : ""}
-          <button class="pequeno" data-virar="${esc(x.file)}">virar</button></div>`
-      : "";
-    return `<li class="item doc">
-      <div><span class="n">${x.n}.</span> <b>${esc(x.titulo || x.file.split("/").pop())}</b>
-        <button class="pequeno" data-abrir="${esc(x.file)}">abrir texto congelado</button>
-        <span class="suave pequeno">${x.chars.toLocaleString("pt-BR")} caracteres</span></div>
-      <div class="url">página original: <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url)}</a></div>
-      <div class="notas">${botoes} ${sugerido}</div>
-      ${registroHtml}
-    </li>`;
-  }).join("");
-  mostrar(`${cabecalhoServico(d)}
-    <div class="pergunta">[Docs] Que tipo de documento é cada um?</div>
-    <p class="lembrete">O tipo decide o registro: política de privacidade e termos de uso obrigam a plataforma; aviso de pesquisa, central de ajuda e blog não obrigam. Se um documento foge à regra, vire o registro à mão. Registro não é hospedagem: o que vale é a função do documento, não a URL. <a href="#" id="regras-docs">regras gerais</a></p>
-    ${E.avisoConflito ? `<div class="aviso">Este serviço foi alterado em outra janela. Recarreguei as respostas; confira e continue.</div>` : ""}
-    ${sug ? `<div class="botoes" style="margin:6px 0"><button class="copiloto" id="ver-copiloto">${E.copilotoAberto ? "esconder sugestão" : "ver sugestão do copiloto"}</button>
-      ${E.copilotoAberto ? `<button class="copiloto" id="aplicar">aplicar sugestão nos documentos sem tipo</button>` : ""}</div>` : ""}
-    <ul class="docs-lista">${itens}</ul>
-    <div id="falta"></div>
-    <div class="botoes"><button class="primario" id="confirmar">Confirmar e seguir</button><span class="recibo"></span></div>
-    ${blocoNotasGerais(reg)}
-    ${rodape()}`, manterScroll);
-  ligarCabecalho(d);
-  pintarRecibos();
-  ligarNotasGerais(reg);
-  document.getElementById("regras-docs").onclick = (ev) => { ev.preventDefault(); abrirRegras(); };
-  for (const b of app.querySelectorAll("button[data-tipo]")) {
-    b.onclick = () => {
-      reg.docs_tipo[b.dataset.file] = { tipo: b.dataset.tipo, registro: registroPadrao(cb, b.dataset.tipo) };
-      editar(DOCS);
-      renderDocs(true);
-    };
-  }
-  for (const b of app.querySelectorAll("button[data-virar]")) {
-    b.onclick = () => {
-      const t = reg.docs_tipo[b.dataset.virar];
-      t.registro = t.registro === "binding" ? "non-binding" : "binding";
-      t.virado = t.registro !== registroPadrao(cb, t.tipo);
-      editar(DOCS);
-      renderDocs(true);
-    };
-  }
-  const ver = document.getElementById("ver-copiloto");
-  if (ver) ver.onclick = () => { E.copilotoAberto = !E.copilotoAberto; renderDocs(true); };
-  const ap = document.getElementById("aplicar");
-  if (ap) ap.onclick = () => {
-    const tipos = Object.fromEntries(Object.entries(sug).map(([n, v]) => [n, v.tipo]));
-    E.records[E.servico] = aplicarTipos(cb, reg, tipos, d.docs);
-    editar(DOCS);
-    renderDocs(true);
-  };
-  document.getElementById("confirmar").onclick = () => confirmarEtapa(DOCS, d);
 }
 
 // ------------------------------------------------------------ tela da variável
@@ -535,7 +469,9 @@ function renderVariavel(vid, manterScroll) {
     const n = notasVid[t.id];
     const nota = n !== undefined ? n.nota : (t.origem === "v1" ? "sim" : undefined);
     const marcados = new Set(nota === undefined ? [] : [].concat(nota));
-    const titulo = (d.docs.find((x) => x.n === t.doc) || {}).titulo || "";
+    const doc = d.docs.find((x) => x.n === t.doc) || {};
+    const titulo = doc.titulo || "";
+    const tipo = rotuloTipoCurto(cb, doc.tipo);
     const origem = t.origem === "piso" ? `<span class="origem">palavra-chave <b>${esc(t.termo)}</b> <span class="suave">(${t.total_no_doc} no documento)</span></span>`
       : t.origem === "modelo" ? `<span class="origem">localizado pelo modelo</span>`
       : `<span class="origem">herdado da V1 <b>(nível ${esc(t.notaV1)})</b></span>`;
@@ -547,7 +483,7 @@ function renderVariavel(vid, manterScroll) {
     return `<div class="item ${t.origem} ${nota === undefined ? "" : nota === NAO_E_ISSO ? "descartado" : "relevante"}" data-item="${esc(t.id)}">
       <div class="meta">${origem}${t.flag ? `<div class="flag">⚠ ${esc(t.flag)}</div>` : ""}</div>
       <div class="texto">${esc(t.verbatim)}</div>
-      <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
+      <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${tipo ? ` · ${esc(tipo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
         <button class="pequeno" data-abrir="${esc(t.file)}" data-trecho="${esc(t.verbatim)}">abrir no documento</button></div>
       <div class="notas">${botoes} ${sugerida}</div>
       <div class="com ${n && n.com ? "" : "oculto"}"><input type="text" data-com-input="${esc(t.id)}" value="${esc(n && n.com ? n.com : "")}" placeholder="comentário curto sobre este trecho"></div>
@@ -720,8 +656,7 @@ function renderResumo() {
   const d = E.cache.get(E.servico);
   const reg = registro(E.servico);
   const x = derivar(cb, reg, d);
-  const rotuloTipo = (valor) => ((cb.tipos_doc || []).find((t) => t.valor === valor) || {}).rotulo || valor;
-  const docs = d.docs.map((doc) => { const t = reg.docs_tipo[doc.file] || {}; return `<div><span class="suave">${doc.n}.</span> ${esc(doc.titulo || doc.file)}: <b>${esc(rotuloTipo(t.tipo) || "(sem tipo)")}</b> · ${t.registro === "binding" ? "vinculante" : "não vinculante"}${t.virado ? " (virado à mão)" : ""}</div>`; }).join("");
+  const docs = d.docs.map((doc) => `<div><span class="suave">${doc.n}.</span> ${esc(doc.titulo || doc.file)}: <b>${esc(rotuloTipo(cb, doc.tipo) || "(sem tipo)")}</b>${registroDoDoc(cb, doc) ? ` · ${registroDoDoc(cb, doc) === "binding" ? "vinculante" : "não vinculante"}` : ""}</div>`).join("");
   const linhas = cb.variaveis.map((v) => {
     const valores = v.campos.filter((c) => c.tipo !== "text").map((c) => {
       const val = x.campos[c.chave];
@@ -738,7 +673,7 @@ function renderResumo() {
   const proximo = proximoServicoPorConfirmacao(cb, E.records, E.servico);
   mostrar(`${cabecalhoServico(d)}
     <h2>Resumo de ${esc(E.servico)}</h2>
-    <p class="suave">As onze etapas estão confirmadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
+    <p class="suave">As dez etapas estão confirmadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
     <div class="caixa"><b>Documentos</b>${docs}</div>
     <div class="caixa resumo"><table>${linhas}</table></div>
     ${reg.notes ? `<div class="caixa papel"><b>Notas:</b> ${esc(reg.notes)}</div>` : ""}
@@ -807,7 +742,7 @@ function localizar(texto, trecho) {
 async function abrirDocumento(file, trecho, d) {
   const doc = d.docs.find((x) => x.file === file) || {};
   const url = `${CORPUS}/md/${file}`;
-  const corpo = abrirPainel(esc(doc.titulo || file), `<p class="nota">Documento ${doc.n || ""} · texto congelado · <a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a></p><p class="nota">carregando…</p>`);
+  const corpo = abrirPainel(esc(doc.titulo || file), `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado ·<a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a></p><p class="nota">carregando…</p>`);
   let texto;
   try {
     if (!E.textos.has(file)) {
@@ -831,7 +766,7 @@ async function abrirDocumento(file, trecho, d) {
   } else {
     pre.textContent = texto;
   }
-  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""} · texto congelado · <a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${trecho && !pos ? " · trecho não localizado automaticamente; use a busca do navegador" : ""}</p>`;
+  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado ·<a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${trecho && !pos ? " · trecho não localizado automaticamente; use a busca do navegador" : ""}</p>`;
   corpo.appendChild(pre);
   const marca = pre.querySelector("mark");
   if (marca) setTimeout(() => marca.scrollIntoView({ block: "center" }), 30);

@@ -82,9 +82,13 @@ export function mesclar(local, servidor) {
 // da variável é calculada do critério congelado. As opções de nota, os tipos
 // de documento e os extras vêm do codebook.json (`notas`, `tipos_doc`,
 // `extras`), exportados por analysis/exportar-codebook.py.
+//
+// O tipo e o registro de cada documento são metadado do corpus (decisão de
+// 04/10/2026, à noite): chegam em `d.docs[i].tipo` e `.registro`, publicados
+// pelo exportar-piso.py a partir de analysis/tipos-doc.json. O codificador não
+// classifica documentos; um `docs_tipo` gravado pela versão anterior é ignorado.
 
 export const NAO_E_ISSO = "x";
-export const DOCS = "DOCS";
 
 // FNV-1a de 32 bits sobre UTF-8, em 8 hex. O mesmo cálculo existe em
 // copiloto.py: os ids dos trechos têm de bater entre a página e o copiloto.
@@ -160,9 +164,12 @@ export function derivar(codebook, reg, d) {
   reg = reg || {};
   const campos = {}; const evidencias = {}; const origem = {}; const n = {};
   const spec = codebook.notas || {};
-  const docsTipo = reg.docs_tipo || {};
-  const registroDoDoc = (file) => { const t = docsTipo[file]; return t ? (t.registro || registroPadrao(codebook, t.tipo)) : null; };
-  const tipoDoDoc = (file) => (docsTipo[file] || {}).tipo || null;
+  const docPorArquivo = new Map((d.docs || []).map((doc) => [doc.file, doc]));
+  const tipoDoDoc = (file) => (docPorArquivo.get(file) || {}).tipo || null;
+  const registroDoDoc = (file) => {
+    const doc = docPorArquivo.get(file);
+    return doc && doc.tipo ? (doc.registro || registroPadrao(codebook, doc.tipo)) : null;
+  };
   const agregarRegistro = (files) => {
     const s = new Set(files.map(registroDoDoc).filter(Boolean));
     return s.size === 2 ? "both" : s.size === 1 ? [...s][0] : "";
@@ -230,16 +237,12 @@ export function derivar(codebook, reg, d) {
   return { campos, evidencias, origem, n };
 }
 
-export function etapas(codebook) { return [DOCS, ...codebook.variaveis.map((v) => v.vid)]; }
+export function etapas(codebook) { return codebook.variaveis.map((v) => v.vid); }
 
 // A trava por etapa. Devolve [[o que, motivo], ...]; vazia = pode confirmar.
 export function faltandoEtapa(codebook, etapa, reg, d) {
   reg = reg || {};
-  if (etapa === DOCS) {
-    return (d.docs || []).filter((x) => !((reg.docs_tipo || {})[x.file] || {}).tipo).map((x) => [x.file, "tipo do documento"]);
-  }
   if (etapa === "KW") return vazio(reg.keyword_log) ? [["keyword_log", "log de palavras-chave"]] : [];
-  if (faltandoEtapa(codebook, DOCS, reg, d).length) return [[DOCS, "classifique os documentos antes"]];
   const pend = [];
   const trechos = trechosDaVariavel(etapa, d, reg);
   const semNota = trechos.filter((t) => t.origem !== "v1" && notaDe(reg, etapa, t.id) === undefined).length;
@@ -289,17 +292,6 @@ export function aplicarNotas(reg, vid, sugestao, trechos) {
     if (vazio(extras[k]) && !vazio(val)) extras[k] = val;
   }
   return { ...(reg || {}), notas, extras };
-}
-
-export function aplicarTipos(codebook, reg, sugestaoDocs, docs) {
-  const docs_tipo = { ...((reg || {}).docs_tipo || {}) };
-  for (const doc of docs || []) {
-    if ((docs_tipo[doc.file] || {}).tipo) continue;
-    const tipo = (sugestaoDocs || {})[doc.n] ?? (sugestaoDocs || {})[String(doc.n)];
-    const registro = registroPadrao(codebook, tipo);
-    if (tipo && registro) docs_tipo[doc.file] = { tipo, registro };
-  }
-  return { ...(reg || {}), docs_tipo };
 }
 
 // Na lista de serviços a página não tem os trechos de todos os 26 carregados,
