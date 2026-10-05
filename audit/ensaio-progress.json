@@ -1,10 +1,10 @@
 {
  "records": {
   "Wikipedia": {
-   "v1_evidence": "Nenhum dos 33 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "_ts": 1791159607912,
-   "v1_code": "0",
-   "v1_register": "",
+   "v1_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: 3 · experimento, A/B, randomização",
+   "_ts": 1791211079558,
+   "v1_code": "3",
+   "v1_register": "binding",
    "docs_tipo": {
     "wikipedia/01-wiki-policy-privacy-policy.md": {
      "tipo": "privacy policy",
@@ -32,7 +32,13 @@
      "virado": true
     }
    },
-   "notas": {},
+   "notas": {
+    "V1": {
+     "h:9d6ae312": {
+      "nota": "3"
+     }
+    }
+   },
    "extras": {},
    "override": {},
    "comentarios": {},
@@ -58,13 +64,15 @@
    "v7_evidence": "Nenhum dos 4 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v8_ethics": "No",
    "v8_note": "Nenhum dos 5 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "v9_where": [],
-   "v9_register": "",
-   "v9_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
+   "v9_where": [
+    "privacy policy"
+   ],
+   "v9_register": "binding",
+   "v9_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: divulga experimentação aqui",
    "keyword_log": "",
    "notes": "",
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-05T00:20:07.912Z"
+ "saved_at": "2026-10-05T14:37:59.558Z"
 }
