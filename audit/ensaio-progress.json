@@ -2,12 +2,16 @@
  "records": {
   "Wikipedia": {
    "v1_evidence": "Nenhum dos 33 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "_ts": 1791158689259,
+   "_ts": 1791158721117,
    "v1_code": "0",
    "v1_register": "",
    "docs_tipo": {
     "wikipedia/01-wiki-policy-privacy-policy.md": {
      "tipo": "privacy policy",
+     "registro": "binding"
+    },
+    "wikipedia/02-wiki-policy-terms-of-use.md": {
+     "tipo": "ToS/conditions",
      "registro": "binding"
     }
    },
@@ -45,5 +49,5 @@
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-05T00:04:49.259Z"
+ "saved_at": "2026-10-05T00:05:21.117Z"
 }
