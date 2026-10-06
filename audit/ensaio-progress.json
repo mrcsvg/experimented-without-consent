@@ -4,7 +4,104 @@
    "notas": {
     "V1": {
      "h:27617be1": {
-      "com": "teste"
+      "com": "teste",
+      "nota": "x"
+     },
+     "h:9d6ae312": {
+      "nota": "x"
+     },
+     "h:dcdefd84": {
+      "nota": "x"
+     },
+     "h:8f4d201d": {
+      "nota": "x"
+     },
+     "h:12a8e427": {
+      "nota": "x"
+     },
+     "h:2d717db4": {
+      "nota": "x"
+     },
+     "h:f77a8796": {
+      "nota": "x"
+     },
+     "h:b9a6506c": {
+      "nota": "x"
+     },
+     "h:6a5ca88d": {
+      "nota": "x"
+     },
+     "h:cd56ada4": {
+      "nota": "x"
+     },
+     "h:6e9b9ab5": {
+      "nota": "x"
+     },
+     "h:b32ce2cf": {
+      "nota": "x"
+     },
+     "h:2dcdb2eb": {
+      "nota": "x"
+     },
+     "h:c589f59b": {
+      "nota": "x"
+     },
+     "h:130fd3fa": {
+      "nota": "x"
+     },
+     "h:27b79b49": {
+      "nota": "x"
+     },
+     "h:2564bc94": {
+      "nota": "x"
+     },
+     "h:4a1f94b5": {
+      "nota": "x"
+     },
+     "h:9092af61": {
+      "nota": "x"
+     },
+     "h:090d0dc3": {
+      "nota": "x"
+     },
+     "h:80bc9845": {
+      "nota": "x"
+     },
+     "h:c6937ac5": {
+      "nota": "x"
+     },
+     "h:2c3a049e": {
+      "nota": "x"
+     },
+     "h:32d4a161": {
+      "nota": "x"
+     },
+     "h:20888add": {
+      "nota": "x"
+     },
+     "c:V1-1": {
+      "nota": "x"
+     },
+     "c:V1-2": {
+      "nota": "x"
+     },
+     "c:V1-3": {
+      "nota": "x"
+     },
+     "c:V1-4": {
+      "nota": "x"
+     },
+     "c:V1-5": {
+      "nota": "x"
+     },
+     "c:V1-6": {
+      "nota": "x"
+     },
+     "c:V1-7": {
+      "nota": "x"
+     },
+     "c:V1-8": {
+      "nota": "x"
      }
     }
    },
@@ -41,9 +138,9 @@
    "v9_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "keyword_log": "",
    "notes": "",
-   "service": "Wikipedia",
-   "_ts": 1791245720474
+   "_ts": 1791245755808,
+   "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T00:15:20.474Z"
+ "saved_at": "2026-10-06T00:15:55.808Z"
 }
