@@ -26,7 +26,7 @@
       "nota": "x"
      },
      "h:b9a6506c": {
-      "nota": "x"
+      "nota": "2"
      },
      "h:6a5ca88d": {
       "nota": "x"
@@ -109,9 +109,9 @@
    "override": {},
    "comentarios": {},
    "confirmadas": {},
-   "v1_code": "0",
-   "v1_register": "",
-   "v1_evidence": "Nenhum dos 33 trechos sustenta outra resposta (todos julgados: não é isso).",
+   "v1_code": "2",
+   "v1_register": "binding",
+   "v1_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · testar usuários",
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v3_activities": "No",
@@ -133,14 +133,16 @@
    "v7_evidence": "Nenhum dos 4 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v8_ethics": "No",
    "v8_note": "Nenhum dos 5 trechos sustenta outra resposta (todos julgados: não é isso).",
-   "v9_where": [],
-   "v9_register": "",
-   "v9_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
+   "v9_where": [
+    "ToS/conditions"
+   ],
+   "v9_register": "binding",
+   "v9_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: divulga experimentação aqui",
    "keyword_log": "",
    "notes": "",
-   "_ts": 1791245771768,
+   "_ts": 1791245925184,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T00:16:11.768Z"
+ "saved_at": "2026-10-06T00:18:45.184Z"
 }
