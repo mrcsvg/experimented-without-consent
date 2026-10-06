@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -130,6 +131,40 @@ TIPOS_DOC = [
 # Perguntas que não vêm de trecho e continuam perguntas.
 EXTRAS = {"V3": ["v3_targets"], "V4": ["v4_mapped_purpose", "v4_region_gated"], "V6": ["v6_which"]}
 
+# Rótulos de tela dos campos de resposta (06/10/2026). O `rotulo` continua o
+# do instrumento congelado ("V3a: atividades/superfícies nomeadas?", "Bases
+# declaradas (multi)"); a caixa "Resposta calculada" mostra `tela`.
+ROTULOS_TELA = {
+    "v1_code": "Nível (teto)",
+    "v1_register": "Registro do teto",
+    "v2_framing": "Enquadramentos presentes",
+    "v3_activities": "Nomeia atividades ou superfícies testadas?",
+    "v3_specific": "Divulga um experimento específico ou ativo?",
+    "v3_pricing": "Preço nomeado como alvo?",
+    "v3_targets": "Alvos nomeados",
+    "v4_basis": "Bases legais declaradas",
+    "v4_mapped_purpose": "Finalidade que cobre os testes",
+    "v4_region_gated": "Tabela de bases só da UE?",
+    "v5_optout": "Saída dos experimentos",
+    "v6_optin_beta": "Existe programa opt-in?",
+    "v6_which": "Qual programa",
+    "v7_debrief": "Avisa depois que a pessoa participou?",
+    "v8_ethics": "Menciona revisão ética, comitê ou risco?",
+    "v9_where": "Locais da divulgação",
+    "v9_register": "Registro agregado",
+}
+
+# O que fazer em cada pergunta avulsa, dito na própria caixa.
+AJUDA_TELA = {
+    "v3_targets": "O que o texto diz que é testado: ordem dos resultados, preço, mensagem, emoção, fricção, opções padrão. "
+                  "Lista aberta; separe os itens por vírgula. Pode ficar vazio.",
+    "v4_mapped_purpose": "Qual finalidade declarada na tabela de bases legais você entendeu como a que cobre os testes. "
+                         "Em geral é algo como \"melhorar nossos serviços\". Copie o nome que o documento usa.",
+    "v4_region_gated": "Só se testa capturando de dentro e de fora da UE. Você lê texto congelado, capturado da UE, "
+                       "então fica como não verificável. Fora do cálculo de concordância.",
+    "v6_which": "Nome do programa e como ele funciona, em uma linha.",
+}
+
 
 def regras_gerais_html() -> str:
     lis = "".join(f"<li><b>{t}</b> {d}</li>" for t, d in REGRAS_GERAIS)
@@ -156,6 +191,8 @@ def exportar() -> dict:
             "campos": [{
                 "chave": c.chave, "rotulo": _texto(c.rotulo), "tipo": c.tipo,
                 "opcoes": list(c.opcoes or []), "placeholder": _texto(c.placeholder or ""),
+                **({"tela": ROTULOS_TELA[c.chave]} if c.chave in ROTULOS_TELA else {}),
+                **({"ajuda_tela": AJUDA_TELA[c.chave]} if c.chave in AJUDA_TELA else {}),
             } for c in v.campos],
         })
     return {
@@ -254,6 +291,13 @@ def _self_test() -> int:
            {vid: [o["rotulo"] for o in s["opcoes"]] for vid, s in d["notas"].items()} == ROTULOS_DO_PROMPT)
     checar("toda nota tem rótulo de tela, não vazio e sem travessão",
            all(o.get("tela") and "—" not in o["tela"] for s in d["notas"].values() for o in s["opcoes"]))
+    campos_resposta = [c for v in d["variaveis"] for c in v["campos"] if c["tipo"] != "text"]
+    checar("todo campo de resposta tem rótulo de tela, sem travessão, sem prefixo V3a e sem (multi)",
+           all(c.get("tela") and "—" not in c["tela"] and not re.match(r"^V\d", c["tela"]) and "(multi)" not in c["tela"]
+               for c in campos_resposta))
+    extras_chaves = {ch for lista in d["extras"].values() for ch in lista}
+    checar("toda pergunta avulsa tem ajuda de tela",
+           all(c.get("ajuda_tela") for c in campos_resposta if c["chave"] in extras_chaves))
     checar("ajuda por campo: só texto, sem travessão",
            d["ajuda_campos"] and all("<" not in t and "—" not in t for t in d["ajuda_campos"].values()))
 

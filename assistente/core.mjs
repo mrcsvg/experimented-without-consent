@@ -90,6 +90,12 @@ export function mesclar(local, servidor) {
 
 export const NAO_E_ISSO = "x";
 
+// Campos que o 2º codificador não tem como responder e saem fixos. O bloqueio
+// por região da tabela de bases legais (v4_region_gated) só se testa capturando
+// de fora e de dentro da UE; quem lê texto congelado, capturado da UE, não tem
+// como verificar. Fora do κ por decisão de 02/10/2026; fixo desde 06/10/2026.
+export const FIXOS = { v4_region_gated: "not-verifiable (vantage)" };
+
 // FNV-1a de 32 bits sobre UTF-8, em 8 hex. O mesmo cálculo existe em
 // copiloto.py: os ids dos trechos têm de bater entre a página e o copiloto.
 export function hash8(texto) {
@@ -201,7 +207,11 @@ export function derivar(codebook, reg, d) {
       }
       case "V2": campos.v2_framing = uniao(); break;
       case "V3": { const u = new Set(uniao()); for (const o of ops) campos[o.campo] = u.has(o.valor) ? "Yes" : "No"; break; }
-      case "V4": { const u = uniao(); campos.v4_basis = u.length ? u : ["not stated"]; break; }
+      case "V4": {
+        const u = uniao(); campos.v4_basis = u.length ? u : ["not stated"];
+        linhasExtras.push("Tabela de bases por região: não verificável pelo segundo codificador (texto congelado, capturado da UE).");
+        break;
+      }
       case "V5": {
         const idx = rel.map((t) => ordem.indexOf(t.nota)).filter((i) => i >= 0);
         campos.v5_optout = idx.length ? ordem[Math.max(...idx)] : "none";
@@ -222,9 +232,13 @@ export function derivar(codebook, reg, d) {
       campos[chave] = (reg.extras || {})[chave] || "";
       origem[chave] = "extra";
     }
+    for (const [chave, valor] of Object.entries(FIXOS)) {
+      if (v.campos.some((c) => c.chave === chave)) { campos[chave] = valor; origem[chave] = "fixo"; }
+    }
     for (const c of v.campos) {
       if (c.tipo === "text") continue;
       if (!origem[c.chave]) origem[c.chave] = "calculado";
+      if (origem[c.chave] === "fixo") continue;
       if (reg.override && c.chave in reg.override) { campos[c.chave] = reg.override[c.chave]; origem[c.chave] = "corrigido"; }
     }
     const campoTexto = v.campos.find((c) => c.tipo === "text");
@@ -250,7 +264,6 @@ export function faltandoEtapa(codebook, etapa, reg, d) {
   if (semNota) pend.push(["trechos", `${semNota} trecho${semNota === 1 ? "" : "s"} sem nota`]);
   if (!trechos.length && !(reg.confirmadas || {})[etapa]) pend.push(["confirmar", "sem trechos: confirme a ausência"]);
   const { campos } = derivar(codebook, reg, d);
-  if (etapa === "V4" && vazio(campos.v4_region_gated)) pend.push(["v4_region_gated", "resposta"]);
   if (etapa === "V6" && campos.v6_optin_beta === "Yes" && vazio(campos.v6_which)) pend.push(["v6_which", "exigido porque v6_optin_beta = Yes"]);
   return pend;
 }

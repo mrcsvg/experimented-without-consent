@@ -108,10 +108,16 @@ test("V3: tags viram Yes/No por campo; alvos vêm do extra", () => {
   assert.equal(c.v3_targets, "features; preço");
 });
 
-test("V4: união, vazio vira not stated, extras passam", () => {
-  const vazio = derivar(CB, reg({ extras: { v4_region_gated: "not-verifiable (vantage)" } }), D).campos;
-  assert.deepEqual(vazio.v4_basis, ["not stated"]);
-  assert.equal(vazio.v4_region_gated, "not-verifiable (vantage)");
+test("V4: união, vazio vira not stated; region_gated é fixo em not-verifiable para o 2º codificador", () => {
+  const x = derivar(CB, reg({ extras: { v4_region_gated: "No", v4_mapped_purpose: "improve" } }), D);
+  assert.deepEqual(x.campos.v4_basis, ["not stated"]);
+  assert.equal(x.campos.v4_mapped_purpose, "improve");
+  // Quem lê texto congelado, capturado da UE, não tem como testar o bloqueio por região.
+  assert.equal(x.campos.v4_region_gated, "not-verifiable (vantage)");
+  assert.equal(x.origem.v4_region_gated, "fixo");
+  assert.match(x.campos.v4_evidence, /Tabela de bases por região: não verificável pelo segundo codificador/);
+  const forcado = derivar(CB, reg({ override: { v4_region_gated: "Yes" } }), D);
+  assert.equal(forcado.campos.v4_region_gated, "not-verifiable (vantage)", "fixo não aceita correção à mão");
   const r = reg({ notas: { V4: { "c:V2-1": { nota: ["contract", "legitimate interest"] } } } });
   // V4 não tem trecho neste brinquedo; a nota em id desconhecido é ignorada.
   assert.deepEqual(derivar(CB, r, D).campos.v4_basis, ["not stated"]);
@@ -198,7 +204,7 @@ test("trava: trechos sem nota, extras e ausência confirmada", () => {
   const umSo = reg({ notas: { V1: { [ID_HIT1]: { nota: "2" } } } });
   assert.deepEqual(faltandoEtapa(CB, "V1", umSo, D), [["trechos", "1 trecho sem nota"]]);
   const v4 = reg();
-  assert.deepEqual(faltandoEtapa(CB, "V4", v4, D), [["confirmar", "sem trechos: confirme a ausência"], ["v4_region_gated", "resposta"]]);
+  assert.deepEqual(faltandoEtapa(CB, "V4", v4, D), [["confirmar", "sem trechos: confirme a ausência"]], "region_gated é fixo: não trava");
   const v6sim = reg({ notas: { V6: {} }, extras: {}, confirmadas: { V6: true } });
   // V6 não tem trechos no brinquedo: Yes só por correção à mão.
   v6sim.override = { v6_optin_beta: "Yes" };

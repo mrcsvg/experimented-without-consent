@@ -92,3 +92,24 @@ congelada, deveria mostrar quantidades já analisadas".
   trava continua na confirmação de cada etapa, e o resumo espera as dez.
 - **Cabeçalho fixo.** A linha de cima diz "n de 10 etapas confirmadas · V1: j
   de N trechos julgados", e cada botão da trilha traz j/N.
+
+## Caixa "Resposta calculada", 06/10/2026
+
+Marcus, vendo a V4 no teste local: "isso está bem confuso". Três coisas:
+
+- **Rótulos e valores.** Os campos ganharam `tela` no codebook.json
+  (`ROTULOS_TELA` no exportador): "Bases legais declaradas" no lugar de "Bases
+  declaradas (multi)", "Nomeia atividades ou superfícies testadas?" no lugar
+  de "V3a: atividades/superfícies nomeadas?". Os valores aparecem em português
+  com o valor original ao lado, "interesse legítimo (legitimate interest)",
+  "Sim (Yes)"; o registro gravado continua em inglês. Vale também nos
+  controles de "corrigir à mão".
+- **Perguntas avulsas.** A etiqueta "pergunta" virou "responda", e cada uma
+  traz uma linha de ajuda (`AJUDA_TELA`): o que escrever em "Alvos nomeados",
+  "Finalidade que cobre os testes" e "Qual programa".
+- **v4_region_gated sai da tela.** Só se testa capturando de dentro e de fora
+  da UE; quem lê texto congelado, capturado da UE, não tem como verificar.
+  `core.mjs: FIXOS` grava "not-verifiable (vantage)" para todos os serviços,
+  sem correção à mão, com uma linha na evidência da V4. A caixa mostra o campo
+  como "fixo", com a explicação. O campo já estava fora do κ (02/10/2026);
+  `compute-agreement.py` continua mostrando as vantagens lado a lado.

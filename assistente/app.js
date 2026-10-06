@@ -432,21 +432,40 @@ function rotuloNota(spec, valor) {
   return o ? (o.tela || o.rotulo) : String(valor);
 }
 
-function legivel(campo, valor) {
-  if (Array.isArray(valor)) return valor.length ? valor.join(", ") : "(nenhum)";
-  if (valor === "" || valor == null) return "(vazio)";
-  const ajuda = (E.codebook.ajuda_valores || {})[`${campo.chave}:${valor}`];
-  return ajuda ? `${valor} <span class="suave">${esc(ajuda)}</span>` : esc(String(valor));
+// Os valores do codebook são em inglês e estão congelados. A tela mostra o
+// rótulo em português e o valor original ao lado, para o registro continuar
+// rastreável: "interesse legítimo (legitimate interest)".
+const ROTULO_VALOR = { Yes: "Sim", No: "Não", binding: "vinculante", "non-binding": "não vinculante", both: "nos dois registros",
+  none: "nenhum", "not stated": "não declarada", "not-verifiable (vantage)": "não verificável" };
+function rotuloValor(vid, chave, valor) {
+  const cb = E.codebook;
+  const spec = (cb.notas || {})[vid];
+  const o = spec && (spec.opcoes || []).find((x) => x.valor === String(valor) && (!x.campo || x.campo === chave));
+  if (o) return { texto: o.tela || o.rotulo, deNota: true };
+  if ((cb.tipos_doc || []).some((t) => t.valor === valor)) return { texto: rotuloTipoCurto(cb, valor), deNota: false };
+  return { texto: ROTULO_VALOR[valor] || String(valor), deNota: false };
 }
 
-function controleHtml(c, valor, prefixo) {
+function legivel(vid, c, valor) {
+  const um = (x) => {
+    const { texto, deNota } = rotuloValor(vid, c.chave, x);
+    const ajuda = deNota ? "" : (E.codebook.ajuda_valores || {})[`${c.chave}:${x}`] || "";
+    return `<b>${esc(texto)}</b>${texto !== String(x) ? ` <span class="suave">(${esc(x)})</span>` : ""}${ajuda ? ` <span class="suave">${esc(ajuda)}</span>` : ""}`;
+  };
+  if (Array.isArray(valor)) return valor.length ? valor.map(um).join("<br>") : "(nenhum)";
+  if (valor === "" || valor == null) return "(vazio)";
+  return um(valor);
+}
+
+function controleHtml(vid, c, valor, prefixo) {
   // Rádios ou caixas para um campo, com `prefixo` no name para não colidir.
   const marcados = new Set(Array.isArray(valor) ? valor : valor ? [valor] : []);
   if (c.tipo === "select" || c.tipo === "checks") {
     const tipo = c.tipo === "select" ? "radio" : "checkbox";
     return `<div class="opcoes compacto">${c.opcoes.filter((o) => o !== "").map((o) => {
-      const av = (E.codebook.ajuda_valores || {})[`${c.chave}:${o}`];
-      return `<label class="${marcados.has(o) ? "marcado" : ""}"><input type="${tipo}" name="${prefixo}${esc(c.chave)}" value="${esc(o)}" ${marcados.has(o) ? "checked" : ""}><b>${esc(o)}</b>${av ? ` <span class="suave">${esc(av)}</span>` : ""}</label>`;
+      const { texto, deNota } = rotuloValor(vid, c.chave, o);
+      const av = deNota ? "" : (E.codebook.ajuda_valores || {})[`${c.chave}:${o}`] || "";
+      return `<label class="${marcados.has(o) ? "marcado" : ""}"><input type="${tipo}" name="${prefixo}${esc(c.chave)}" value="${esc(o)}" ${marcados.has(o) ? "checked" : ""}><b>${esc(texto)}</b>${texto !== o ? ` <span class="suave">(${esc(o)})</span>` : ""}${av ? ` <span class="suave">${esc(av)}</span>` : ""}</label>`;
     }).join("")}</div>`;
   }
   return `<input type="text" name="${prefixo}${esc(c.chave)}" value="${esc(valor || "")}" placeholder="${esc(c.placeholder || "")}">`;
@@ -459,15 +478,24 @@ function caixaCalculo(v, reg, d) {
   const n = x.n[v.vid] || { relevantes: 0, julgados: 0, total: 0 };
   const temOverride = v.campos.some((c) => c.chave in reg.override);
   const linhas = v.campos.filter((c) => c.tipo !== "text").map((c) => {
-    if (extras.has(c.chave)) {
-      return `<div class="calc-linha"><span class="rotulo">${esc(c.rotulo)}</span>
-        <span class="tag">pergunta</span>${controleHtml(c, reg.extras[c.chave], "extra-")}</div>`;
-    }
+    const rotulo = c.tela || c.rotulo;
     const origem = x.origem[c.chave];
+    if (origem === "fixo") {
+      // Resposta que o 2º codificador não tem como dar (core.mjs: FIXOS). Só o
+      // rótulo e o valor: a ajuda do codebook fala de "sua vantagem", e aqui não há.
+      const fixo = x.campos[c.chave];
+      return `<div class="calc-linha"><span class="rotulo">${esc(rotulo)}</span><span class="tag">fixo</span>
+        <span class="valor"><b>${esc(rotuloValor(v.vid, c.chave, fixo).texto)}</b> <span class="suave">(${esc(fixo)})</span></span>
+        ${c.ajuda_tela ? `<div class="ajuda pequeno suave" style="flex-basis:100%;margin:0">${esc(c.ajuda_tela)}</div>` : ""}</div>`;
+    }
+    if (extras.has(c.chave)) {
+      return `<div class="calc-linha"><span class="rotulo">${esc(rotulo)}</span><span class="tag">responda</span>
+        ${c.ajuda_tela ? `<div class="ajuda pequeno suave" style="flex-basis:100%;margin:0">${esc(c.ajuda_tela)}</div>` : ""}${controleHtml(v.vid, c, reg.extras[c.chave], "extra-")}</div>`;
+    }
     const tag = origem === "corrigido" ? `<span class="tag corrigido">corrigida à mão</span>`
       : `<span class="tag">calculada de ${n.relevantes} trecho${n.relevantes === 1 ? "" : "s"}</span>`;
-    const valorHtml = E.corrigindo ? controleHtml(c, x.campos[c.chave], "override-") : `<span class="valor">${legivel(c, x.campos[c.chave])}</span>`;
-    return `<div class="calc-linha"><span class="rotulo">${esc(c.rotulo)}</span>${tag}${valorHtml}</div>`;
+    const valorHtml = E.corrigindo ? controleHtml(v.vid, c, x.campos[c.chave], "override-") : `<span class="valor">${legivel(v.vid, c, x.campos[c.chave])}</span>`;
+    return `<div class="calc-linha"><span class="rotulo">${esc(rotulo)}</span>${tag}${valorHtml}</div>`;
   }).join("");
   return `<div class="calculo" id="calculo">
     <div class="calc-titulo"><b>Resposta calculada</b> <span class="suave pequeno">${n.julgados} de ${n.total} trechos julgados · ${n.relevantes} relevante${n.relevantes === 1 ? "" : "s"}</span></div>
