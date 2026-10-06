@@ -555,7 +555,7 @@ function renderVariavel(vid, manterScroll) {
     ${copilotoHtml}
     <div class="evid">
       <h3>Trechos <span class="suave pequeno" id="contador">${julgados} de ${trechos.length} julgados</span></h3>
-      <p class="pequeno suave">Para cada trecho, escolha a opção que diz o que ele mostra para esta pergunta. Marque <b>"não se aplica"</b> quando o trecho não serve de evidência. Três casos: a palavra está em outro sentido (testar a segurança do sistema, período grátis de teste); o assunto é outro; o trecho é índice, sumário, título de seção ou menu, sem a frase que afirma a coisa. Nesse último caso a frase costuma aparecer como outro trecho, logo abaixo. Na dúvida, "abrir no documento" mostra o entorno.</p>
+      <p class="pequeno suave">Para cada trecho, escolha a opção que diz o que ele mostra para esta pergunta. Marque <b>"não se aplica"</b> quando o trecho não serve de evidência. Três casos: a palavra está em outro sentido (Exemplo: testar a segurança do sistema, período grátis de teste); o assunto é outro; o trecho é índice, sumário, título de seção ou menu, sem a frase que afirma a coisa. Nesse último caso a frase costuma aparecer como outro trecho, logo abaixo. Na dúvida, "abrir no documento" mostra o entorno.</p>
       ${trechos.length ? itens : `<p class="suave">Nenhum trecho localizado para esta variável, nem pela busca por palavra-chave nem pelo modelo. Se concordar com a ausência, confirme.</p>`}
       ${julgados < trechos.length ? `<div class="botoes"><button class="secundario" id="restantes">marcar os ${trechos.length - julgados} restantes como "não se aplica"</button></div>` : ""}
     </div>
