@@ -530,7 +530,7 @@ function renderVariavel(vid, manterScroll) {
     const sugerida = E.copilotoAberto && sug && sug.notas && sug.notas[t.id] !== undefined
       ? `<span class="sug">copiloto: ${esc([].concat(sug.notas[t.id]).map((x) => rotuloNota(spec, x)).join(", "))}</span>` : "";
     return `<div class="item ${t.origem} ${nota === undefined ? "" : nota === NAO_E_ISSO ? "descartado" : "relevante"}" data-item="${esc(t.id)}" id="trecho-${num}">
-      <h4 class="num">Trecho ${num}</h4>
+      <h3 class="num">Trecho ${num}</h3>
       <div class="meta">${origem}${t.flag ? `<div class="flag">⚠ ${esc(t.flag)}</div>` : ""}</div>
       <div class="texto">${esc(t.verbatim)}</div>
       <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${tipo ? ` · ${esc(tipo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
