@@ -7,7 +7,7 @@
       "nota": "1"
      },
      "h:dcdefd84": {
-      "nota": "3"
+      "nota": "x"
      }
     }
    },
@@ -15,9 +15,9 @@
    "override": {},
    "comentarios": {},
    "confirmadas": {},
-   "v1_code": "3",
+   "v1_code": "1",
    "v1_register": "binding",
-   "v1_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: 1 · só fala em melhorar o serviço\n“…ol-specific policies. Tool providers . We support platforms for third-party developers to experiment and develop new tools and sites, such as wmflabs.org . When you use one of the tools deve…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: 3 · nomeia experimento, teste A/B ou randomização",
+   "v1_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: 1 · só fala em melhorar o serviço",
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v3_activities": "No",
@@ -43,12 +43,12 @@
     "privacy policy"
    ],
    "v9_register": "binding",
-   "v9_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: este documento divulga experimentação\n“…ol-specific policies. Tool providers . We support platforms for third-party developers to experiment and develop new tools and sites, such as wmflabs.org . When you use one of the tools deve…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: este documento divulga experimentação",
+   "v9_evidence": "“…4 To Protect You, Ourselves & Others 3.1.5 To Our Service Providers 3.1.6 To Understand & Experiment 3.1.7 Because You Made It Public 4 Protection Toggle Protection subsection 4.1 How Do We…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"experiment\") · nota: este documento divulga experimentação",
    "keyword_log": "01-wiki-policy-privacy-policy.md: experiment:3 / A-B:0 / randomize:0 / test:3 / trial:0 / beta:1 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-wiki-policy-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:1 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-wiki-policy-cookie-statement.md: experiment:0 / A-B:1 / randomize:0 / test:3 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-wiki-policy-privacy-policy-frequently-asked-question.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n05-wiki-a-b-testing.md: experiment:4 / A-B:15 / randomize:0 / test:18 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n06-wikipedia-experiments.md: experiment:7 / A-B:0 / randomize:0 / test:2 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
    "notes": "",
-   "_ts": 1791251883714,
+   "_ts": 1791251889563,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T01:58:03.714Z"
+ "saved_at": "2026-10-06T01:58:09.563Z"
 }
