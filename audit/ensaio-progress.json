@@ -22,6 +22,11 @@
     "V4": {
      "c:V4-1": {
       "nota": "x"
+     },
+     "c:V4-2": {
+      "nota": [
+       "legitimate interest"
+      ]
      }
     }
    },
@@ -43,11 +48,11 @@
    "v3_targets": "",
    "v3_evidence": "Nenhum dos 20 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v4_basis": [
-    "not stated"
+    "legitimate interest"
    ],
    "v4_mapped_purpose": "",
    "v4_region_gated": "",
-   "v4_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v4_evidence": "“We engage in these activities to further our legitimate interest and/or to comply with our legal obligations.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Final do bullet \"Improving the Wikimedia Sites and making your user experience safer and better\") · nota: interesse legítimo",
    "v5_optout": "none",
    "v5_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v6_optin_beta": "No",
@@ -63,9 +68,9 @@
    "v9_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: este documento divulga experimentação",
    "keyword_log": "",
    "notes": "",
-   "_ts": 1791315502091,
+   "_ts": 1791315505286,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T19:38:22.091Z"
+ "saved_at": "2026-10-06T19:38:25.286Z"
 }
