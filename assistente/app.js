@@ -491,6 +491,18 @@ function renderVariavel(vid, manterScroll) {
   const sug = d.copiloto && d.copiloto.variaveis ? d.copiloto.variaveis[vid] : null;
   const julgados = trechos.filter((t) => t.origem === "v1" || notasVid[t.id] !== undefined).length;
 
+  // Quantos trechos de cada palavra, por documento, estão na tela: o piso mostra
+  // no máximo 3 por palavra por documento, e o codificador precisa saber quando
+  // há ocorrências que ele não está vendo.
+  const naTela = {};
+  for (const t of trechos) if (t.origem === "piso") naTela[`${t.file}\n${t.termo}`] = (naTela[`${t.file}\n${t.termo}`] || 0) + 1;
+  const contagem = (t) => {
+    const total = Number(t.total_no_doc) || 0;
+    const aqui = naTela[`${t.file}\n${t.termo}`] || 0;
+    if (total <= 1) return "única ocorrência no documento";
+    if (total <= aqui) return `${total} ocorrências no documento, todas aqui`;
+    return `${total} ocorrências no documento, ${aqui} aqui; para as outras, abra o documento e use a busca do navegador`;
+  };
   // Numeração estável: a ordem de trechosDaVariavel sobre dados congelados.
   const itens = trechos.map((t, k) => {
     const num = k + 1;
@@ -500,7 +512,7 @@ function renderVariavel(vid, manterScroll) {
     const doc = d.docs.find((x) => x.n === t.doc) || {};
     const titulo = doc.titulo || "";
     const tipo = rotuloTipoCurto(cb, doc.tipo);
-    const origem = t.origem === "piso" ? `<span class="origem">palavra-chave <b>${esc(t.termo)}</b> <span class="suave">(${t.total_no_doc} no documento)</span></span>`
+    const origem = t.origem === "piso" ? `<span class="origem">palavra-chave <b>${esc(t.termo)}</b> · ${esc(contagem(t))}</span>`
       : t.origem === "modelo" ? `<span class="origem">localizado pelo modelo</span>`
       : `<span class="origem">herdado da V1 <b>(nível ${esc(t.notaV1)})</b></span>`;
     const botoes = (spec.opcoes || []).map((o) => `<button class="nota ${marcados.has(o.valor) ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${esc(o.valor)}">${esc(o.tela || o.rotulo)}</button>`).join("")
