@@ -6,6 +6,13 @@
      "c:V1-8": {
       "nota": "2"
      }
+    },
+    "V2": {
+     "c:V2-1": {
+      "nota": [
+       "research"
+      ]
+     }
     }
    },
    "extras": {},
@@ -15,8 +22,10 @@
    "v1_code": "2",
    "v1_register": "non-binding",
    "v1_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: 2 · admite testar, sem dizer como\nNível do registro vinculante sozinho: 0.",
-   "v2_framing": [],
-   "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v2_framing": [
+    "research"
+   ],
+   "v2_evidence": "“We and our service providers use your information for the legitimate purpose of pursuing our charitable mission, including:” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"How We Use Information We Receive From You\" > \"General\") · nota: pesquisa",
    "v3_activities": "No",
    "v3_specific": "No",
    "v3_pricing": "No",
@@ -43,9 +52,9 @@
    "v9_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: este documento divulga experimentação",
    "keyword_log": "",
    "notes": "",
-   "service": "Wikipedia",
-   "_ts": 1791301095096
+   "_ts": 1791314912796,
+   "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T15:38:15.096Z"
+ "saved_at": "2026-10-06T19:28:32.796Z"
 }
