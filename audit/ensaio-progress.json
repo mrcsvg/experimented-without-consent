@@ -12,6 +12,11 @@
       "nota": [
        "research"
       ]
+     },
+     "c:V2-2": {
+      "nota": [
+       "human-subjects research"
+      ]
      }
     }
    },
@@ -23,9 +28,10 @@
    "v1_register": "non-binding",
    "v1_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: 2 · admite testar, sem dizer como\nNível do registro vinculante sozinho: 0.",
    "v2_framing": [
-    "research"
+    "research",
+    "human-subjects research"
    ],
-   "v2_evidence": "“We and our service providers use your information for the legitimate purpose of pursuing our charitable mission, including:” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"How We Use Information We Receive From You\" > \"General\") · nota: pesquisa",
+   "v2_evidence": "“We and our service providers use your information for the legitimate purpose of pursuing our charitable mission, including:” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"How We Use Information We Receive From You\" > \"General\") · nota: pesquisa\n“We use this information to make your experience with the Wikimedia Sites safer and better, to gain a greater understanding of user preferences and their interaction with the Wikimedia Sites, and to generally improve our services.” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, Seção \"Information We Collect\" (cookies e tecnologias)) · nota: pesquisa com seres humanos",
    "v3_activities": "No",
    "v3_specific": "No",
    "v3_pricing": "No",
@@ -52,9 +58,9 @@
    "v9_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: este documento divulga experimentação",
    "keyword_log": "",
    "notes": "",
-   "_ts": 1791314912796,
+   "_ts": 1791314915341,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T19:28:32.796Z"
+ "saved_at": "2026-10-06T19:28:35.341Z"
 }
