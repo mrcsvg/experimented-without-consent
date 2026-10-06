@@ -38,7 +38,7 @@
       "nota": "x"
      },
      "h:b32ce2cf": {
-      "nota": "x"
+      "nota": "2"
      },
      "h:2dcdb2eb": {
       "nota": "x"
@@ -111,7 +111,7 @@
    "confirmadas": {},
    "v1_code": "3",
    "v1_register": "binding",
-   "v1_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · testar usuários\n“…ices Act (FCPA) Gifts Non-discrimination Policy and political association guideline Staff test account Staff userrights Travel and expense Whistleblower Other Expense reimbursement Fee…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · testar usuários\n“…refreshed weekly Performance and Analysis Helps us count the number of site visitors, run A/B tests, and mitigate DDoS attacks. See: diff.wikimedia.org/2025/04/09/using-privacy-engine…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"A-B\") · nota: 3 · experimento, A/B, randomização",
+   "v1_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · testar usuários\n“…ices Act (FCPA) Gifts Non-discrimination Policy and political association guideline Staff test account Staff userrights Travel and expense Whistleblower Other Expense reimbursement Fee…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · testar usuários\n“…refreshed weekly Performance and Analysis Helps us count the number of site visitors, run A/B tests, and mitigate DDoS attacks. See: diff.wikimedia.org/2025/04/09/using-privacy-engine…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"A-B\") · nota: 3 · experimento, A/B, randomização\n“A/B testing - Wikitech Jump to content Main menu Main menu move to sidebar hide Navigation Ma…” (Documento 5: A/B testing - Wikitech, palavra-chave \"A-B\") · nota: 2 · testar usuários",
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v3_activities": "No",
@@ -135,15 +135,16 @@
    "v8_note": "Nenhum dos 5 trechos sustenta outra resposta (todos julgados: não é isso).",
    "v9_where": [
     "privacy policy",
-    "ToS/conditions"
+    "ToS/conditions",
+    "blog/PR/site de pesquisa"
    ],
-   "v9_register": "binding",
-   "v9_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: divulga experimentação aqui\n“…ices Act (FCPA) Gifts Non-discrimination Policy and political association guideline Staff test account Staff userrights Travel and expense Whistleblower Other Expense reimbursement Fee…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: divulga experimentação aqui\n“…refreshed weekly Performance and Analysis Helps us count the number of site visitors, run A/B tests, and mitigate DDoS attacks. See: diff.wikimedia.org/2025/04/09/using-privacy-engine…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"A-B\") · nota: divulga experimentação aqui",
+   "v9_register": "both",
+   "v9_evidence": "“…non-public areas in our computer systems without authorization; and Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless all the following co…” (Documento 2: Wikimedia Foundation Terms of Use - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: divulga experimentação aqui\n“…ices Act (FCPA) Gifts Non-discrimination Policy and political association guideline Staff test account Staff userrights Travel and expense Whistleblower Other Expense reimbursement Fee…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: divulga experimentação aqui\n“…refreshed weekly Performance and Analysis Helps us count the number of site visitors, run A/B tests, and mitigate DDoS attacks. See: diff.wikimedia.org/2025/04/09/using-privacy-engine…” (Documento 3: Wikimedia Cookie Statement - Wikimedia Foundation Governance Wiki, palavra-chave \"A-B\") · nota: divulga experimentação aqui\n“A/B testing - Wikitech Jump to content Main menu Main menu move to sidebar hide Navigation Ma…” (Documento 5: A/B testing - Wikitech, palavra-chave \"A-B\") · nota: divulga experimentação aqui",
    "keyword_log": "",
    "notes": "",
-   "_ts": 1791245928684,
+   "_ts": 1791245933309,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T00:18:48.684Z"
+ "saved_at": "2026-10-06T00:18:53.309Z"
 }
