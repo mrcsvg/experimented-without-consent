@@ -30,6 +30,9 @@
      },
      "c:V4-3": {
       "nota": "x"
+     },
+     "c:V4-4": {
+      "nota": "x"
      }
     }
    },
@@ -71,9 +74,9 @@
    "v9_evidence": "“The Wikimedia Foundation has been testing new ways of making human knowledge even more accessible. Known as experiments, these short, time-bound projects help us better understand how Wikipedia can reach new audiences, respond to global trends, and meet the evolving needs of internet users.” (Documento 6: Wikipedia experiments – Wikimedia Foundation, Página \"Wikipedia experiments\", parágrafo introdutório) · nota: este documento divulga experimentação",
    "keyword_log": "",
    "notes": "",
-   "_ts": 1791315507989,
+   "_ts": 1791315510473,
    "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-06T19:38:27.989Z"
+ "saved_at": "2026-10-06T19:38:30.473Z"
 }
