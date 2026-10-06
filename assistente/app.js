@@ -363,11 +363,20 @@ function ligarNotasGerais(reg) {
   if (notas) notas.addEventListener("input", () => { reg.notes = notas.value; marcarEdicao(E.servico); });
 }
 
-function mostrarFalta(pend, etapa) {
+function mostrarFalta(pend, etapa, d) {
   const caixa = document.getElementById("falta");
   if (!caixa) return;
   const nomes = pend.map(([chave, motivo]) => {
-    if (chave === "trechos") return `<li><b>Trechos:</b> ${esc(motivo)}. Dê uma nota a cada um, ou use "marcar os restantes como não se aplica".</li>`;
+    if (chave === "trechos") {
+      // Quais trechos, pelo número da tela, com link que rola até cada um.
+      const reg = registro(E.servico);
+      const semNota = d ? trechosDaVariavel(etapa, d, reg)
+        .map((t, k) => ({ t, num: k + 1 }))
+        .filter(({ t }) => t.origem !== "v1" && ((reg.notas[etapa] || {})[t.id] || {}).nota === undefined)
+        .map(({ num }) => num) : [];
+      const quais = semNota.length ? ` Sem nota: ${semNota.map((n) => `<a href="#" data-ir="${n}">${n}</a>`).join(", ")}.` : "";
+      return `<li><b>Trechos:</b> ${esc(motivo)}.${quais} Dê uma nota a cada um, ou use "marcar os restantes como não se aplica".</li>`;
+    }
     if (chave === "confirmar") return `<li>${esc(motivo)}: clique de novo em Confirmar.</li>`;
     if (chave === "keyword_log") return `<li><b>Log de palavras-chave:</b> não pode ficar vazio.</li>`;
     const v = E.codebook.variaveis.find((x) => x.vid === etapa);
@@ -376,7 +385,15 @@ function mostrarFalta(pend, etapa) {
     return `<li><b>${esc(chave)}:</b> ${esc(motivo)}</li>`;
   }).join("");
   caixa.innerHTML = `<div class="falta">Para seguir, falta:<ul style="margin:6px 0 0">${nomes}</ul></div>`;
-  caixa.scrollIntoView({ block: "center", behavior: "smooth" });
+  // Rolagem instantânea: a suave não roda em aba oculta nem com movimento reduzido.
+  for (const a of caixa.querySelectorAll("a[data-ir]")) {
+    a.onclick = (ev) => {
+      ev.preventDefault();
+      const alvo = document.getElementById(`trecho-${a.dataset.ir}`);
+      if (alvo) alvo.scrollIntoView({ block: "center" });
+    };
+  }
+  caixa.scrollIntoView({ block: "center" });
 }
 
 function confirmarEtapa(etapa, d) {
@@ -387,7 +404,7 @@ function confirmarEtapa(etapa, d) {
     reg.confirmadas[etapa] = true;
     pend = faltandoEtapa(E.codebook, etapa, reg, d);
   }
-  if (pend.length) { mostrarFalta(pend, etapa); return; }
+  if (pend.length) { mostrarFalta(pend, etapa, d); return; }
   reg.confirmadas[etapa] = true;
   marcarEdicao(E.servico);
   E.i += 1;
@@ -474,7 +491,9 @@ function renderVariavel(vid, manterScroll) {
   const sug = d.copiloto && d.copiloto.variaveis ? d.copiloto.variaveis[vid] : null;
   const julgados = trechos.filter((t) => t.origem === "v1" || notasVid[t.id] !== undefined).length;
 
-  const itens = trechos.map((t) => {
+  // Numeração estável: a ordem de trechosDaVariavel sobre dados congelados.
+  const itens = trechos.map((t, k) => {
+    const num = k + 1;
     const n = notasVid[t.id];
     const nota = n !== undefined ? n.nota : (t.origem === "v1" ? "sim" : undefined);
     const marcados = new Set(nota === undefined ? [] : [].concat(nota));
@@ -489,7 +508,8 @@ function renderVariavel(vid, manterScroll) {
       + `<button class="pequeno comentar" data-com="${esc(t.id)}">${n && n.com ? "comentário ✎" : "comentar"}</button>`;
     const sugerida = E.copilotoAberto && sug && sug.notas && sug.notas[t.id] !== undefined
       ? `<span class="sug">copiloto: ${esc([].concat(sug.notas[t.id]).map((x) => rotuloNota(spec, x)).join(", "))}</span>` : "";
-    return `<div class="item ${t.origem} ${nota === undefined ? "" : nota === NAO_E_ISSO ? "descartado" : "relevante"}" data-item="${esc(t.id)}">
+    return `<div class="item ${t.origem} ${nota === undefined ? "" : nota === NAO_E_ISSO ? "descartado" : "relevante"}" data-item="${esc(t.id)}" id="trecho-${num}">
+      <h4 class="num">Trecho ${num}</h4>
       <div class="meta">${origem}${t.flag ? `<div class="flag">⚠ ${esc(t.flag)}</div>` : ""}</div>
       <div class="texto">${esc(t.verbatim)}</div>
       <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${tipo ? ` · ${esc(tipo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
