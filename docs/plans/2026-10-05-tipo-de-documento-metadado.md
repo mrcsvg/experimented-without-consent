@@ -72,5 +72,23 @@ corpus, fixados antes da segunda codificação, não julgamentos independentes.
 3. `vercel deploy --prod --yes` no instrumento (Marcus).
 4. `python3 analysis/pre-entrega.py` contra o que está no ar.
 
-Pendente em 05/10: a conferência das 16 linhas marcadas (lista no chat) e o
-carimbo `conferido_em`.
+Pendente em 05/10: a conferência das 12 linhas marcadas (lista no chat; quatro
+das 16 iniciais, os Terms of Service do Google, foram resolvidas de imediato) e
+o carimbo `conferido_em`.
+
+## Acréscimos de 05/10, depois do segundo teste do Marcus
+
+Pedido: "os rótulos só melhorar, testar usuários e não é isso são bem
+estranhos; devo poder navegar entre as variáveis; a parte de cima, que é
+congelada, deveria mostrar quantidades já analisadas".
+
+- **Rótulos.** Cada opção de nota ganhou `tela`, o texto que o codificador lê
+  ("1 · só fala em melhorar o serviço", "2 · admite testar, sem dizer como",
+  "3 · nomeia experimento, teste A/B ou randomização"; "não se aplica" no
+  lugar de "não é isso"). `rotulo` continua sendo o que o copiloto recebeu e
+  está preso no self-test do exportador (`ROTULOS_DO_PROMPT`): mudá-lo
+  invalidaria os 26 arquivos publicados. A evidência gravada usa `tela`.
+- **Navegação.** As dez etapas da trilha são clicáveis em qualquer ordem; a
+  trava continua na confirmação de cada etapa, e o resumo espera as dez.
+- **Cabeçalho fixo.** A linha de cima diz "n de 10 etapas confirmadas · V1: j
+  de N trechos julgados", e cada botão da trilha traz j/N.

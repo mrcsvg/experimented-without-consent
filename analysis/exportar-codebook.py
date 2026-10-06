@@ -66,35 +66,53 @@ REGRAS_GERAIS = [
 # Decisão de 04/10/2026: o codificador dá uma nota a cada trecho e a resposta da
 # variável é calculada do critério congelado. As opções de nota são as do
 # próprio codebook (V2, V4, V5) ou tags que apontam para os campos (V3). "x",
-# não é isso, existe em toda variável e não entra aqui. A ausência (0, No,
+# não se aplica, existe em toda variável e não entra aqui. A ausência (0, No,
 # none, not stated) é o que sobra quando nenhum trecho recebe nota.
+#
+# Dois rótulos por opção. `rotulo` é o que o copiloto recebeu na mensagem
+# (analysis/copiloto.py: montar_mensagem) e está congelado com os 26 arquivos:
+# mudá-lo invalidaria o que foi publicado. `tela` é o que o codificador lê
+# (reescrito em 05/10/2026 depois do teste do Marcus: "só melhorar" e "testar
+# usuários" eram estranhos). O valor e o critério são os mesmos nos dois.
 NOTAS = {
     "V1": {"modo": "um", "opcoes": [
-        {"valor": "1", "rotulo": "1 · só melhorar"},
-        {"valor": "2", "rotulo": "2 · testar usuários"},
-        {"valor": "3", "rotulo": "3 · experimento, A/B, randomização"}]},
+        {"valor": "1", "rotulo": "1 · só melhorar", "tela": "1 · só fala em melhorar o serviço"},
+        {"valor": "2", "rotulo": "2 · testar usuários", "tela": "2 · admite testar, sem dizer como"},
+        {"valor": "3", "rotulo": "3 · experimento, A/B, randomização", "tela": "3 · nomeia experimento, teste A/B ou randomização"}]},
     "V2": {"modo": "varios", "opcoes": [
-        {"valor": "service improvement", "rotulo": "melhoria do serviço"},
-        {"valor": "research", "rotulo": "pesquisa"},
-        {"valor": "human-subjects research", "rotulo": "pesquisa com humanos"},
-        {"valor": "social-good/community", "rotulo": "bem da comunidade"}]},
+        {"valor": "service improvement", "rotulo": "melhoria do serviço", "tela": "melhoria do serviço"},
+        {"valor": "research", "rotulo": "pesquisa", "tela": "pesquisa"},
+        {"valor": "human-subjects research", "rotulo": "pesquisa com humanos", "tela": "pesquisa com seres humanos"},
+        {"valor": "social-good/community", "rotulo": "bem da comunidade", "tela": "bem social ou da comunidade"}]},
     "V3": {"modo": "varios", "opcoes": [
-        {"valor": "activities", "rotulo": "nomeia atividades", "campo": "v3_activities"},
-        {"valor": "specific", "rotulo": "experimento específico", "campo": "v3_specific"},
-        {"valor": "pricing", "rotulo": "preço como alvo", "campo": "v3_pricing"}]},
+        {"valor": "activities", "rotulo": "nomeia atividades", "tela": "nomeia o que é testado (features, layout, ranking)", "campo": "v3_activities"},
+        {"valor": "specific", "rotulo": "experimento específico", "tela": "descreve um experimento específico", "campo": "v3_specific"},
+        {"valor": "pricing", "rotulo": "preço como alvo", "tela": "preço é alvo de teste", "campo": "v3_pricing"}]},
     "V4": {"modo": "varios", "opcoes": [
-        {"valor": "legitimate interest", "rotulo": "interesse legítimo"},
-        {"valor": "consent", "rotulo": "consentimento"},
-        {"valor": "contract", "rotulo": "contrato"}]},
+        {"valor": "legitimate interest", "rotulo": "interesse legítimo", "tela": "interesse legítimo"},
+        {"valor": "consent", "rotulo": "consentimento", "tela": "consentimento"},
+        {"valor": "contract", "rotulo": "contrato", "tela": "contrato"}]},
     "V5": {"modo": "um", "opcoes": [
-        {"valor": "GDPR-objection-only", "rotulo": "só a objeção genérica do GDPR"},
-        {"valor": "cookie/ads-only", "rotulo": "só cookies ou anúncios"},
-        {"valor": "dedicated", "rotulo": "opt-out dedicado a experimentos"},
-        {"valor": "opt-in", "rotulo": "opt-in"}]},
-    "V6": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "programa beta ou opt-in"}]},
-    "V7": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "é debriefing"}]},
-    "V8": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "revisão ética, comitê ou risco"}]},
-    "V9": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "divulga experimentação aqui"}]},
+        {"valor": "GDPR-objection-only", "rotulo": "só a objeção genérica do GDPR", "tela": "só a objeção genérica do GDPR"},
+        {"valor": "cookie/ads-only", "rotulo": "só cookies ou anúncios", "tela": "só opt-out de cookies ou anúncios"},
+        {"valor": "dedicated", "rotulo": "opt-out dedicado a experimentos", "tela": "opt-out dedicado a experimentos"},
+        {"valor": "opt-in", "rotulo": "opt-in", "tela": "opt-in: só participa quem aceita"}]},
+    "V6": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "programa beta ou opt-in", "tela": "descreve programa beta ou opt-in"}]},
+    "V7": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "é debriefing", "tela": "avisa depois que a pessoa participou"}]},
+    "V8": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "revisão ética, comitê ou risco", "tela": "menciona revisão ética, comitê ou avaliação de risco"}]},
+    "V9": {"modo": "um", "opcoes": [{"valor": "sim", "rotulo": "divulga experimentação aqui", "tela": "este documento divulga experimentação"}]},
+}
+
+# O que o copiloto recebeu, opção por opção. O self-test prende `rotulo` a
+# isto: quem quiser outro texto na tela muda `tela`.
+ROTULOS_DO_PROMPT = {
+    "V1": ["1 · só melhorar", "2 · testar usuários", "3 · experimento, A/B, randomização"],
+    "V2": ["melhoria do serviço", "pesquisa", "pesquisa com humanos", "bem da comunidade"],
+    "V3": ["nomeia atividades", "experimento específico", "preço como alvo"],
+    "V4": ["interesse legítimo", "consentimento", "contrato"],
+    "V5": ["só a objeção genérica do GDPR", "só cookies ou anúncios", "opt-out dedicado a experimentos", "opt-in"],
+    "V6": ["programa beta ou opt-in"], "V7": ["é debriefing"],
+    "V8": ["revisão ética, comitê ou risco"], "V9": ["divulga experimentação aqui"],
 }
 
 # Tipos de documento, na ordem das opções de v9_where, com o registro padrão.
@@ -232,6 +250,10 @@ def _self_test() -> int:
     checar("extras são campos de linha ou select existentes",
            all(ch in {c["chave"] for v in d["variaveis"] for c in v["campos"]} for chs in d["extras"].values() for ch in chs))
     checar("nenhum travessão nas notas e nos tipos", "—" not in json.dumps(d["notas"], ensure_ascii=False) + json.dumps(d["tipos_doc"], ensure_ascii=False))
+    checar("rotulo das notas é o que o copiloto recebeu (para outro texto na tela, mude `tela`)",
+           {vid: [o["rotulo"] for o in s["opcoes"]] for vid, s in d["notas"].items()} == ROTULOS_DO_PROMPT)
+    checar("toda nota tem rótulo de tela, não vazio e sem travessão",
+           all(o.get("tela") and "—" not in o["tela"] for s in d["notas"].values() for o in s["opcoes"]))
     checar("ajuda por campo: só texto, sem travessão",
            d["ajuda_campos"] and all("<" not in t and "—" not in t for t in d["ajuda_campos"].values()))
 

@@ -72,6 +72,18 @@ test("V1: teto, registro do teto e nota do vinculante sozinho", () => {
   assert.deepEqual(x.n.V1, { total: 2, julgados: 2, relevantes: 2 });
 });
 
+test("evidência usa o rótulo de tela quando existe; sem trecho relevante diz 'não se aplica'", () => {
+  // `rotulo` é o que o copiloto recebeu (congelado); `tela` é o que o codificador lê.
+  const cbTela = { ...CB, notas: { ...CB.notas, V1: { modo: "um", opcoes: [
+    { valor: "1", rotulo: "r1" }, { valor: "2", rotulo: "r2" }, { valor: "3", rotulo: "r3", tela: "t3" }] } } };
+  const r = reg({ notas: { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } } } });
+  const x = derivar(cbTela, r, D);
+  assert.match(x.campos.v1_evidence, /nota: t3/);
+  assert.match(x.campos.v1_evidence, /nota: r2/, "sem rótulo de tela, fica o do copiloto");
+  const nada = derivar(CB, reg({ notas: { V1: { [ID_HIT1]: { nota: "x" }, "c:V1-1": { nota: "x" } } } }), D);
+  assert.match(nada.campos.v1_evidence, /Nenhum dos 2 trechos sustenta outra resposta \(todos marcados: não se aplica\)\./);
+});
+
 test("V1: teto nos dois registros = both; sem trecho relevante = 0 e registro vazio", () => {
   const ambos = derivar(CB, reg({ notas: { V1: { [ID_HIT1]: { nota: "3" }, "c:V1-1": { nota: "3" } } } }), D);
   assert.equal(ambos.campos.v1_register, "both");

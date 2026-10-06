@@ -145,12 +145,13 @@ function notaEfetiva(reg, vid, t) {
 
 export function textoDeEvidenciaNotas(vid, specVid, trechos, relevantes, comentario, docs, linhasExtras = []) {
   const ops = (specVid && specVid.opcoes) || [];
-  const rotulo = (valor) => { const o = ops.find((x) => x.valor === valor); return o ? o.rotulo : String(valor); };
+  // `tela` é o rótulo que o codificador leu; `rotulo`, o que o copiloto recebeu.
+  const rotulo = (valor) => { const o = ops.find((x) => x.valor === valor); return o ? (o.tela || o.rotulo) : String(valor); };
   const linhas = relevantes.map((t) =>
     `${textoDeEvidencia(t, docs)} · nota: ${[].concat(t.nota).map(rotulo).join(", ")}${t.com ? ` · comentário: ${t.com}` : ""}`);
   if (!relevantes.length) {
     linhas.push(trechos.length
-      ? `Nenhum dos ${trechos.length} trechos sustenta outra resposta (todos julgados: não é isso).`
+      ? `Nenhum dos ${trechos.length} trechos sustenta outra resposta (todos marcados: não se aplica).`
       : "Nenhum trecho localizado para esta variável.");
   }
   linhas.push(...linhasExtras);

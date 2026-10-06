@@ -222,7 +222,8 @@ const ABERTURA = `
 
 <h2>O que você faz</h2>
 <p>A página leva você por um serviço de cada vez: as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. O tipo de cada documento (política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog) já vem dado com o corpus e aparece ao lado de cada trecho. O tipo decide se o documento obriga a plataforma ou não. Se achar que um tipo está errado, anote em Notas.</p>
-<p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não é isso" quando o trecho fala de outra coisa. Pode comentar qualquer trecho.</p>
+<p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não se aplica" quando o trecho fala de outra coisa. Pode comentar qualquer trecho.</p>
+<p>A trilha no alto da tela mostra as dez etapas com a conta de trechos julgados em cada uma. Pode clicar em qualquer etapa, na ordem que preferir; o serviço só fica concluído quando as dez estiverem confirmadas.</p>
 <p>A <b>resposta da variável é calculada das suas notas</b>, pela regra do codebook: o nível mais alto na V1, a união nas de múltipla escolha, o degrau mais alto na V5, qualquer trecho nas de Sim/Não, os tipos dos documentos na V9. A caixa "Resposta calculada" mostra o resultado. Se discordar do cálculo, "corrigir à mão" abre os campos. Há um comentário por variável. Quando estiver satisfeito, <b>Confirmar e seguir</b>.</p>
 <p>Em cada tela há o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem daria de nota a cada trecho, e <b>aplicar sugestão</b> preenche só os trechos que você ainda não julgou. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
 <p>Pode parar a qualquer momento e fechar a página. Quando voltar, ela abre onde você parou. O botão <b>Voltar</b> deixa rever o que já confirmou.</p>
@@ -312,14 +313,21 @@ function cabecalhoServico(d) {
   const f = fechadas(cb, reg, d);
   const p = progressoEtapas(cb, reg, d);
   const tudo = p.feitas === p.total;
+  // Contagens por etapa (trechos julgados / total) para a trilha e a linha de cima.
+  const n = derivar(cb, reg, d).n;
+  const atual = lista[E.i];
+  // Toda etapa é clicável, em qualquer ordem: a trava é da confirmação, não da
+  // navegação. Só o resumo espera as dez confirmadas.
   const trilha = lista.map((e, k) => {
-    const cls = k === E.i ? "atual" : f[e] ? "fechado" : "futuro";
-    const podeIr = cls !== "futuro" || k === 0 || f[lista[k - 1]] || lista.slice(0, k).every((x) => f[x]);
-    return `<button class="${cls}" data-passo="${k}" ${podeIr ? "" : "disabled"}>${esc(rotuloEtapa(e))}</button>`;
-  }).join("") + `<button class="${E.i >= lista.length ? "atual" : tudo ? "fechado" : "futuro"}" data-passo="${lista.length}" ${tudo ? "" : "disabled"}>resumo</button>`;
+    const cls = k === E.i ? "atual" : f[e] ? "fechado" : "aberto";
+    const c = n[e];
+    const conta = c ? `<small>${c.julgados}/${c.total}</small>` : "";
+    return `<button class="${cls}" data-passo="${k}" title="${c ? `${c.julgados} de ${c.total} trechos julgados` : "log de palavras-chave"}">${esc(rotuloEtapa(e))}${conta}</button>`;
+  }).join("") + `<button class="${E.i >= lista.length ? "atual" : tudo ? "fechado" : "futuro"}" data-passo="${lista.length}" ${tudo ? "" : "disabled"} title="${tudo ? "" : "abre quando as dez etapas estiverem confirmadas"}">resumo</button>`;
+  const contaAtual = atual && n[atual] ? ` · ${esc(atual)}: ${n[atual].julgados} de ${n[atual].total} trechos julgados` : "";
   return `<div class="cabecalho">
     <div class="linha1"><h1>${esc(E.servico)}</h1>
-      <span class="suave">${d.docs.length} documentos · ${p.feitas} de ${p.total} etapas</span>
+      <span class="suave">${p.feitas} de ${p.total} etapas confirmadas${contaAtual}</span>
       <span class="recibo"></span></div>
     <div class="trilha">${trilha}</div>
     <p class="pequeno suave" style="margin:6px 0 0"><a href="#" id="voltar-lista">todos os serviços</a> · <a href="#" id="regras">cinco regras gerais</a> · <a href="/assistente/copiloto.html" target="_blank" rel="noopener">como o copiloto funciona</a></p>
@@ -359,7 +367,7 @@ function mostrarFalta(pend, etapa) {
   const caixa = document.getElementById("falta");
   if (!caixa) return;
   const nomes = pend.map(([chave, motivo]) => {
-    if (chave === "trechos") return `<li><b>Trechos:</b> ${esc(motivo)}. Dê uma nota a cada um, ou use "marcar os restantes como não é isso".</li>`;
+    if (chave === "trechos") return `<li><b>Trechos:</b> ${esc(motivo)}. Dê uma nota a cada um, ou use "marcar os restantes como não se aplica".</li>`;
     if (chave === "confirmar") return `<li>${esc(motivo)}: clique de novo em Confirmar.</li>`;
     if (chave === "keyword_log") return `<li><b>Log de palavras-chave:</b> não pode ficar vazio.</li>`;
     const v = E.codebook.variaveis.find((x) => x.vid === etapa);
@@ -400,10 +408,11 @@ function voltarEtapa() {
 
 // ------------------------------------------------------------ tela da variável
 
+// `tela` é o rótulo escrito para o codificador; `rotulo` é o que o copiloto recebeu.
 function rotuloNota(spec, valor) {
-  if (valor === NAO_E_ISSO) return "não é isso";
+  if (valor === NAO_E_ISSO) return "não se aplica";
   const o = (spec.opcoes || []).find((x) => x.valor === valor);
-  return o ? o.rotulo : String(valor);
+  return o ? (o.tela || o.rotulo) : String(valor);
 }
 
 function legivel(campo, valor) {
@@ -475,8 +484,8 @@ function renderVariavel(vid, manterScroll) {
     const origem = t.origem === "piso" ? `<span class="origem">palavra-chave <b>${esc(t.termo)}</b> <span class="suave">(${t.total_no_doc} no documento)</span></span>`
       : t.origem === "modelo" ? `<span class="origem">localizado pelo modelo</span>`
       : `<span class="origem">herdado da V1 <b>(nível ${esc(t.notaV1)})</b></span>`;
-    const botoes = (spec.opcoes || []).map((o) => `<button class="nota ${marcados.has(o.valor) ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${esc(o.valor)}">${esc(o.rotulo)}</button>`).join("")
-      + `<button class="nota x ${nota === NAO_E_ISSO ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${NAO_E_ISSO}">não é isso</button>`
+    const botoes = (spec.opcoes || []).map((o) => `<button class="nota ${marcados.has(o.valor) ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${esc(o.valor)}">${esc(o.tela || o.rotulo)}</button>`).join("")
+      + `<button class="nota x ${nota === NAO_E_ISSO ? "marcado" : ""}" data-id="${esc(t.id)}" data-nota="${NAO_E_ISSO}">não se aplica</button>`
       + `<button class="pequeno comentar" data-com="${esc(t.id)}">${n && n.com ? "comentário ✎" : "comentar"}</button>`;
     const sugerida = E.copilotoAberto && sug && sug.notas && sug.notas[t.id] !== undefined
       ? `<span class="sug">copiloto: ${esc([].concat(sug.notas[t.id]).map((x) => rotuloNota(spec, x)).join(", "))}</span>` : "";
@@ -505,9 +514,9 @@ function renderVariavel(vid, manterScroll) {
     ${copilotoHtml}
     <div class="evid">
       <h3>Trechos <span class="suave pequeno" id="contador">${julgados} de ${trechos.length} julgados</span></h3>
-      <p class="pequeno suave">Para cada trecho, o que ele mostra para esta variável. "Não é isso" vale para falso positivo, outro sentido ou outro assunto.</p>
+      <p class="pequeno suave">Para cada trecho, o que ele mostra para esta variável. "Não se aplica" vale para falso positivo, outro sentido ou outro assunto.</p>
       ${trechos.length ? itens : `<p class="suave">Nenhum trecho localizado para esta variável, nem pela busca por palavra-chave nem pelo modelo. Se concordar com a ausência, confirme.</p>`}
-      ${julgados < trechos.length ? `<div class="botoes"><button class="secundario" id="restantes">marcar os ${trechos.length - julgados} restantes como "não é isso"</button></div>` : ""}
+      ${julgados < trechos.length ? `<div class="botoes"><button class="secundario" id="restantes">marcar os ${trechos.length - julgados} restantes como "não se aplica"</button></div>` : ""}
     </div>
     ${caixaCalculo(v, reg, d)}
     <div class="campo"><label class="rotulo" for="comentario"><b>Comentário sobre esta variável</b> <span class="suave pequeno">opcional; entra na evidência gravada</span></label>
