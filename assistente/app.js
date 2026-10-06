@@ -494,14 +494,23 @@ function renderVariavel(vid, manterScroll) {
   // Quantos trechos de cada palavra, por documento, estão na tela: o piso mostra
   // no máximo 3 por palavra por documento, e o codificador precisa saber quando
   // há ocorrências que ele não está vendo.
+  // O piso traz as primeiras ocorrências de cada palavra em cada documento, em
+  // ordem de texto (revisao.piso, TETO_POR_TERMO_DOC): "ocorrência k de N".
   const naTela = {};
-  for (const t of trechos) if (t.origem === "piso") naTela[`${t.file}\n${t.termo}`] = (naTela[`${t.file}\n${t.termo}`] || 0) + 1;
+  const ordinal = new Map();
+  for (const t of trechos) {
+    if (t.origem !== "piso") continue;
+    const chave = `${t.file}\n${t.termo}`;
+    naTela[chave] = (naTela[chave] || 0) + 1;
+    ordinal.set(t.id, naTela[chave]);
+  }
   const contagem = (t) => {
     const total = Number(t.total_no_doc) || 0;
     const aqui = naTela[`${t.file}\n${t.termo}`] || 0;
-    if (total <= 1) return "única ocorrência no documento";
-    if (total <= aqui) return `${total} ocorrências no documento, todas aqui`;
-    return `${total} ocorrências no documento, ${aqui} aqui; para as outras, abra o documento e use a busca do navegador`;
+    const k = ordinal.get(t.id) || 1;
+    if (total <= 1) return "única ocorrência neste documento";
+    if (total <= aqui) return `ocorrência ${k} de ${total} neste documento`;
+    return `ocorrência ${k} de ${total} neste documento · só as ${aqui} primeiras estão na página; para as outras, abra o documento e use a busca do navegador`;
   };
   // Numeração estável: a ordem de trechosDaVariavel sobre dados congelados.
   const itens = trechos.map((t, k) => {
