@@ -5,6 +5,9 @@
     "V1": {
      "h:dcdefd84": {
       "nota": "x"
+     },
+     "h:8f4d201d": {
+      "nota": "2"
      }
     }
    },
@@ -12,9 +15,9 @@
    "override": {},
    "comentarios": {},
    "confirmadas": {},
-   "v1_code": "0",
-   "v1_register": "",
-   "v1_evidence": "Nenhum dos 30 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v1_code": "2",
+   "v1_register": "binding",
+   "v1_evidence": "“…vandalism; optimize mobile applications, customize content and set language preferences, test features to see what works, and improve performance; understand how users interact with t…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: 2 · admite testar, sem dizer como",
    "v2_framing": [],
    "v2_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v3_activities": "No",
@@ -36,14 +39,16 @@
    "v7_evidence": "Nenhum dos 4 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v8_ethics": "No",
    "v8_note": "Nenhum dos 5 trechos sustenta outra resposta (todos marcados: não se aplica).",
-   "v9_where": [],
-   "v9_register": "",
-   "v9_evidence": "Nenhum dos 7 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v9_where": [
+    "privacy policy"
+   ],
+   "v9_register": "binding",
+   "v9_evidence": "“…vandalism; optimize mobile applications, customize content and set language preferences, test features to see what works, and improve performance; understand how users interact with t…” (Documento 1: Wikimedia Foundation Privacy Policy - Wikimedia Foundation Governance Wiki, palavra-chave \"test\") · nota: este documento divulga experimentação",
    "keyword_log": "",
    "notes": "",
-   "service": "Wikipedia",
-   "_ts": 1791340299722
+   "_ts": 1791340303910,
+   "service": "Wikipedia"
   }
  },
- "saved_at": "2026-10-07T02:31:39.722Z"
+ "saved_at": "2026-10-07T02:31:43.910Z"
 }
