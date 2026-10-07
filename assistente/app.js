@@ -222,7 +222,7 @@ const ABERTURA = `
 
 <h2>O que você faz</h2>
 <p>A página leva você por um serviço de cada vez: as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. O tipo de cada documento (política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog) já vem dado com o corpus e aparece ao lado de cada trecho. O tipo decide se o documento obriga a plataforma ou não. Se achar que um tipo está errado, anote em Notas.</p>
-<p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas: a busca por palavra-chave, que procura os 12 termos do protocolo no texto congelado e não deixa nada de fora, e a busca do modelo, que localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não se aplica" quando o trecho fala de outra coisa, usa a palavra em outro sentido ou é só índice, sumário ou título de seção. Pode comentar qualquer trecho.</p>
+<p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas. A busca por palavra-chave conta todas as ocorrências dos 12 termos do protocolo no texto congelado e mostra até três por palavra em cada documento, as primeiras fora de menu e índice; quando há mais, "abrir no documento" mostra o texto inteiro com todas as ocorrências marcadas em amarelo. A busca do modelo localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não se aplica" quando o trecho fala de outra coisa, usa a palavra em outro sentido ou é só índice, sumário ou título de seção. Pode comentar qualquer trecho.</p>
 <p>A trilha no alto da tela mostra as dez etapas com a conta de trechos julgados em cada uma. Pode clicar em qualquer etapa, na ordem que preferir; o serviço só fica concluído quando as dez estiverem confirmadas.</p>
 <p>A <b>resposta da variável é calculada das suas notas</b>, pela regra do codebook: o nível mais alto na V1, a união nas de múltipla escolha, o degrau mais alto na V5, qualquer trecho nas de Sim/Não, os tipos dos documentos na V9. A caixa "Resposta calculada" mostra o resultado. Se discordar do cálculo, "corrigir à mão" abre os campos. Há um comentário por variável. Quando estiver satisfeito, <b>Confirmar e seguir</b>.</p>
 <p>Em cada tela há o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem daria de nota a cada trecho, e <b>aplicar sugestão</b> preenche só os trechos que você ainda não julgou. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
@@ -536,9 +536,10 @@ function renderVariavel(vid, manterScroll) {
     const total = Number(t.total_no_doc) || 0;
     const aqui = naTela[`${t.file}\n${t.termo}`] || 0;
     const k = ordinal.get(t.id) || 1;
+    // Curto, sempre igual: a regra das três por documento está explicada uma
+    // vez só, no parágrafo acima da lista e na abertura.
     if (total <= 1) return "única ocorrência neste documento";
-    if (total <= aqui) return `ocorrência ${k} de ${total} neste documento`;
-    return `ocorrência ${k} de ${total} neste documento · só as ${aqui} primeiras estão na página; para as outras, abra o documento e use a busca do navegador`;
+    return `ocorrência ${k} de ${total} neste documento`;
   };
   // Numeração estável: a ordem de trechosDaVariavel sobre dados congelados.
   const itens = trechos.map((t, k) => {
@@ -584,6 +585,7 @@ function renderVariavel(vid, manterScroll) {
     <div class="evid">
       <h3>Trechos <span class="suave pequeno" id="contador">${julgados} de ${trechos.length} julgados</span></h3>
       <p class="pequeno suave">Para cada trecho, escolha a opção que diz o que ele mostra para esta pergunta. Marque <b>"não se aplica"</b> quando o trecho não serve de evidência. Três casos: a palavra está em outro sentido (Exemplo: testar a segurança do sistema, período grátis de teste); o assunto é outro; o trecho é índice, sumário, título de seção ou menu, sem a frase que afirma a coisa. Nesse último caso a frase costuma aparecer como outro trecho, logo abaixo. Na dúvida, "abrir no documento" mostra o entorno.</p>
+      <p class="pequeno suave">Cada palavra-chave entra com até três ocorrências por documento, as primeiras fora de menu e índice; a linha do trecho diz qual é ("ocorrência 3 de 15"). Para ver as outras, "abrir no documento" mostra o texto inteiro com todas as ocorrências da palavra em amarelo e botões para ir de uma a outra.</p>
       ${trechos.length ? itens : `<p class="suave">Nenhum trecho localizado para esta variável, nem pela busca por palavra-chave nem pelo modelo. Se concordar com a ausência, confirme.</p>`}
       ${julgados < trechos.length ? `<div class="botoes"><button class="secundario" id="restantes">marcar os ${trechos.length - julgados} restantes como "não se aplica"</button></div>` : ""}
     </div>
