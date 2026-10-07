@@ -113,3 +113,26 @@ Marcus, vendo a V4 no teste local: "isso está bem confuso". Três coisas:
   sem correção à mão, com uma linha na evidência da V4. A caixa mostra o campo
   como "fixo", com a explicação. O campo já estava fora do κ (02/10/2026);
   `compute-agreement.py` continua mostrando as vantagens lado a lado.
+
+## Piso sem linhas de menu; painel com todas as ocorrências, 06/10/2026
+
+Marcus, no Wikitech (documento 5 da Wikipedia): "não tá destacado". O trecho
+aberto era o título da página repetido no menu, primeira ocorrência de "A/B";
+a marca caía no menu, no topo, e as 12 ocorrências reais ficavam escondidas
+pelo teto de três por palavra e documento. Medido no corpus: 98 dos 409
+trechos de palavra-chave caíam em linha de menu, índice ou título.
+
+- **Piso.** `revisao.linha_de_menu`: linha curta (até 60 caracteres), sem
+  pontuação de frase, com uma vizinha não vazia do mesmo tipo até duas linhas
+  de distância. A varredura marca cada hit; o piso pula os marcados ao
+  preencher as vagas e, se todas as ocorrências forem assim, mantém como
+  antes, para nenhum par documento–termo sumir. Resultado: 98 trechos saem,
+  76 ocorrências reais entram; as contagens do log não mudam. Self-test com
+  texto sintético, dossiê falso e corpus.
+- **Painel do documento.** Além do trecho (amarelo forte) e da frase (amarelo
+  claro), todas as outras ocorrências da mesma palavra ficam em amarelo claro,
+  com "anterior / próxima / ir ao trecho" e "k de n". A regex de cada termo
+  vai no codebook.json (`termos[].regex`, `case_sensitive`).
+- **Copiloto.** Os ids de trecho que saíram do piso invalidavam 18 dos 26
+  arquivos. Decisão de Marcus: rodar o copiloto de novo, mesmo prompt, sobre
+  o piso novo (ver `copiloto/index.json` para a data e os tokens).
