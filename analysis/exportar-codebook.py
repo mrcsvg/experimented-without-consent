@@ -201,7 +201,8 @@ def exportar() -> dict:
         "fonte_crit": R.FONTE_CRIT,
         "servicos": list(C.SERVICOS),
         "variaveis": variaveis,
-        "termos": [{"term": nome, "label": spec.get("label", nome), "flag": spec.get("flag")}
+        "termos": [{"term": nome, "label": spec.get("label", nome), "flag": spec.get("flag"),
+                    "regex": spec["regex"], "case_sensitive": bool(spec.get("case_sensitive"))}
                    for nome, spec in P.PATTERNS.items()],
         "termo_para_variavel": {t: list(vs) for t, vs in R.TERMO_PARA_VARIAVEL.items()},
         "regras_gerais_html": regras_gerais_html(),
@@ -265,6 +266,8 @@ def _self_test() -> int:
     checar("nenhuma anotação do instrumento antigo (DATA.services) exportada",
            not any(k in d for k in ("services", "DATA", "docs")))
     checar("12 termos, cada um com rótulo", len(d["termos"]) == 12 and all(t["label"] for t in d["termos"]))
+    checar("cada termo traz a regex do §3, para a página marcar as ocorrências no documento",
+           all(t.get("regex") and re.compile(t["regex"]) for t in d["termos"]))
     checar("endereço termo→variável igual ao do painel", d["termo_para_variavel"] == {t: list(v) for t, v in R.TERMO_PARA_VARIAVEL.items()})
     checar("regras gerais: cinco itens, sem travessão", d["regras_gerais_html"].count("<li>") == 5 and "—" not in d["regras_gerais_html"])
     checar("nenhum travessão em pergunta ou lembrete",

@@ -398,13 +398,55 @@ def varredura(servico: str, corpus: "Corpus | None" = None) -> list[dict]:
         if texto is None:
             continue
         counts, hits = P.scan_text(texto)
+        normalizado = P._normalize(texto)  # as posições dos hits são sobre este texto
         saida.append({
             "file": doc["file"], "url": doc["url"], "role": doc["role"],
             "sha256": doc["sha256_text"], "chars": doc["chars"], "counts": counts,
             "log_line": " / ".join(f"{t}:{n}" for t, n in counts.items()),
-            "hits": [{"term": h.term, "kwic": h.kwic, "flag": h.flag} for h in hits],
+            "hits": [{"term": h.term, "kwic": h.kwic, "flag": h.flag, "start": h.start,
+                      "menu": linha_de_menu(normalizado, h.start)} for h in hits],
         })
     return saida
+
+
+_PONTUACAO_DE_FRASE = re.compile(r"[.!?;:]\s|[.!?;:]$")
+
+
+def _linha(texto: str, pos: int) -> tuple[int, int, str]:
+    a = texto.rfind("\n", 0, pos) + 1
+    b = texto.find("\n", pos)
+    b = len(texto) if b < 0 else b
+    return a, b, texto[a:b].strip()
+
+
+def _curta_sem_frase(linha: str) -> bool:
+    return len(linha) <= 60 and not _PONTUACAO_DE_FRASE.search(linha)
+
+
+def linha_de_menu(texto: str, pos: int) -> bool:
+    """A ocorrência em `pos` está numa linha de menu, índice ou título repetido?
+
+    Linha curta (até 60 caracteres), sem pontuação de frase, e com pelo menos
+    uma vizinha não vazia (até duas linhas de distância) do mesmo tipo. Uma
+    frase curta isolada entre parágrafos não conta, porque a vizinha é frase.
+    Páginas capturadas de HTML trazem o título repetido no menu, o sumário e
+    o rodapé; o termo aparece lá antes de aparecer em qualquer frase.
+    """
+    a, b, linha = _linha(texto, pos)
+    if not _curta_sem_frase(linha):
+        return False
+    for direcao in (-1, 1):
+        p = a - 1 if direcao < 0 else b + 1
+        for _ in range(2):
+            if p < 0 or p >= len(texto):
+                break
+            la, lb, vizinha = _linha(texto, p)
+            if vizinha:
+                if _curta_sem_frase(vizinha):
+                    return True
+                break
+            p = la - 1 if direcao < 0 else lb + 1
+    return False
 
 
 # --------------------------------------------------------- piso determinístico
@@ -452,18 +494,26 @@ def piso(servico: str, corpus: "Corpus | None" = None, dossie: list | None = Non
     dossie = dossie if dossie is not None else varredura(servico, corpus)
     por_variavel: dict[str, list] = {}
     for d in dossie:
-        vistos: dict[tuple, int] = {}
+        # Até TETO_POR_TERMO_DOC ocorrências por termo e variável, em ordem de
+        # texto, pulando as que caem em linha de menu, índice ou título
+        # repetido (06/10/2026). Se todas forem assim, entram elas mesmas: o
+        # piso nunca esconde um par documento–termo.
+        escolhidos: dict[tuple, list] = {}
         for h in d["hits"]:
             for vid in TERMO_PARA_VARIAVEL.get(h["term"], ()):
-                chave = (vid, h["term"], d["file"])
-                vistos[chave] = vistos.get(chave, 0) + 1
-                if vistos[chave] > TETO_POR_TERMO_DOC:
-                    continue
-                por_variavel.setdefault(vid, []).append({
-                    "termo": h["term"], "kwic": h["kwic"], "flag": h["flag"],
-                    "file": d["file"], "role": d["role"],
-                    "total_no_doc": d["counts"][h["term"]],
-                })
+                escolhidos.setdefault((vid, h["term"]), [])
+        for (vid, termo), lista in escolhidos.items():
+            do_termo = [h for h in d["hits"] if h["term"] == termo]
+            reais = [h for h in do_termo if not h.get("menu")]
+            lista.extend((reais or do_termo)[:TETO_POR_TERMO_DOC])
+        selecionados = [(vid, h) for (vid, _), lista in escolhidos.items() for h in lista]
+        selecionados.sort(key=lambda par: par[1].get("start", 0))
+        for vid, h in selecionados:
+            por_variavel.setdefault(vid, []).append({
+                "termo": h["term"], "kwic": h["kwic"], "flag": h["flag"],
+                "file": d["file"], "role": d["role"],
+                "total_no_doc": d["counts"][h["term"]],
+            })
     return por_variavel
 
 
@@ -1298,6 +1348,33 @@ def _self_test() -> int:
         teto[(h["termo"], h["file"])] = teto.get((h["termo"], h["file"]), 0) + 1
     checar("teto por termo e documento é respeitado",
            all(v <= TETO_POR_TERMO_DOC for v in teto.values()))
+
+    print("piso: linhas de menu e índice")
+    # Linha curta, sem pontuação de frase, com vizinha igual = menu, índice ou
+    # título repetido. O piso pula essas ocorrências ao preencher as vagas
+    # (06/10/2026): no Wikitech, as três primeiras ocorrências de "A/B" eram o
+    # título no menu, e as 12 reais ficavam escondidas pelo teto.
+    menu_txt = ("A/B testing - Wikitech\nJump to content\nMain menu\n\n"
+                "In the platform, features are tested using controlled experiments.\n"
+                "Software\nSome A/B tests are hard-coded.\n")
+    checar("título repetido no menu é linha de menu", linha_de_menu(menu_txt, menu_txt.index("A/B testing")))
+    checar("frase com pontuação não é linha de menu", not linha_de_menu(menu_txt, menu_txt.index("tested using")))
+    checar("linha curta de seção entre frases não é menu", not linha_de_menu(menu_txt, menu_txt.index("Software")))
+    falso = [{"file": "x/01.md", "role": "binding", "counts": {"A-B": 5}, "hits": [
+                 {"term": "A-B", "kwic": "menu 1", "flag": None, "start": 0, "menu": True},
+                 {"term": "A-B", "kwic": "menu 2", "flag": None, "start": 10, "menu": True},
+                 {"term": "A-B", "kwic": "frase real", "flag": None, "start": 20, "menu": False},
+                 {"term": "A-B", "kwic": "menu 3", "flag": None, "start": 30, "menu": True},
+                 {"term": "A-B", "kwic": "outra frase", "flag": None, "start": 40, "menu": False}]},
+             {"file": "x/02.md", "role": "binding", "counts": {"A-B": 1}, "hits": [
+                 {"term": "A-B", "kwic": "só menu", "flag": None, "start": 0, "menu": True}]}]
+    chao_f = piso("X", c, dossie=falso)
+    checar("piso pula as ocorrências de menu e promove as reais",
+           [h["kwic"] for h in chao_f["V1"] if h["file"] == "x/01.md"] == ["frase real", "outra frase"])
+    checar("documento onde só há menu mantém a ocorrência, para nada ficar escondido",
+           [h["kwic"] for h in chao_f["V1"] if h["file"] == "x/02.md"] == ["só menu"])
+    checar("varredura marca linha de menu nos hits",
+           any(h.get("menu") for d in varredura("Wikipedia", c) for h in d["hits"]))
 
     print("evidência congelada")
     import shutil

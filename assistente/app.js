@@ -339,7 +339,7 @@ function ligarCabecalho(d) {
     b.onclick = () => { if (!b.disabled) { E.i = Number(b.dataset.passo); E.copilotoAberto = false; E.corrigindo = false; render(); } };
   }
   for (const b of app.querySelectorAll("button[data-abrir]")) {
-    b.onclick = () => abrirDocumento(b.dataset.abrir, b.dataset.trecho || null, d);
+    b.onclick = () => abrirDocumento(b.dataset.abrir, b.dataset.trecho || null, d, b.dataset.termo || null);
   }
   const vl = document.getElementById("voltar-lista");
   if (vl) vl.onclick = (ev) => { ev.preventDefault(); salvar(E.servico); E.servico = null; telaContinuar(); };
@@ -562,7 +562,7 @@ function renderVariavel(vid, manterScroll) {
       <div class="meta">${origem}${t.flag ? `<div class="flag">⚠ ${esc(t.flag)}</div>` : ""}</div>
       <div class="texto">${esc(t.verbatim)}</div>
       <div class="onde">Documento ${t.doc}${titulo ? `: ${esc(titulo)}` : ""}${tipo ? ` · ${esc(tipo)}` : ""}${t.onde ? ` · ${esc(t.onde)}` : ""}
-        <button class="pequeno" data-abrir="${esc(t.file)}" data-trecho="${esc(t.verbatim)}">abrir no documento</button></div>
+        <button class="pequeno" data-abrir="${esc(t.file)}" data-trecho="${esc(t.verbatim)}" data-termo="${esc(t.termo || "")}">abrir no documento</button></div>
       <div class="notas">${botoes} ${sugerida}</div>
       <div class="com ${n && n.com ? "" : "oculto"}"><input type="text" data-com-input="${esc(t.id)}" value="${esc(n && n.com ? n.com : "")}" placeholder="comentário curto sobre este trecho"></div>
     </div>`;
@@ -817,7 +817,43 @@ function localizar(texto, trecho) {
   return null;
 }
 
-async function abrirDocumento(file, trecho, d) {
+// O texto congelado com três marcas: o trecho em amarelo forte, a frase que o
+// contém em amarelo claro e, quando o trecho veio de palavra-chave, todas as
+// outras ocorrências da mesma palavra (regex do §3, do codebook) em amarelo
+// claro, para o codificador não precisar da busca do navegador.
+function montarPre(texto, pos, rx) {
+  const pre = document.createElement("pre");
+  const outras = [];
+  if (rx) for (const m of texto.matchAll(rx)) {
+    const a = m.index, b = m.index + m[0].length;
+    if (!m[0].length) continue;
+    if (pos && a < pos[1] && b > pos[0]) continue;
+    outras.push([a, b]);
+  }
+  const encher = (pai, a, b) => {
+    let i = a;
+    for (const [x, y] of outras) {
+      if (x < a || y > b) continue;
+      if (x > i) pai.append(texto.slice(i, x));
+      const m = document.createElement("mark"); m.className = "outra"; m.textContent = texto.slice(x, y); pai.append(m);
+      i = y;
+    }
+    if (i < b) pai.append(texto.slice(i, b));
+  };
+  if (!pos) { encher(pre, 0, texto.length); return pre; }
+  const ini = inicioDaFrase(texto, pos[0]);
+  const fim = fimDaFrase(texto, pos[1]);
+  encher(pre, 0, ini);
+  const frase = document.createElement("span"); frase.className = "frase";
+  encher(frase, ini, pos[0]);
+  const m = document.createElement("mark"); m.className = "trecho"; m.textContent = texto.slice(pos[0], pos[1]); frase.append(m);
+  encher(frase, pos[1], fim);
+  pre.append(frase);
+  encher(pre, fim, texto.length);
+  return pre;
+}
+
+async function abrirDocumento(file, trecho, d, termo = null) {
   const doc = d.docs.find((x) => x.file === file) || {};
   const url = `${CORPUS}/md/${file}`;
   const corpo = abrirPainel(esc(doc.titulo || file), `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado ·<a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a></p><p class="nota">carregando…</p>`);
@@ -836,31 +872,37 @@ async function abrirDocumento(file, trecho, d) {
     return;
   }
   const pos = localizar(texto, trecho);
-  const pre = document.createElement("pre");
-  if (pos) {
-    // O trecho em amarelo forte; a frase inteira em volta dele, em amarelo
-    // claro, para o codificador ler o contexto sem caçar na página.
-    const ini = inicioDaFrase(texto, pos[0]);
-    const fim = fimDaFrase(texto, pos[1]);
-    pre.append(texto.slice(0, ini));
-    const frase = document.createElement("span"); frase.className = "frase";
-    frase.append(texto.slice(ini, pos[0]));
-    const m = document.createElement("mark"); m.textContent = texto.slice(pos[0], pos[1]); frase.append(m);
-    frase.append(texto.slice(pos[1], fim));
-    pre.append(frase);
-    pre.append(texto.slice(fim));
-  } else {
-    pre.textContent = texto;
-  }
-  const aviso = trecho ? (pos
-    ? ` · <b>trecho marcado em amarelo</b> <button class="pequeno" id="ir-trecho">ir ao trecho</button>`
-    : " · trecho não localizado automaticamente; use a busca do navegador") : "";
-  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado · <a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${aviso}</p>`;
+  const spec = termo ? (E.codebook.termos || []).find((x) => x.term === termo) : null;
+  const rx = spec && spec.regex ? new RegExp(spec.regex, spec.case_sensitive ? "g" : "gi") : null;
+  const pre = montarPre(texto, pos, rx);
+  const marcas = [...pre.querySelectorAll("mark")];
+  const nOutras = pre.querySelectorAll("mark.outra").length;
+  const partes = [];
+  if (trecho && pos) partes.push(`<b>trecho em amarelo forte</b>`);
+  if (trecho && !pos) partes.push("trecho não localizado automaticamente; use a busca do navegador");
+  if (nOutras) partes.push(`${nOutras} outra${nOutras === 1 ? "" : "s"} ocorrência${nOutras === 1 ? "" : "s"} de "${esc(termo)}" em amarelo claro`);
+  const botoes = (pos ? ` <button class="pequeno" id="ir-trecho">ir ao trecho</button>` : "")
+    + (marcas.length > 1 ? ` <button class="pequeno" id="marca-ant">anterior</button> <button class="pequeno" id="marca-prox">próxima</button> <span id="marca-pos"></span>` : "");
+  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado · <a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${partes.length ? " · " + partes.join("; ") : ""}${botoes}</p>`;
   corpo.appendChild(pre);
-  const marca = pre.querySelector("mark");
+  // Navegação entre as marcas, começando pelo trecho.
+  let atual = Math.max(0, marcas.findIndex((m) => m.classList.contains("trecho")));
+  const posicao = document.getElementById("marca-pos");
+  const mostrarMarca = (k) => {
+    if (!marcas.length) return;
+    atual = (k + marcas.length) % marcas.length;
+    for (const m of marcas) m.classList.remove("foco");
+    marcas[atual].classList.add("foco");
+    marcas[atual].scrollIntoView({ block: "center" });
+    if (posicao) posicao.textContent = `${atual + 1} de ${marcas.length}`;
+  };
   const ir = document.getElementById("ir-trecho");
-  if (ir && marca) ir.onclick = () => marca.scrollIntoView({ block: "center" });
-  if (marca) setTimeout(() => marca.scrollIntoView({ block: "center" }), 30);
+  if (ir) ir.onclick = () => mostrarMarca(marcas.findIndex((m) => m.classList.contains("trecho")));
+  const ant = document.getElementById("marca-ant");
+  if (ant) ant.onclick = () => mostrarMarca(atual - 1);
+  const prox = document.getElementById("marca-prox");
+  if (prox) prox.onclick = () => mostrarMarca(atual + 1);
+  if (marcas.length) setTimeout(() => mostrarMarca(atual), 30);
 }
 
 // Limites da frase que contém o trecho: quebra de linha ou fim de frase.
