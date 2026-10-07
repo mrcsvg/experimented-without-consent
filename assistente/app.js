@@ -838,16 +838,41 @@ async function abrirDocumento(file, trecho, d) {
   const pos = localizar(texto, trecho);
   const pre = document.createElement("pre");
   if (pos) {
-    pre.append(texto.slice(0, pos[0]));
-    const m = document.createElement("mark"); m.textContent = texto.slice(pos[0], pos[1]); pre.append(m);
-    pre.append(texto.slice(pos[1]));
+    // O trecho em amarelo forte; a frase inteira em volta dele, em amarelo
+    // claro, para o codificador ler o contexto sem caçar na página.
+    const ini = inicioDaFrase(texto, pos[0]);
+    const fim = fimDaFrase(texto, pos[1]);
+    pre.append(texto.slice(0, ini));
+    const frase = document.createElement("span"); frase.className = "frase";
+    frase.append(texto.slice(ini, pos[0]));
+    const m = document.createElement("mark"); m.textContent = texto.slice(pos[0], pos[1]); frase.append(m);
+    frase.append(texto.slice(pos[1], fim));
+    pre.append(frase);
+    pre.append(texto.slice(fim));
   } else {
     pre.textContent = texto;
   }
-  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado ·<a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${trecho && !pos ? " · trecho não localizado automaticamente; use a busca do navegador" : ""}</p>`;
+  const aviso = trecho ? (pos
+    ? ` · <b>trecho marcado em amarelo</b> <button class="pequeno" id="ir-trecho">ir ao trecho</button>`
+    : " · trecho não localizado automaticamente; use a busca do navegador") : "";
+  corpo.innerHTML = `<p class="nota">Documento ${doc.n || ""}${doc.tipo ? ` · ${esc(rotuloTipoCurto(E.codebook, doc.tipo))}` : ""} · texto congelado · <a href="${esc(url)}" target="_blank" rel="noopener">baixar o arquivo congelado</a>${aviso}</p>`;
   corpo.appendChild(pre);
   const marca = pre.querySelector("mark");
+  const ir = document.getElementById("ir-trecho");
+  if (ir && marca) ir.onclick = () => marca.scrollIntoView({ block: "center" });
   if (marca) setTimeout(() => marca.scrollIntoView({ block: "center" }), 30);
+}
+
+// Limites da frase que contém o trecho: quebra de linha ou fim de frase.
+function inicioDaFrase(t, i) {
+  const nl = t.lastIndexOf("\n", i - 1);
+  const pt = Math.max(t.lastIndexOf(". ", i - 1), t.lastIndexOf("! ", i - 1), t.lastIndexOf("? ", i - 1));
+  if (nl < 0 && pt < 0) return 0;
+  return nl >= pt ? nl + 1 : pt + 2;
+}
+function fimDaFrase(t, j) {
+  const cands = [t.indexOf("\n", j), ...[". ", "! ", "? "].map((s) => { const k = t.indexOf(s, j); return k < 0 ? -1 : k + 1; })].filter((x) => x >= 0);
+  return cands.length ? Math.min(...cands) : t.length;
 }
 
 // -------------------------------------------------------------------- ensaio
