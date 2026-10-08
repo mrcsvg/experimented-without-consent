@@ -2,13 +2,14 @@
 // core.mjs. Os dados congelados vêm do site do corpus; as respostas vão para
 // /api/state, neste mesmo site, e ficam também no navegador.
 //
-// Versão B (04/10/2026): o codificador classifica os documentos, dá uma nota a
-// cada trecho e a resposta de cada variável é calculada do critério congelado.
+// Versão B (04/10/2026, revista em 05 e 07/10): o codificador dá uma nota a cada
+// trecho e a resposta de cada variável é calculada do critério congelado. O tipo
+// de cada documento e o log de palavras-chave vêm do corpus, não do codificador.
 import {
   derivar, faltandoEtapa, etapas, fechadas, progressoEtapas, primeiraEtapaIncompleta,
   trechosDaVariavel, aplicarNotas, registroPadrao,
   progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao,
-  logSugerido, chaveDoLink, mesclar, NAO_E_ISSO,
+  chaveDoLink, mesclar, NAO_E_ISSO,
 } from "./core.mjs";
 
 // Em localhost, ?corpus=... aponta para uma cópia local do site do corpus
@@ -205,7 +206,7 @@ function telaErro(msg) {
 
 const ABERTURA = `
 <h1>Segunda codificação</h1>
-<p class="suave">Prof. Marcelo Maia · 26 serviços · 10 etapas por serviço</p>
+<p class="suave">Prof. Marcelo Maia · 26 serviços · 9 etapas por serviço</p>
 
 <h2>O que o estudo mede</h2>
 <p>Plataformas online testam coisas nos seus usuários todos os dias. Elas mudam o que aparece no topo da lista, o texto de uma notificação, a posição de um botão, e medem o efeito comparando grupos de pessoas. Isso se chama experimentação comportamental e é rotina da indústria.</p>
@@ -221,9 +222,9 @@ const ABERTURA = `
 <p><b>Esta página não mostra o que a primeira passada codificou, nem os resultados do estudo.</b> Se você soubesse o que se espera encontrar, sua leitura deixaria de ser uma segunda medição.</p>
 
 <h2>O que você faz</h2>
-<p>A página leva você por um serviço de cada vez: as nove variáveis e o log de palavras-chave, <b>uma por tela</b>. O tipo de cada documento (política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog) já vem dado com o corpus e aparece ao lado de cada trecho. O tipo decide se o documento obriga a plataforma ou não. Se achar que um tipo está errado, anote em Notas.</p>
+<p>A página leva você por um serviço de cada vez: as nove variáveis, <b>uma por tela</b>. O tipo de cada documento (política de privacidade, termos de uso, aviso de pesquisa, central de ajuda, blog) já vem dado com o corpus e aparece ao lado de cada trecho. O tipo decide se o documento obriga a plataforma ou não. Se achar que um tipo está errado, anote em Notas.</p>
 <p>Em cada variável a página mostra os trechos dos documentos que falam do assunto, vindos de duas buscas. A busca por palavra-chave conta todas as ocorrências dos 12 termos do protocolo no texto congelado e mostra até três por palavra em cada documento, as primeiras fora de menu e índice; quando há mais, "abrir no documento" mostra o texto inteiro com todas as ocorrências marcadas em amarelo. A busca do modelo localiza passagens que descrevem experimentação sem usar nenhum dos termos. <b>Você dá uma nota a cada trecho</b>: o que aquele trecho mostra, nas opções da variável, ou "não se aplica" quando o trecho fala de outra coisa, usa a palavra em outro sentido ou é só índice, sumário ou título de seção. Pode comentar qualquer trecho.</p>
-<p>A trilha no alto da tela mostra as dez etapas com a conta de trechos julgados em cada uma. Pode clicar em qualquer etapa, na ordem que preferir; o serviço só fica concluído quando as dez estiverem confirmadas.</p>
+<p>A trilha no alto da tela mostra as nove etapas com a conta de trechos julgados em cada uma. Pode clicar em qualquer etapa, na ordem que preferir; o serviço só fica concluído quando as nove estiverem confirmadas.</p>
 <p>A <b>resposta da variável é calculada das suas notas</b>, pela regra do codebook: o nível mais alto na V1, a união nas de múltipla escolha, o degrau mais alto na V5, qualquer trecho nas de Sim/Não, os tipos dos documentos na V9. A caixa "Resposta calculada" mostra o resultado. Se discordar do cálculo, "corrigir à mão" abre os campos. Há um comentário por variável. Quando estiver satisfeito, <b>Confirmar e seguir</b>.</p>
 <p>Em cada tela há o botão <b>ver sugestão do copiloto</b>. Ele mostra o que um modelo de linguagem daria de nota a cada trecho, e <b>aplicar sugestão</b> preenche só os trechos que você ainda não julgou. A decisão é sua. O copiloto só viu o texto congelado, e o prompt dele está publicado, no link dentro da própria caixa.</p>
 <p>Pode parar a qualquer momento e fechar a página. Quando voltar, ela abre onde você parou. O botão <b>Voltar</b> deixa rever o que já confirmou.</p>
@@ -292,9 +293,7 @@ function render(manterScroll = false) {
   if (!E.servico) { telaContinuar(); return; }
   const lista = etapas(E.codebook);
   if (E.i >= lista.length) return renderResumo();
-  const etapa = lista[E.i];
-  if (etapa === "KW") return renderKW();
-  return renderVariavel(etapa, manterScroll);
+  return renderVariavel(lista[E.i], manterScroll);
 }
 
 // ---------------------------------------------------------------- cabeçalho
@@ -317,13 +316,13 @@ function cabecalhoServico(d) {
   const n = derivar(cb, reg, d).n;
   const atual = lista[E.i];
   // Toda etapa é clicável, em qualquer ordem: a trava é da confirmação, não da
-  // navegação. Só o resumo espera as dez confirmadas.
+  // navegação. Só o resumo espera as nove confirmadas.
   const trilha = lista.map((e, k) => {
     const cls = k === E.i ? "atual" : f[e] ? "fechado" : "aberto";
     const c = n[e];
     const conta = c ? `<small>${c.julgados}/${c.total}</small>` : "";
     return `<button class="${cls}" data-passo="${k}" title="${c ? `${c.julgados} de ${c.total} trechos julgados` : "log de palavras-chave"}">${esc(rotuloEtapa(e))}${conta}</button>`;
-  }).join("") + `<button class="${E.i >= lista.length ? "atual" : tudo ? "fechado" : "futuro"}" data-passo="${lista.length}" ${tudo ? "" : "disabled"} title="${tudo ? "" : "abre quando as dez etapas estiverem confirmadas"}">resumo</button>`;
+  }).join("") + `<button class="${E.i >= lista.length ? "atual" : tudo ? "fechado" : "futuro"}" data-passo="${lista.length}" ${tudo ? "" : "disabled"} title="${tudo ? "" : "abre quando as nove etapas estiverem confirmadas"}">resumo</button>`;
   const contaAtual = atual && n[atual] ? ` · ${esc(atual)}: ${n[atual].julgados} de ${n[atual].total} trechos julgados` : "";
   return `<div class="cabecalho">
     <div class="linha1"><h1>${esc(E.servico)}</h1>
@@ -378,7 +377,6 @@ function mostrarFalta(pend, etapa, d) {
       return `<li><b>Trechos:</b> ${esc(motivo)}.${quais} Dê uma nota a cada um, ou use "marcar os restantes como não se aplica".</li>`;
     }
     if (chave === "confirmar") return `<li>${esc(motivo)}: clique de novo em Confirmar.</li>`;
-    if (chave === "keyword_log") return `<li><b>Log de palavras-chave:</b> não pode ficar vazio.</li>`;
     const v = E.codebook.variaveis.find((x) => x.vid === etapa);
     const c = v && v.campos.find((x) => x.chave === chave);
     if (c) return `<li><b>${esc(c.rotulo)}:</b> falta ${esc(motivo)}</li>`;
@@ -697,34 +695,6 @@ function ligarCalculo(v, reg, d) {
   }
 }
 
-// ---------------------------------------------------------- palavras-chave
-
-function renderKW() {
-  const cb = E.codebook;
-  const v = cb.variaveis.find((x) => x.vid === "KW");
-  const d = E.cache.get(E.servico);
-  const reg = registro(E.servico);
-  if (!reg.keyword_log) { reg.keyword_log = logSugerido(d.piso); sincronizar(E.servico); }
-  mostrar(`${cabecalhoServico(d)}
-    <div class="pergunta">[KW] ${esc(v.pergunta || v.titulo)}</div>
-    <p class="lembrete">${esc(v.lembrete)} <a href="#" id="criterio">critério completo</a></p>
-    <p class="suave">O log já vem preenchido com as contagens automáticas, documento por documento. Corrija o que for falso positivo. O que ficar aqui é o registro do que você procurou.</p>
-    <div class="campo"><label class="rotulo" for="f-keyword_log">${esc(v.campos[0].rotulo)}</label>
-      <textarea id="f-keyword_log" style="min-height:160px">${esc(reg.keyword_log || "")}</textarea></div>
-    <div id="falta"></div>
-    <div class="botoes"><button class="secundario" id="voltar">Voltar</button><button class="primario" id="confirmar">Confirmar e seguir</button><span class="recibo"></span></div>
-    ${blocoNotasGerais(reg)}
-    ${rodape()}`);
-  ligarCabecalho(d);
-  pintarRecibos();
-  ligarNotasGerais(reg);
-  document.getElementById("criterio").onclick = (ev) => { ev.preventDefault(); abrirCriterio(v); };
-  const ta = document.getElementById("f-keyword_log");
-  ta.addEventListener("input", () => { reg.keyword_log = ta.value; editar("KW"); });
-  document.getElementById("voltar").onclick = voltarEtapa;
-  document.getElementById("confirmar").onclick = () => confirmarEtapa("KW", d);
-}
-
 // ------------------------------------------------------------------- resumo
 
 function renderResumo() {
@@ -733,7 +703,7 @@ function renderResumo() {
   const reg = registro(E.servico);
   const x = derivar(cb, reg, d);
   const docs = d.docs.map((doc) => `<div><span class="suave">${doc.n}.</span> ${esc(doc.titulo || doc.file)}: <b>${esc(rotuloTipo(cb, doc.tipo) || "(sem tipo)")}</b>${registroDoDoc(cb, doc) ? ` · ${registroDoDoc(cb, doc) === "binding" ? "vinculante" : "não vinculante"}` : ""}</div>`).join("");
-  const linhas = cb.variaveis.map((v) => {
+  const linhas = cb.variaveis.filter((v) => etapas(cb).includes(v.vid)).map((v) => {
     const valores = v.campos.filter((c) => c.tipo !== "text" && x.origem[c.chave] !== "fixo").map((c) => {
       const val = x.campos[c.chave];
       const t = Array.isArray(val) ? val.join(", ") : (val || "");
@@ -749,7 +719,7 @@ function renderResumo() {
   const proximo = proximoServicoPorConfirmacao(cb, E.records, E.servico);
   mostrar(`${cabecalhoServico(d)}
     <h2>Resumo de ${esc(E.servico)}</h2>
-    <p class="suave">As dez etapas estão confirmadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
+    <p class="suave">As nove etapas estão confirmadas. Confira e siga para o próximo serviço, ou volte para rever.</p>
     <div class="caixa"><b>Documentos</b>${docs}</div>
     <div class="caixa resumo"><table>${linhas}</table></div>
     ${reg.notes ? `<div class="caixa papel"><b>Notas:</b> ${esc(reg.notes)}</div>` : ""}

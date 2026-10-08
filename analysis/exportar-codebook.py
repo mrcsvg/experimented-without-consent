@@ -178,7 +178,8 @@ LEMBRETES = {
           "impacto não conta, nem avaliação de risco do DSA fora dos documentos ao usuário; nesses casos, diga no comentário.",
     "V9": "Os trechos que receberam nível na V1 já entram marcados; desmarque o que não divulga experimentação e marque o que "
           "faltar. Os locais e o registro são calculados do tipo de cada documento.",
-    "KW": "O log já vem com a contagem bruta por documento. Corrija os números, tirando o que você marcou como \"não se aplica\".",
+    "KW": "Registro automático, sem tela: a contagem bruta de cada termo por documento vem do corpus, e a triagem é a nota "
+          "que você deu a cada trecho.",
 }
 
 # O que fazer em cada pergunta avulsa, dito na própria caixa.
@@ -191,6 +192,20 @@ AJUDA_TELA = {
     "v4_region_gated": "Só se testa capturando de dentro e de fora da UE. Você lê texto congelado, capturado da UE, "
                        "então fica como não verificável. Fora do cálculo de concordância.",
     "v6_which": "Nome do programa e como ele funciona, em uma linha.",
+}
+
+
+# O log de palavras-chave (KW) deixou de ser etapa em 07/10/2026: a página grava a
+# contagem bruta por documento (do piso) e a triagem são as notas por trecho. O
+# exportado diz isso; `codebook.py` e `coding_flow.py` (notebook antigo) ainda o
+# tratam como campo digitado.
+KW_AUTOMATICO = {
+    "titulo": "Log de palavras-chave (automático)",
+    "pergunta": "O que a busca por palavra-chave contou em cada documento?",
+    "guia_html": "<p><b>O que é.</b> A contagem de cada um dos 12 termos do protocolo, documento por documento, "
+                 "no texto congelado. Não é uma etapa: a página grava a contagem sozinha, do corpus.</p>"
+                 "<p><b>Por que existe.</b> A contagem torna cada No verificável: o que a busca achou está aqui, "
+                 "e o que foi descartado como \"não se aplica\" está nas notas por trecho.</p>",
 }
 
 
@@ -222,6 +237,7 @@ def exportar() -> dict:
                 **({"tela": ROTULOS_TELA[c.chave]} if c.chave in ROTULOS_TELA else {}),
                 **({"ajuda_tela": AJUDA_TELA[c.chave]} if c.chave in AJUDA_TELA else {}),
             } for c in v.campos],
+            **(KW_AUTOMATICO if v.vid == "KW" else {}),
         })
     return {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -274,6 +290,10 @@ def _self_test() -> int:
     checar("dez variáveis na ordem V1..V9, KW",
            vids == ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "KW"])
     checar("26 serviços, na ordem do instrumento", d["servicos"] == list(C.SERVICOS) and len(d["servicos"]) == 26)
+    kw = next(v for v in d["variaveis"] if v["vid"] == "KW")
+    checar("KW é registro automático: sem notas por trecho; título, pergunta, lembrete e guia dizem isso",
+           "KW" not in d["notas"] and "automático" in kw["titulo"] and "contou" in kw["pergunta"]
+           and "automático" in kw["lembrete"].lower() and "sozinha" in kw["guia_html"])
     for v in d["variaveis"]:
         checar(f"{v['vid']}: pergunta, lembrete e guia presentes",
                bool(v["pergunta"]) and bool(v["lembrete"]) and bool(v["guia_html"]))

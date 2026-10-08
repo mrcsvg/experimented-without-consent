@@ -247,17 +247,24 @@ export function derivar(codebook, reg, d) {
       campos[campoTexto.chave] = evidencias[vid];
     }
   }
-  campos.keyword_log = reg.keyword_log || "";
+  // O log de palavras-chave não é digitado (07/10/2026): é a contagem bruta por
+  // documento, do corpus. A triagem são as notas por trecho. Log digitado em
+  // registro antigo é ignorado.
+  campos.keyword_log = logSugerido(d.piso);
   campos.notes = reg.notes || "";
   return { campos, evidencias, origem, n };
 }
 
-export function etapas(codebook) { return codebook.variaveis.map((v) => v.vid); }
+// As etapas da trilha são as variáveis com notas por trecho (V1..V9). O log de
+// palavras-chave (KW) é registro automático, não etapa.
+export function etapas(codebook) {
+  return codebook.variaveis.filter((v) => (codebook.notas || {})[v.vid]).map((v) => v.vid);
+}
 
 // A trava por etapa. Devolve [[o que, motivo], ...]; vazia = pode confirmar.
 export function faltandoEtapa(codebook, etapa, reg, d) {
   reg = reg || {};
-  if (etapa === "KW") return vazio(reg.keyword_log) ? [["keyword_log", "log de palavras-chave"]] : [];
+  if (!etapas(codebook).includes(etapa)) return [];
   const pend = [];
   const trechos = trechosDaVariavel(etapa, d, reg);
   const semNota = trechos.filter((t) => t.origem !== "v1" && notaDe(reg, etapa, t.id) === undefined).length;

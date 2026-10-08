@@ -74,7 +74,9 @@ document (privacy policy, terms, separate research notice, help centre, blog)
 is corpus metadata, fixed once in `analysis/tipos-doc.json` before coding and
 shown next to every excerpt; it decides the document's register (binding or
 not) and is not a coder judgement, so the register of the V1 ceiling and the
-V9 locations are computed from it. Every answer is saved to
+V9 locations are computed from it. The keyword log is recorded automatically
+from the corpus counts per document; the coder's triage is the rating given to
+each excerpt. Every answer is saved to
 `/api/state`, which commits it to a data branch of this repository, so each
 coding carries a timestamp. The link carries a key in its fragment; a second key
 opens a rehearsal mode that writes to a separate file.

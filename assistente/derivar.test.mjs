@@ -19,10 +19,13 @@ const porVid = Object.fromEntries(CB.variaveis.map((v) => [v.vid, v]));
 // chegam em d.docs, nunca do registro do codificador.
 const HIT1 = { termo: "experiment", kwic: "…we may experiment with features…", flag: null, file: "s/01.md", n: 1, total_no_doc: 2 };
 const HIT8 = { termo: "ethics", kwic: "…Our Code of Ethics…", flag: "falso positivo comum", file: "s/02.md", n: 2, total_no_doc: 1 };
+const DOCS = [
+  { n: 1, file: "s/01.md", titulo: "Privacy Policy", url: "https://s/privacy", tipo: "privacy policy", registro: "binding", log_line: "experiment:2 / ethics:0" },
+  { n: 2, file: "s/02.md", titulo: "Engineering Blog", url: "https://s/blog", tipo: "blog/PR/site de pesquisa", registro: "non-binding", log_line: "experiment:0 / ethics:1" },
+];
 const D = {
-  docs: [{ n: 1, file: "s/01.md", titulo: "Privacy Policy", url: "https://s/privacy", tipo: "privacy policy", registro: "binding" },
-         { n: 2, file: "s/02.md", titulo: "Engineering Blog", url: "https://s/blog", tipo: "blog/PR/site de pesquisa", registro: "non-binding" }],
-  piso: { por_variavel: { V1: [HIT1], V3: [HIT1], V8: [HIT8] } },
+  docs: DOCS,
+  piso: { docs: DOCS, por_variavel: { V1: [HIT1], V3: [HIT1], V8: [HIT8] } },
   citacoes: {
     V1: [{ doc: 2, file: "s/02.md", onde: "§1", verbatim: "we run A/B tests" }],
     V2: [{ doc: 1, file: "s/01.md", onde: "§2", verbatim: "research that improves our services" }],
@@ -165,17 +168,17 @@ test("correção à mão substitui o calculado e fica marcada", () => {
   assert.equal(x.campos.v1_register, "non-binding", "o que não foi corrigido continua calculado");
 });
 
-test("comentário da variável entra na evidência; keyword_log e notes passam direto", () => {
-  const r = reg({ comentarios: { V7: "tema nunca aparece" }, keyword_log: "01.md: experiment:2", notes: "nota geral" });
+test("comentário da variável entra na evidência; o log de palavras-chave vem do corpus; notes passa direto", () => {
+  const r = reg({ comentarios: { V7: "tema nunca aparece" }, keyword_log: "digitado numa versão antiga", notes: "nota geral" });
   const c = derivar(CB, r, D).campos;
   assert.match(c.v7_evidence, /Nenhum trecho localizado para esta variável/);
   assert.match(c.v7_evidence, /Comentário: tema nunca aparece/);
-  assert.equal(c.keyword_log, "01.md: experiment:2");
+  assert.equal(c.keyword_log, "01.md: experiment:2 / ethics:0\n02.md: experiment:0 / ethics:1", "contagem bruta do piso; o digitado é ignorado");
   assert.equal(c.notes, "nota geral");
 });
 
 test("o tipo do documento é metadado do corpus: não há passo de documentos", () => {
-  assert.deepEqual(etapas(CB), ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "KW"]);
+  assert.deepEqual(etapas(CB), ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"], "nove etapas: KW não é etapa (07/10/2026)");
   assert.equal(core.DOCS, undefined, "a constante do passo saiu");
   assert.equal(core.aplicarTipos, undefined, "a aplicação de tipos pelo copiloto saiu");
   const notas = { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } } };
@@ -211,10 +214,10 @@ test("trava: trechos sem nota, extras e ausência confirmada", () => {
   assert.deepEqual(faltandoEtapa(CB, "V6", v6sim, D), [["v6_which", "exigido porque v6_optin_beta = Yes"]]);
   const v9 = reg({ notas: { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "x" } } } });
   assert.deepEqual(faltandoEtapa(CB, "V9", v9, D), [["trechos", "1 trecho sem nota"]], "o herdado da V1 já conta como julgado");
-  assert.deepEqual(faltandoEtapa(CB, "KW", reg(), D), [["keyword_log", "log de palavras-chave"]]);
+  assert.deepEqual(faltandoEtapa(CB, "KW", reg(), D), [], "KW não é etapa: nada a travar");
 });
 
-test("fechadas exige confirmação; progresso conta 10 etapas; retoma na primeira aberta", () => {
+test("fechadas exige confirmação; progresso conta nove etapas; retoma na primeira aberta", () => {
   // Uma confirmação DOCS gravada pela versão anterior é ignorada.
   const r = reg({ notas: { V1: { [ID_HIT1]: { nota: "2" }, "c:V1-1": { nota: "3" } } }, confirmadas: { DOCS: true } });
   const f = fechadas(CB, r, D);
@@ -222,7 +225,7 @@ test("fechadas exige confirmação; progresso conta 10 etapas; retoma na primeir
   assert.equal(f.V1, false, "sem o clique em Confirmar não fecha");
   r.confirmadas.V1 = true;
   assert.equal(fechadas(CB, r, D).V1, true);
-  assert.deepEqual(progressoEtapas(CB, r, D), { feitas: 1, total: 10 });
+  assert.deepEqual(progressoEtapas(CB, r, D), { feitas: 1, total: 9 });
   assert.equal(primeiraEtapaIncompleta(CB, r, D), 1);
   assert.equal(primeiraEtapaIncompleta(CB, reg(), D), 0);
 });
@@ -250,7 +253,6 @@ test("compatibilidade: um registro derivado completo passa na trava antiga de ca
       V8: { [idDoHit(HIT8)]: { nota: "x" } },
     },
     extras: { v3_targets: "features", v4_mapped_purpose: "improve", v4_region_gated: "No", v6_which: "" },
-    keyword_log: "01.md: experiment:2",
   });
   const c = derivar(CB, r, D).campos;
   for (const v of CB.variaveis) {
@@ -261,8 +263,8 @@ test("compatibilidade: um registro derivado completo passa na trava antiga de ca
 test("progresso por confirmação: conta etapas confirmadas; próximo serviço dá a volta", async () => {
   const { progressoConfirmado, concluidoConfirmado, proximoServicoPorConfirmacao } = await import("./core.mjs");
   const todas = Object.fromEntries(etapas(CB).map((e) => [e, true]));
-  assert.deepEqual(progressoConfirmado(CB, {}), { feitas: 0, total: 10 });
-  assert.deepEqual(progressoConfirmado(CB, { confirmadas: { DOCS: true, V1: true } }), { feitas: 1, total: 10 }, "DOCS antigo não conta");
+  assert.deepEqual(progressoConfirmado(CB, {}), { feitas: 0, total: 9 });
+  assert.deepEqual(progressoConfirmado(CB, { confirmadas: { DOCS: true, V1: true } }), { feitas: 1, total: 9 }, "DOCS antigo não conta");
   assert.equal(concluidoConfirmado(CB, { confirmadas: todas }), true);
   const cb = { ...CB, servicos: ["A", "B", "C"] };
   assert.equal(proximoServicoPorConfirmacao(cb, { A: { confirmadas: todas } }, null), "B");

@@ -136,3 +136,31 @@ trechos de palavra-chave caíam em linha de menu, índice ou título.
 - **Copiloto.** Os ids de trecho que saíram do piso invalidavam 18 dos 26
   arquivos. Decisão de Marcus: rodar o copiloto de novo, mesmo prompt, sobre
   o piso novo (ver `copiloto/index.json` para a data e os tokens).
+
+## O log de palavras-chave sai da trilha, 07/10/2026
+
+Marcus, no teste local: "acho que não precisamos da aba KW". A etapa pedia ao
+codificador que corrigisse a contagem bruta de cada termo por documento,
+tirando o que marcou como "não se aplica". Na versão B isso é redundante e
+incoerente: a triagem já está nas notas por trecho, e a página mostra até três
+ocorrências por palavra e documento, então o codificador não tem como corrigir
+uma contagem de doze.
+
+- `core.mjs`: `etapas` são as variáveis com notas por trecho (V1..V9); KW não
+  é etapa e `faltandoEtapa` não trava nela. `derivar` grava `keyword_log` com
+  a contagem bruta do piso (`logSugerido`), ignorando qualquer log digitado em
+  registro antigo. A trava antiga por campo (`faltando`) continua igual, para
+  bater com o Python.
+- `app.js`: a tela KW saiu; abertura, trilha e resumo falam em nove etapas.
+- `exportar-codebook.py`: KW continua no `codebook.json` como registro
+  automático (`KW_AUTOMATICO`: título, pergunta, lembrete e guia dizem que a
+  contagem vem do corpus e a triagem são as notas); o self-test confere.
+- `pre-entrega.py`: a página não pode ter `renderKW` nem `keyword_log`; a
+  ponte do κ não escreve o log à mão.
+
+O copiloto não muda: ele nunca recebeu a KW (`VARIAVEIS_DO_COPILOTO`), e o
+`prompt_sha` não depende dela. O κ também não: `keyword_log` nunca foi pareado
+pelo `compute-agreement.py`. A alegação do artigo de que cada No é auditável
+continua de pé, com base melhor: a contagem por documento está publicada no
+piso e gravada no registro, e cada ocorrência mostrada tem a nota do
+codificador.

@@ -143,8 +143,9 @@ def pagina_no_repositorio(p: Placar) -> None:
              all(x in vi for x in ("analysis/", "instrument/", "notebooks/", "docs/")))
     p.checar("o instrumento antigo continua no repositório, fora da raiz",
              (RAIZ / "instrument" / "index.html").exists())
-    p.checar("a página calcula a resposta das notas (derivar) e não pergunta o tipo dos documentos",
-             "derivar(" in app and "aplicarNotas" in app and "renderDocs" not in app and "docs_tipo" not in app)
+    p.checar("a página calcula a resposta das notas (derivar); não pergunta o tipo dos documentos nem pede o log de palavras-chave",
+             "derivar(" in app and "aplicarNotas" in app and "renderDocs" not in app and "docs_tipo" not in app
+             and "renderKW" not in app and "keyword_log" not in app)
     p.checar("os notebooks do Colab saíram",
              not (RAIZ / "notebooks" / "04-revisao-assistida.ipynb").exists()
              and not (RAIZ / "analysis" / "gerar-notebook-revisao.py").exists())
@@ -224,7 +225,7 @@ def caminho_do_codificador(p: Placar, completo: bool) -> None:
     p.checar("codebook e índice do corpus respondem", True)
     p.checar("codebook: 10 variáveis, 26 serviços, critério congelado com SHA",
              len(cb["variaveis"]) == 10 and len(cb["servicos"]) == 26
-             and all(v["crit_sha"] for v in cb["variaveis"] if v["vid"] != "KW"))
+             and all(v["crit_sha"] for v in cb["variaveis"] if v["vid"] != "KW") and "KW" not in cb["notas"])
     p.checar("corpus completo pelo site", len(idx["services"]) == 26 and sum(len(s["docs"]) for s in idx["services"]) == 157,
              f"{len(idx['services'])} serviços · {sum(len(s['docs']) for s in idx['services'])} documentos")
     p.checar("corpus é o congelado de vantagem UE",
@@ -358,7 +359,7 @@ for (const [i, nome] of ["Pinterest", "Booking.com"].entries()) {
   const sug = JSON.parse(readFileSync(`${corpus}/sugestoes/${slug}.json`, "utf8"));
   const d = { docs: piso.docs, piso, citacoes: sug.citacoes || {} };
   // O tipo de cada documento vem do piso (metadado do corpus), não do registro.
-  const reg = { service: nome, _ts: 1000 + i, notas: {}, extras: { v4_region_gated: "No", v3_targets: "x", v4_mapped_purpose: "x" }, override: {}, comentarios: {}, confirmadas: {}, keyword_log: "x" };
+  const reg = { service: nome, _ts: 1000 + i, notas: {}, extras: { v4_region_gated: "No", v3_targets: "x", v4_mapped_purpose: "x" }, override: {}, comentarios: {}, confirmadas: {} };
   for (const vid of Object.keys(cb.notas)) {
     reg.notas[vid] = {};
     const spec = cb.notas[vid];
