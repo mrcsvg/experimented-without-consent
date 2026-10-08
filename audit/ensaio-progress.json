@@ -510,7 +510,8 @@
     "V2": true,
     "V3": true,
     "V4": true,
-    "V5": true
+    "V5": true,
+    "V6": true
    },
    "v1_code": "1",
    "v1_register": "binding",
@@ -545,9 +546,9 @@
    "v9_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: este documento divulga experimentação\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: este documento divulga experimentação\n“We improve the Service, analyse performance, and maintain and improve our business. As part of these activities, we may create aggregated or otherwise deidentified data. We fix errors and ensure the Service works properly outside what is strictly contractually necessary to provide you with the Service.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, corpo da finalidade de melhoria) · nota: este documento divulga experimentação\n“We use the Personal Data that we collect for various purposes, including to develop, improve, support and provide the Service, allowing you to use its features” (Documento 2: Temu | Privacy Policy, Doc 2, abertura de “How and Why We Process Your Information and Our Legal Bases for Processing”) · nota: este documento divulga experimentação\n“We may use your customer support activity and chats with merchandise partners data to optimise our customer service support activity, for example, to improve the responses provided by our virtual assistant.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, finalidade de melhoria/otimização) · nota: este documento divulga experimentação",
    "keyword_log": "01-no-cookie-and-similar-technologies-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-no-privacy-and-cookie-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-no-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-support-c2-doc-in-f-55.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
    "notes": "",
-   "_ts": 1791426321143,
+   "_ts": 1791426322470,
    "service": "Temu"
   }
  },
- "saved_at": "2026-10-08T02:25:21.143Z"
+ "saved_at": "2026-10-08T02:25:22.470Z"
 }
