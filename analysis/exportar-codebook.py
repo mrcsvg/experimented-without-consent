@@ -154,6 +154,33 @@ ROTULOS_TELA = {
     "v9_register": "Registro agregado",
 }
 
+# A linha abaixo da pergunta, em cada tela (07/10/2026). As do instrumento
+# congelado (GLOSA.lembrete) falavam em "marcar" campos e em "dizer em que
+# documento"; na versão B o codificador dá nota a trechos, o tipo do documento
+# já vem dado e a resposta é calculada. Reescritas para o que a tela pede.
+LEMBRETES = {
+    "V1": "Dê a cada trecho o nível que ele mostra, de 1 a 3, ou \"não se aplica\". A resposta é o nível mais alto; "
+          "o tipo do documento já vem dado. Período grátis de teste (free trial) não conta.",
+    "V2": "Marque em cada trecho os enquadramentos que ele traz; pode ser mais de um. A resposta é a união de todos.",
+    "V3": "Em cada trecho, marque o que ele mostra: nomeia o que é testado, descreve um experimento específico, preço como alvo. "
+          "Os alvos nomeados você escreve na caixa de resposta. Personalização não é alvo de teste.",
+    "V4": "Na tabela de bases legais, ache a finalidade que cobre os testes (em geral, melhorar o serviço) e marque em cada trecho "
+          "a base declarada para ela. Sem tabela nos documentos, a resposta fica \"não declarada\". "
+          "O nome da finalidade você escreve na caixa de resposta.",
+    "V5": "Em cada trecho, o degrau que ele mostra; a resposta é o mais alto. Só sobre experimentação: banner de cookies que rege "
+          "publicidade é \"só opt-out de cookies ou anúncios\", não \"opt-out dedicado\".",
+    "V6": "Marque os trechos que descrevem um programa beta ou opt-in e escreva qual é na caixa de resposta. "
+          "Beta por adesão é diferente da V5: não é saída dos experimentos, e as duas nunca se somam.",
+    "V7": "Marque só os trechos em que a plataforma avisa, depois, que a pessoa participou. Aviso de tratamento de dados, "
+          "de decisão automatizada ou de mudança no serviço não conta. Sem trecho, a resposta é No; se o tema aparece e o "
+          "mecanismo não, diga no comentário.",
+    "V8": "Marque só os trechos que mencionam revisão ética, comitê ou avaliação de risco de experimentos. Linguagem vaga de "
+          "impacto não conta, nem avaliação de risco do DSA fora dos documentos ao usuário; nesses casos, diga no comentário.",
+    "V9": "Os trechos que receberam nível na V1 já entram marcados; desmarque o que não divulga experimentação e marque o que "
+          "faltar. Os locais e o registro são calculados do tipo de cada documento.",
+    "KW": "O log já vem com a contagem bruta por documento. Corrija os números, tirando o que você marcou como \"não se aplica\".",
+}
+
 # O que fazer em cada pergunta avulsa, dito na própria caixa.
 AJUDA_TELA = {
     "v3_targets": "O que o texto diz que é testado: ordem dos resultados, preço, mensagem, emoção, fricção, opções padrão. "
@@ -184,7 +211,7 @@ def exportar() -> dict:
             "titulo": v.titulo,
             "regra_html": v.regra,
             "pergunta": C.pergunta(k),
-            "lembrete": C.lembrete(k),
+            "lembrete": LEMBRETES.get(v.vid, C.lembrete(k)),
             "guia_html": C.glosa_criterio(k),
             "crit_html": C.criterio(k),
             "crit_sha": C.CRIT_CONGELADO.get(k),
