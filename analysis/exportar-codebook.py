@@ -143,7 +143,7 @@ ROTULOS_TELA = {
     "v3_pricing": "Preço nomeado como alvo?",
     "v3_targets": "Alvos nomeados",
     "v4_basis": "Bases legais declaradas",
-    "v4_mapped_purpose": "Finalidade que cobre os testes",
+    "v4_mapped_purpose": "Qual finalidade da tabela cobre os testes?",
     "v4_region_gated": "Tabela de bases só da UE?",
     "v5_optout": "Saída dos experimentos",
     "v6_optin_beta": "Existe programa opt-in?",
@@ -185,8 +185,9 @@ LEMBRETES = {
 AJUDA_TELA = {
     "v3_targets": "O que o texto diz que é testado: ordem dos resultados, preço, mensagem, emoção, fricção, opções padrão. "
                   "Lista aberta; separe os itens por vírgula. Pode ficar vazio.",
-    "v4_mapped_purpose": "Qual finalidade declarada na tabela de bases legais você entendeu como a que cobre os testes. "
-                         "Em geral é algo como \"melhorar nossos serviços\". Copie o nome que o documento usa.",
+    "v4_mapped_purpose": "A tabela de bases legais lista finalidades, como \"melhorar nossos serviços\" ou \"pesquisa e "
+                         "desenvolvimento\". Escreva a que, na sua leitura, abrange os testes com usuários, com o nome que o "
+                         "documento usa. As bases marcadas acima são as dessa finalidade. Sem tabela, deixe em branco.",
     "v4_region_gated": "Só se testa capturando de dentro e de fora da UE. Você lê texto congelado, capturado da UE, "
                        "então fica como não verificável. Fora do cálculo de concordância.",
     "v6_which": "Nome do programa e como ele funciona, em uma linha.",
