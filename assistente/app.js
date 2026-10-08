@@ -480,14 +480,10 @@ function caixaCalculo(v, reg, d) {
   const linhas = v.campos.filter((c) => c.tipo !== "text").map((c) => {
     const rotulo = c.tela || c.rotulo;
     const origem = x.origem[c.chave];
-    if (origem === "fixo") {
-      // Resposta que o 2º codificador não tem como dar (core.mjs: FIXOS). Só o
-      // rótulo e o valor: a ajuda do codebook fala de "sua vantagem", e aqui não há.
-      const fixo = x.campos[c.chave];
-      return `<div class="calc-linha"><span class="rotulo">${esc(rotulo)}</span><span class="tag">fixo</span>
-        <span class="valor"><b>${esc(rotuloValor(v.vid, c.chave, fixo).texto)}</b> <span class="suave">(${esc(fixo)})</span></span>
-        ${c.ajuda_tela ? `<div class="ajuda pequeno suave" style="flex-basis:100%;margin:0">${esc(c.ajuda_tela)}</div>` : ""}</div>`;
-    }
+    // Resposta que o 2º codificador não tem como dar (core.mjs: FIXOS) não
+    // aparece: fica gravada, com uma linha na evidência, e só. Marcus, 07/10:
+    // "se não dá para calcular, só gera confusão".
+    if (origem === "fixo") return "";
     if (extras.has(c.chave)) {
       return `<div class="calc-linha"><span class="rotulo">${esc(rotulo)}</span><span class="tag">responda</span>
         ${c.ajuda_tela ? `<div class="ajuda pequeno suave" style="flex-basis:100%;margin:0">${esc(c.ajuda_tela)}</div>` : ""}${controleHtml(v.vid, c, reg.extras[c.chave], "extra-")}</div>`;
@@ -738,7 +734,7 @@ function renderResumo() {
   const x = derivar(cb, reg, d);
   const docs = d.docs.map((doc) => `<div><span class="suave">${doc.n}.</span> ${esc(doc.titulo || doc.file)}: <b>${esc(rotuloTipo(cb, doc.tipo) || "(sem tipo)")}</b>${registroDoDoc(cb, doc) ? ` · ${registroDoDoc(cb, doc) === "binding" ? "vinculante" : "não vinculante"}` : ""}</div>`).join("");
   const linhas = cb.variaveis.map((v) => {
-    const valores = v.campos.filter((c) => c.tipo !== "text").map((c) => {
+    const valores = v.campos.filter((c) => c.tipo !== "text" && x.origem[c.chave] !== "fixo").map((c) => {
       const val = x.campos[c.chave];
       const t = Array.isArray(val) ? val.join(", ") : (val || "");
       const tag = x.origem[c.chave] === "corrigido" ? ` <span class="tag corrigido">corrigida à mão</span>` : "";
