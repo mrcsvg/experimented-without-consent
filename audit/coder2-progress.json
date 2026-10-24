@@ -479,6 +479,13 @@
        "activities"
       ]
      }
+    },
+    "V4": {
+     "c:V4-1": {
+      "nota": [
+       "consent"
+      ]
+     }
     }
    },
    "extras": {},
@@ -503,11 +510,11 @@
    "v3_targets": "",
    "v3_evidence": "“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, título de finalidade sob “Legitimate Interests”) · nota: descreve um experimento específico\n“For example, when you browse the Service, we present product feeds that you might be interested in based on these information categories. Similarly, when you search for an item on Temu, we return the most relevant search and product matches based on these information categories.” (Documento 2: Temu | Privacy Policy, Doc 2, “Recommend content and products that you might be interested in”) · nota: descreve um experimento específico\n“We process your Personal Data to provide advertised products on the platform and for related analytics. Advertised products are products that are displayed more prominently on the platform.” (Documento 2: Temu | Privacy Policy, Doc 2, “On-platform advertised products, which may be personalised”) · nota: nomeia o que é testado (features, layout, ranking)\n“Information relating to products (e.g., pricing, product descriptions, availability, delivery options, and estimated delivery times) is available on the product listing page on Temu. While we strive to provide accurate information on Temu, typographical errors, inaccuracies, or omissions that relate to product information may occur.” (Documento 3: Temu | Terms of use, Doc 3, cláusula 10.2) · nota: nomeia o que é testado (features, layout, ranking)\n“abuse any promotions, discounts, or other benefits offered by us, or manipulate the price of any listed products or interfere with listings; or” (Documento 3: Temu | Terms of use, Doc 3, cláusula 3.5, item (16)) · nota: nomeia o que é testado (features, layout, ranking)",
    "v4_basis": [
-    "not stated"
+    "consent"
    ],
    "v4_mapped_purpose": "",
    "v4_region_gated": "not-verifiable (vantage)",
-   "v4_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).\nTabela de bases por região: não verificável pelo segundo codificador (texto congelado, capturado da UE).",
+   "v4_evidence": "“We use your Personal Data where this is necessary for the purposes of the legitimate interests pursued by us or a third party, provided these interests are not outweighed by your interests or fundamental rights and freedoms.” (Documento 2: Temu | Privacy Policy, Doc 2, abertura da seção “Legitimate Interests”) · nota: consentimento\nTabela de bases por região: não verificável pelo segundo codificador (texto congelado, capturado da UE).",
    "v5_optout": "none",
    "v5_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "v6_optin_beta": "No",
@@ -524,9 +531,9 @@
    "v9_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: este documento divulga experimentação\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: este documento divulga experimentação\n“We improve the Service, analyse performance, and maintain and improve our business. As part of these activities, we may create aggregated or otherwise deidentified data. We fix errors and ensure the Service works properly outside what is strictly contractually necessary to provide you with the Service.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, corpo da finalidade de melhoria) · nota: este documento divulga experimentação\n“We use the Personal Data that we collect for various purposes, including to develop, improve, support and provide the Service, allowing you to use its features” (Documento 2: Temu | Privacy Policy, Doc 2, abertura de “How and Why We Process Your Information and Our Legal Bases for Processing”) · nota: este documento divulga experimentação\n“We reserve the right to make modifications to these Terms, including, to make these Terms clearer or easier to understand, to reflect any changes or enhancements we make to the Services” (Documento 3: Temu | Terms of use, Doc 3, cláusula 1.5 dos Terms of Use) · nota: este documento divulga experimentação\n“We may use your customer support activity and chats with merchandise partners data to optimise our customer service support activity, for example, to improve the responses provided by our virtual assistant.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, finalidade de melhoria/otimização) · nota: este documento divulga experimentação",
    "keyword_log": "01-no-cookie-and-similar-technologies-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-no-privacy-and-cookie-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-no-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-support-c2-doc-in-f-55.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
    "notes": "",
-   "_ts": 1792885870681,
+   "_ts": 1792885875882,
    "service": "Temu"
   }
  },
- "saved_at": "2026-10-24T23:51:10.681Z"
+ "saved_at": "2026-10-24T23:51:15.882Z"
 }
