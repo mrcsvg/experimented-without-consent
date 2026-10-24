@@ -574,6 +574,9 @@
      },
      "c:V1-4": {
       "nota": "x"
+     },
+     "c:V1-6": {
+      "nota": "x"
      }
     }
    },
@@ -618,16 +621,14 @@
    "v7_evidence": "“Temu does not make decisions based solely on automated processing that produce a legal effect or that similarly significantly affect individuals.” (Documento 2: Temu | Privacy Policy, Doc 2, “Right to object to/opt-out of automated individual decision making”) · nota: avisa depois que a pessoa participou\n“We will provide reasonable prior notice to you of any material modifications via email or other channels in accordance with applicable laws to give you an opportunity to review them before they go into effect.” (Documento 3: Temu | Terms of use, Doc 3, cláusula 1.5) · nota: avisa depois que a pessoa participou",
    "v8_ethics": "No",
    "v8_note": "Nenhum dos 2 trechos sustenta outra resposta (todos marcados: não se aplica).",
-   "v9_where": [
-    "privacy policy"
-   ],
-   "v9_register": "binding",
-   "v9_evidence": "“We may use your customer support activity and chats with merchandise partners data to optimise our customer service support activity, for example, to improve the responses provided by our virtual assistant.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, finalidade de melhoria/otimização) · nota: este documento divulga experimentação",
+   "v9_where": [],
+   "v9_register": "",
+   "v9_evidence": "Nenhum dos 11 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "keyword_log": "01-no-cookie-and-similar-technologies-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-no-privacy-and-cookie-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-no-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-support-c2-doc-in-f-55.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
    "notes": "",
-   "_ts": 1792886275530,
+   "_ts": 1792886277016,
    "service": "Temu"
   }
  },
- "saved_at": "2026-10-24T23:57:55.530Z"
+ "saved_at": "2026-10-24T23:57:57.016Z"
 }
