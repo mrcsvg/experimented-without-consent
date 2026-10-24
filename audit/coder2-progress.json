@@ -591,7 +591,8 @@
     "V5": true,
     "V6": true,
     "V7": true,
-    "V8": true
+    "V8": true,
+    "V9": true
    },
    "v1_code": "2",
    "v1_register": "binding",
@@ -626,9 +627,9 @@
    "v9_evidence": "Nenhum dos 11 trechos sustenta outra resposta (todos marcados: não se aplica).",
    "keyword_log": "01-no-cookie-and-similar-technologies-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-no-privacy-and-cookie-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-no-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-support-c2-doc-in-f-55.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
    "notes": "",
-   "_ts": 1792886277016,
+   "_ts": 1792886278639,
    "service": "Temu"
   }
  },
- "saved_at": "2026-10-24T23:57:57.016Z"
+ "saved_at": "2026-10-24T23:57:58.639Z"
 }
