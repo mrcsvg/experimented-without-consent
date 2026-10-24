@@ -408,7 +408,56 @@
    "notes": "",
    "_ts": 1792586460234,
    "service": "Wikipedia"
+  },
+  "Temu": {
+   "notas": {
+    "V1": {
+     "c:V1-1": {
+      "nota": "2"
+     },
+     "c:V1-2": {
+      "nota": "1"
+     }
+    }
+   },
+   "extras": {},
+   "override": {},
+   "comentarios": {},
+   "confirmadas": {},
+   "v1_code": "2",
+   "v1_register": "binding",
+   "v1_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: 2 · admite testar, sem dizer como\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: 1 · só fala em melhorar o serviço",
+   "v2_framing": [],
+   "v2_evidence": "Nenhum dos 4 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v3_activities": "No",
+   "v3_specific": "No",
+   "v3_pricing": "No",
+   "v3_targets": "",
+   "v3_evidence": "Nenhum dos 5 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v4_basis": [
+    "not stated"
+   ],
+   "v4_mapped_purpose": "",
+   "v4_region_gated": "not-verifiable (vantage)",
+   "v4_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).\nTabela de bases por região: não verificável pelo segundo codificador (texto congelado, capturado da UE).",
+   "v5_optout": "none",
+   "v5_evidence": "Nenhum dos 6 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v6_optin_beta": "No",
+   "v6_which": "",
+   "v7_debrief": "No",
+   "v7_evidence": "Nenhum dos 2 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v8_ethics": "No",
+   "v8_note": "Nenhum dos 2 trechos sustenta outra resposta (todos marcados: não se aplica).",
+   "v9_where": [
+    "privacy policy"
+   ],
+   "v9_register": "binding",
+   "v9_evidence": "“In the course of providing and improving our Service, we collect your Personal Data for the purposes described in this Privacy Policy.” (Documento 2: Temu | Privacy Policy, Doc 2, seção “What Information We Collect”, parágrafo de abertura) · nota: este documento divulga experimentação\n“Improve and optimise services, features, analyse performance metrics, and improve the Service and our business” (Documento 2: Temu | Privacy Policy, Doc 2, seção “Legitimate Interests”, título da finalidade) · nota: este documento divulga experimentação",
+   "keyword_log": "01-no-cookie-and-similar-technologies-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n02-no-privacy-and-cookie-policy.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n03-no-terms-of-use.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0\n04-support-c2-doc-in-f-55.md: experiment:0 / A-B:0 / randomize:0 / test:0 / trial:0 / beta:0 / control group:0 / debrief:0 / ethics:0 / review board:0 / IRB:0 / risk assessment:0",
+   "notes": "",
+   "service": "Temu",
+   "_ts": 1792885823579
   }
  },
- "saved_at": "2026-10-21T12:41:00.234Z"
+ "saved_at": "2026-10-24T23:50:23.579Z"
 }
